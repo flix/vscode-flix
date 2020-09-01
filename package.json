@@ -17,10 +17,22 @@
 		"vscode": "^1.43.0"
 	},
 	"activationEvents": [
-		"onLanguage:plaintext"
+		"onLanguage:flix"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
+		"languages": [
+      {
+        "id": "flix",
+        "extensions": [
+          ".flix"
+        ],
+        "aliases": [
+          "flix"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
 		"configuration": {
 			"type": "object",
 			"title": "Example configuration",

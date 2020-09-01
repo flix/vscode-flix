@@ -1,3 +1,7 @@
+// Allow import of internal and external JS modules without TypeScript complaining
+// To a TypeScript proponent this is surely very bad form
+import './allowJavascriptModules'
+
 import {
   createConnection,
   TextDocuments,
@@ -14,6 +18,10 @@ import {
 } from 'vscode-languageserver'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
+
+import parser from './parser'
+
+console.log(parser())
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.

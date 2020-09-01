@@ -19,10 +19,6 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
-import parser from './parser'
-
-console.log(parser())
-
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all)
@@ -137,13 +133,14 @@ documents.onDidChangeContent(change => {
 })
 
 documents.onDidSave(listener => {
-	console.log('>>did save<<')
+	console.log('>>!!!did save!!!<<')
 })
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   // In this simple example we get the settings for every validate run.
   let settings = await getDocumentSettings(textDocument.uri)
 
+  console.log('textDocument.uri', textDocument.uri)
   // The validator creates diagnostics for all uppercase words length 2 and more
   let text = textDocument.getText()
   let pattern = /\b[A-Z]{2,}\b/g
@@ -194,7 +191,8 @@ connection.onDidChangeWatchedFiles(_change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
-  (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+  (textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+    console.log('onCompletion|textDocumentPosition', textDocumentPosition)
     // The pass parameter contains the position of the text document in
     // which code complete got requested. For the example we ignore this
     // info and always provide the same completion items.

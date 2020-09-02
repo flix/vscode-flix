@@ -34,6 +34,7 @@ let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
 
 connection.onInitialize((params: InitializeParams) => {
+  console.log('connection.onInitialize', params)
   let capabilities = params.capabilities
 
   // Does the client support the `workspace/configuration` request?
@@ -70,6 +71,7 @@ connection.onInitialize((params: InitializeParams) => {
 })
 
 connection.onInitialized(() => {
+  console.log('connection.onInitialized')
   if (hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined)
@@ -79,6 +81,14 @@ connection.onInitialized(() => {
       connection.console.log('Workspace folder change event received.')
     })
   }
+})
+
+connection.onExit(() => {
+  console.log('connection.onExit')
+})
+
+connection.onShutdown(() => {
+  console.log('connection.onShutdown')
 })
 
 // The example settings
@@ -126,17 +136,19 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
+  console.log('documents.onDidClose')
   documentSettings.delete(e.document.uri)
 })
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
+  console.log('documents.onDidChangeContent')
   validateTextDocument(change.document)
 })
 
 documents.onDidSave(listener => {
-	console.log('>>!!!did save!!!<<')
+  console.log('documents.onDidSave')
 })
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
@@ -188,6 +200,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 }
 
 connection.onDidChangeWatchedFiles(_change => {
+  console.log('connection.onDidChangeWatchedFiles')
   // Monitored files have change in VS Code
   connection.console.log('We received a file change event')
 })
@@ -195,7 +208,7 @@ connection.onDidChangeWatchedFiles(_change => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
   (textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-    console.log('onCompletion|textDocumentPosition', textDocumentPosition)
+    console.log('connection.onCompletion', textDocumentPosition)
     // The pass parameter contains the position of the text document in
     // which code complete got requested. For the example we ignore this
     // info and always provide the same completion items.
@@ -218,6 +231,7 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
   (item: CompletionItem): CompletionItem => {
+    console.log('connection.onCompletionResolve', item)
     if (item.data === 1) {
       item.detail = 'TypeScript details'
       item.documentation = 'TypeScript documentation'

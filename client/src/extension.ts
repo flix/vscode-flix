@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { workspace, ExtensionContext } from 'vscode'
+import * as vscode from 'vscode'
 
 import {
   LanguageClient,
@@ -10,7 +10,7 @@ import {
 
 let client: LanguageClient
 
-export function activate(context: ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
@@ -34,7 +34,7 @@ export function activate(context: ExtensionContext) {
     documentSelector: [{ scheme: 'file', language: 'flix' }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+      fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
     }
   }
 

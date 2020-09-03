@@ -83,6 +83,10 @@ connection.onInitialized(() => {
   }
 })
 
+connection.onNotification('ready', params => {
+  console.log('onNotification:ready', params)
+})
+
 connection.onExit(() => {
   console.log('connection.onExit')
 })

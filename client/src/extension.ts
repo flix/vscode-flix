@@ -48,6 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Start the client. This will also launch the server
   client.start()
+
+  setTimeout(() => {
+    // waiting for server to be ready - inexplicably this does not have an event
+    client.sendNotification('ready')
+  }, 2000)
 }
 
 export function deactivate(): Thenable<void> | undefined {

@@ -1,14 +1,14 @@
 {
-	"name": "lsp-sample",
+	"name": "flix",
 	"description": "A language server example",
-	"author": "Microsoft Corporation",
+	"author": "Flix",
 	"license": "MIT",
 	"version": "1.0.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/flix/vscode-flix"
 	},
-	"publisher": "vscode-samples",
+	"publisher": "flix",
 	"categories": [],
 	"keywords": [
 		"multi-root ready"

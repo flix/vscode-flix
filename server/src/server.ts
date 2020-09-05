@@ -15,7 +15,7 @@ import {
 } from 'vscode-languageserver'
 
 import {
-  handleCompletion, handleCompletionResolve
+  handleCompletion, handleCompletionResolve, handleReady, handleExit
 } from './handlers'
 
 // Used to spawn the java process that runs the flix compiler
@@ -84,18 +84,9 @@ connection.onInitialized((parameters) => {
   }
 })
 
-connection.onNotification('ready', ({ extensionPath }) => {
-  console.log('Should initialise the compiler in', extensionPath)
-  connection.sendNotification('ready')
-})
+connection.onNotification('ready', handleReady)
 
-connection.onExit(() => {
-  console.log('connection.onExit')
-})
-
-connection.onShutdown(() => {
-  console.log('connection.onShutdown')
-})
+connection.onExit(handleExit)
 
 // The example settings
 interface ExampleSettings {

@@ -10,12 +10,13 @@ import {
   ProposedFeatures,
   InitializeParams,
   DidChangeConfigurationNotification,
-  CompletionItem,
-  CompletionItemKind,
-  TextDocumentPositionParams,
   TextDocumentSyncKind,
   InitializeResult
 } from 'vscode-languageserver'
+
+import {
+  handleCompletion, handleCompletionResolve
+} from './handlers'
 
 // Used to spawn the java process that runs the flix compiler
 import { spawn } from 'child_process'
@@ -210,43 +211,9 @@ connection.onDidChangeWatchedFiles(_change => {
   connection.console.log('We received a file change event')
 })
 
-// This handler provides the initial list of the completion items.
-connection.onCompletion(
-  (textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-    console.log('connection.onCompletion', textDocumentPosition)
-    // The pass parameter contains the position of the text document in
-    // which code complete got requested. For the example we ignore this
-    // info and always provide the same completion items.
-    return [
-      {
-        label: 'TypeScript',
-        kind: CompletionItemKind.Text,
-        data: 1
-      },
-      {
-        label: 'JavaScript',
-        kind: CompletionItemKind.Text,
-        data: 2
-      }
-    ]
-  }
-)
+connection.onCompletion(handleCompletion)
 
-// This handler resolves additional information for the item selected in
-// the completion list.
-connection.onCompletionResolve(
-  (item: CompletionItem): CompletionItem => {
-    console.log('connection.onCompletionResolve', item)
-    if (item.data === 1) {
-      item.detail = 'TypeScript details'
-      item.documentation = 'TypeScript documentation'
-    } else if (item.data === 2) {
-      item.detail = 'JavaScript details'
-      item.documentation = 'JavaScript documentation'
-    }
-    return item
-  }
-)
+connection.onCompletionResolve(handleCompletionResolve)
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

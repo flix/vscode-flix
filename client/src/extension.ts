@@ -10,9 +10,9 @@ import {
 
 let client: LanguageClient
 
-console.log(vscode.extensions.getExtension('flix.flix').extensionPath)
+const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
@@ -22,7 +22,10 @@ export function activate(context: vscode.ExtensionContext) {
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
   let serverOptions: ServerOptions = {
-    run: { module: serverModule, transport: TransportKind.ipc },
+    run: { 
+      module: serverModule,
+      transport: TransportKind.ipc
+    },
     debug: {
       module: serverModule,
       transport: TransportKind.ipc,
@@ -51,10 +54,15 @@ export function activate(context: vscode.ExtensionContext) {
   // Start the client. This will also launch the server
   client.start()
 
-  setTimeout(() => {
-    // waiting for server to be ready - inexplicably this does not have an event
-    client.sendNotification('ready')
-  }, 2000)
+  await client.onReady()
+
+  client.onNotification('ready', params => {
+    console.log('I now know the server is ready.')
+  })
+
+  client.sendNotification('ready', { 
+    extensionPath: EXTENSION_PATH
+  })
 }
 
 export function deactivate(): Thenable<void> | undefined {

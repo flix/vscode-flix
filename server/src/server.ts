@@ -70,8 +70,8 @@ connection.onInitialize((params: InitializeParams) => {
   return result
 })
 
-connection.onInitialized(() => {
-  console.log('connection.onInitialized')
+connection.onInitialized((parameters) => {
+  console.log('connection.onInitialized', parameters)
   if (hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined)
@@ -83,8 +83,9 @@ connection.onInitialized(() => {
   }
 })
 
-connection.onNotification('ready', params => {
-  console.log('onNotification:ready', params)
+connection.onNotification('ready', ({ extensionPath }) => {
+  console.log('Should initialise the compiler in', extensionPath)
+  connection.sendNotification('ready')
 })
 
 connection.onExit(() => {

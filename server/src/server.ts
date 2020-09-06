@@ -18,9 +18,6 @@ import {
   handleCompletion, handleCompletionResolve, handleReady, handleExit
 } from './handlers'
 
-// Used to spawn the java process that runs the flix compiler
-import { spawn } from 'child_process'
-
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 // Create a connection for the server, using Node's IPC as a transport.

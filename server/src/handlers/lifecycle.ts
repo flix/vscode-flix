@@ -1,3 +1,5 @@
+import { start } from '../engine'
+
 interface ReadyParams {
 	extensionPath: string
 }
@@ -11,6 +13,8 @@ interface ReadyParams {
  */
 export function handleReady ({ extensionPath }: ReadyParams) {
 	console.log('[handleReady]', extensionPath)
+	start()
+	console.log('[handleReady] Engine Started?')
 }
 
 export function handleExit () {

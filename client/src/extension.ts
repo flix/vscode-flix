@@ -54,6 +54,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Start the client. This will also launch the server
   client.start()
 
+  // Wait for client and server to be ready before registering listeners
   await client.onReady()
 
   client.onNotification('ready', params => {

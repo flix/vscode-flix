@@ -16,12 +16,15 @@ const downloadFile = ({ url, targetFile }) => new Promise((resolve, reject) => {
   }
 })
 
-export default async function ({ targetPath }) {
+export default async function ({ targetPath, skipIfExists = false } = {}) {
   if (!targetPath) {
     throw 'Must be called with targetPath'
   }
   const filename = path.join(targetPath, 'flix.jar')
   const flixExists = fs.existsSync(filename)
+  if (flixExists && skipIfExists) {
+    return
+  }
   try {
     const targetFile = fs.createWriteStream(filename)
     return downloadFile({ url: FLIX_URL, targetFile })

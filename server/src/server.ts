@@ -32,7 +32,6 @@ let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
 
 connection.onInitialize((params: InitializeParams) => {
-  console.log('connection.onInitialize', params)
   let capabilities = params.capabilities
 
   // Does the client support the `workspace/configuration` request?
@@ -69,7 +68,6 @@ connection.onInitialize((params: InitializeParams) => {
 })
 
 connection.onInitialized((parameters) => {
-  console.log('connection.onInitialized', parameters)
   if (hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined)
@@ -130,7 +128,6 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-  console.log('documents.onDidClose')
   documentSettings.delete(e.document.uri)
 })
 
@@ -142,7 +139,7 @@ documents.onDidChangeContent(change => {
 })
 
 documents.onDidSave(listener => {
-  console.log('documents.onDidSave')
+  console.log('documents.onDidSave', listener.document)
 })
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {

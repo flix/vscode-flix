@@ -19,6 +19,9 @@ import {
 } from './handlers'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
+import { ValidateInput } from './engine'
+import { handleDidSave } from './handlers/save'
+import { handleChangeContent } from './handlers/changeContent'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -133,14 +136,10 @@ documents.onDidClose(e => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-  console.log('documents.onDidChangeContent')
-  validateTextDocument(change.document)
-})
+documents.onDidChangeContent(handleChangeContent)
 
-documents.onDidSave(listener => {
-  console.log('documents.onDidSave', listener.document)
-})
+// Document has been saved
+documents.onDidSave(handleChangeContent)
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   // In this simple example we get the settings for every validate run.

@@ -2,7 +2,7 @@ const { https } = require('follow-redirects')
 const fs = require('fs')
 const path = require('path')
 
-const FLIX_URL = 'https://github.com/flix/flix/releases/download/v0.13.0/flix.jar'
+const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-03.jar'
 
 const downloadFile = ({ url, targetFile }) => new Promise((resolve, reject) => {
   try {

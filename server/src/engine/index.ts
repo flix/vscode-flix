@@ -9,6 +9,8 @@ let flixInstance: any
 let webSocket: any
 let port = 8888
 
+let webSocketOpen = false
+
 export async function start ({ extensionPath }: ReadyParams) {
 	if (flixInstance || webSocket) {
 		stop()
@@ -20,7 +22,7 @@ export async function start ({ extensionPath }: ReadyParams) {
 		throw 'Could not download flix - refusing to start'
 	}
 
-	flixInstance = ChildProcess.spawn('java', ['-jar', path.join(extensionPath, 'flix.jar'), '--lsp', 8888])
+	flixInstance = ChildProcess.spawn('java', ['-jar', path.join(extensionPath, 'flix.jar'), '--lsp', port])
 	const webSocketUrl = `ws://localhost:${port}`
 
 	flixInstance.stdout.on('data', (data: any) => {
@@ -30,6 +32,18 @@ export async function start ({ extensionPath }: ReadyParams) {
 
 		if(str.includes(webSocketUrl)) {
 			webSocket = new WebSocket(webSocketUrl)
+
+			webSocket.on('open', () => {
+				webSocketOpen = true
+			})
+
+			webSocket.on('close', () => {
+				webSocketOpen = false
+			})
+
+			webSocket.on('message', (data: any) => {
+				console.log('websocket', data)
+			})
 		}
 	})
 

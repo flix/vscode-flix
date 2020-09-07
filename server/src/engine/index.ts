@@ -62,3 +62,22 @@ export function stop () {
 		webSocket.close()
 	}
 }
+
+export interface ValidateInput {
+	uri: String
+	src: String
+}
+
+// https://github.com/flix/flix/blob/master/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L166
+export function validate ({ uri, src }: ValidateInput) {
+	if (!webSocketOpen) {
+		throw 'Websocket is not open'
+	}
+	const message = {
+		request: 'api/addUri',
+		uri,
+		src
+	}
+	console.log(JSON.stringify(message))
+	webSocket.send(JSON.stringify(message))
+}

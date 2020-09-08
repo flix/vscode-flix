@@ -15,13 +15,14 @@ import {
 } from 'vscode-languageserver'
 
 import {
-  handleCompletion, handleCompletionResolve, handleReady, handleExit
+  handleChangeContent,
+  handleCompletion, 
+  handleCompletionResolve, 
+  handleReady, 
+  handleExit
 } from './handlers'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { ValidateInput } from './engine'
-import { handleDidSave } from './handlers/save'
-import { handleChangeContent } from './handlers/changeContent'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.

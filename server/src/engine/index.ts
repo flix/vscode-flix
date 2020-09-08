@@ -1,3 +1,4 @@
+import _ from 'lodash/fp'
 import { ReadyParams } from '../handlers/lifecycle'
 import downloadFlix from '../util/downloadFlix'
 
@@ -10,6 +11,23 @@ let webSocket: any
 let port = 8888
 
 let webSocketOpen = false
+
+interface FlixResponse {
+	id: number
+	status: string
+}
+
+interface JobMap {
+	[key: string]: {
+		request: string
+	}
+}
+
+let jobs: JobMap = {
+	// '1': {
+	// 	request: 'lsp/check'
+	// }
+}
 
 export async function start ({ extensionPath }: ReadyParams) {
 	if (flixInstance || webSocket) {
@@ -41,8 +59,28 @@ export async function start ({ extensionPath }: ReadyParams) {
 				webSocketOpen = false
 			})
 
-			webSocket.on('message', (data: any) => {
-				console.log('websocket', data)
+			webSocket.on('message', (data: string) => {
+				const { id, status }: FlixResponse = JSON.parse(data)
+				const idString = `${id}`
+				if (status !== 'success') {
+					console.error('Should handle status !== success')
+					return
+				}
+				const job = jobs[idString]
+				if (job.request === 'api/addUri') {
+					const id = 2
+					const idString = `${id}`
+					const message = {
+						request: 'lsp/check',
+						id: 2
+					}
+					jobs[idString] = message
+					console.log(JSON.stringify(message))
+					webSocket.send(JSON.stringify(message))
+				}
+				if (job.request === 'lsp/check') {
+					console.log('returning from check', job)
+				}
 			})
 		}
 	})
@@ -79,12 +117,19 @@ export function validate ({ uri, src }: ValidateInput, retries = 0) {
 		}, 1000)
 		return
 	}
+
+	// this is a step on the way to performing code checks
+	// we send a message with an id and add it to `jobs` to know what to do when it returns
+	// will have to be fleshed out further
+	const id = 1
+	const idString = `${id}`
 	const message = {
 		request: 'api/addUri',
 		uri,
 		src,
-		id: '1'
+		id: 1
 	}
+	jobs[idString] = message
 	console.log(JSON.stringify(message))
 	webSocket.send(JSON.stringify(message))
 }

@@ -69,14 +69,21 @@ export interface ValidateInput {
 }
 
 // https://github.com/flix/flix/blob/master/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L166
-export function validate ({ uri, src }: ValidateInput) {
+export function validate ({ uri, src }: ValidateInput, retries = 0) {
 	if (!webSocketOpen) {
-		throw 'Websocket is not open'
+		if (retries > 2) {
+			return console.error('Could not validate - websocket not available')
+		}
+		setTimeout(() => {
+			validate({ uri, src }, retries + 1)
+		}, 1000)
+		return
 	}
 	const message = {
 		request: 'api/addUri',
 		uri,
-		src
+		src,
+		id: '1'
 	}
 	console.log(JSON.stringify(message))
 	webSocket.send(JSON.stringify(message))

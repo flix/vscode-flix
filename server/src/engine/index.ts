@@ -13,7 +13,7 @@ let port = 8888
 let webSocketOpen = false
 
 interface FlixResponse {
-	id: number
+	id: string
 	status: string
 }
 
@@ -46,7 +46,7 @@ export async function start ({ extensionPath }: ReadyParams) {
 	flixInstance.stdout.on('data', (data: any) => {
 		const str = data.toString().split(/(\r?\n)/g).join('')
 
-		console.log(str)
+		console.log('[data]', str)
 
 		if(str.includes(webSocketUrl)) {
 			webSocket = new WebSocket(webSocketUrl)
@@ -68,13 +68,12 @@ export async function start ({ extensionPath }: ReadyParams) {
 				}
 				const job = jobs[idString]
 				if (job.request === 'api/addUri') {
-					const id = 2
-					const idString = `${id}`
+					const id = '2'
 					const message = {
 						request: 'lsp/check',
-						id: 2
+						id
 					}
-					jobs[idString] = message
+					jobs[id] = message
 					console.log(JSON.stringify(message))
 					webSocket.send(JSON.stringify(message))
 				}
@@ -121,15 +120,14 @@ export function validate ({ uri, src }: ValidateInput, retries = 0) {
 	// this is a step on the way to performing code checks
 	// we send a message with an id and add it to `jobs` to know what to do when it returns
 	// will have to be fleshed out further
-	const id = 1
-	const idString = `${id}`
+	const id = '1'
 	const message = {
 		request: 'api/addUri',
 		uri,
 		src,
-		id: 1
+		id
 	}
-	jobs[idString] = message
+	jobs[id] = message
 	console.log(JSON.stringify(message))
 	webSocket.send(JSON.stringify(message))
 }

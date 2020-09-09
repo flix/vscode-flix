@@ -81,6 +81,9 @@ export async function start ({ extensionPath }: ReadyParams) {
 					console.log('returning from check', job)
 				}
 			})
+
+			// now that the connection is established, there's no reason to listen for new messages
+			flixInstance.stdout.removeAllListeners('data')
 		}
 	})
 

@@ -90,7 +90,7 @@ export async function start ({ extensionPath }: ReadyParams) {
 	flixInstance.stderr.on('data', (data: any) => {
 		// Text on missing/inaccessible: 'Error: Unable to access jarfile'
 		const str = data.toString().split(/(\r?\n)/g).join('')
-		console.log('[error]', str)
+		console.error('[error]', str)
 	})
 }
 

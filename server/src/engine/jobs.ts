@@ -6,6 +6,6 @@ interface JobMap {
 
 export let jobs: JobMap = {
   // '1': {
-  // 	request: 'lsp/check'
+  //   request: 'lsp/check'
   // }
 }

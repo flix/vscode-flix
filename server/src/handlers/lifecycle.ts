@@ -1,7 +1,7 @@
 import { start, stop } from '../engine'
 
 export interface ReadyParams {
-	extensionPath: string
+  extensionPath: string
 }
 
 /**
@@ -10,9 +10,9 @@ export interface ReadyParams {
  * @param {String} obj.extensionPath - Install path of this extension.
  */
 export function handleReady ({ extensionPath }: ReadyParams) {
-	start({ extensionPath })
+  start({ extensionPath })
 }
 
 export function handleExit () {
-	stop()
+  stop()
 }

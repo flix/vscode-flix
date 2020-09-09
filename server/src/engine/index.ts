@@ -35,7 +35,7 @@ export async function start ({ extensionPath }: ReadyParams) {
 	}
 
 	try {
-		await downloadFlix({ targetPath: extensionPath })
+		await downloadFlix({ targetPath: extensionPath, skipIfExists: true })
 	} catch (err) {
 		throw 'Could not download flix - refusing to start'
 	}

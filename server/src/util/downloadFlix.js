@@ -23,6 +23,7 @@ export default async function ({ targetPath, skipIfExists = false } = {}) {
   const filename = path.join(targetPath, 'flix.jar')
   const flixExists = fs.existsSync(filename)
   if (flixExists && skipIfExists) {
+    console.log('[downloadFlix] Skipping download')
     return
   }
   try {

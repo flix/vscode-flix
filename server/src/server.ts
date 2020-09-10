@@ -26,7 +26,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all)
+export let connection = createConnection(ProposedFeatures.all)
 
 // Create a simple text document manager.
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)

@@ -1,6 +1,7 @@
-import { jobs } from './jobs'
+import * as jobs from './jobs'
 
 const WebSocket = require('ws')
+const fs = require('fs')
 
 let webSocket: any
 let webSocketOpen = false
@@ -46,25 +47,21 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 
   webSocket.on('message', (data: string) => {
     const { id, status }: FlixResponse = JSON.parse(data)
-    const idString = `${id}`
+    const job: jobs.EnqueuedJob = jobs.getJob(id)
+
+    console.warn('[debug]', id, status, job)
+
     if (status !== 'success') {
-      console.error('Should handle status !== success')
-      return
-    }
-    const job = jobs[idString]
-    if (job.request === 'api/addUri') {
-      const id = '2'
-      const message = {
-        request: 'lsp/check',
-        id
+      console.error('Failed job', job)
+    } else {
+
+      if (job.request === 'api/addUri') {
+        console.warn('[debug] Added uri', job)
       }
-      jobs[id] = message
-      console.log(JSON.stringify(message))
-      webSocket.send(JSON.stringify(message))
+
     }
-    if (job.request === 'lsp/check') {
-      console.log('returning from check', job)
-    }
+
+    setTimeout(processQueue, 0)
   })
 }
 
@@ -76,16 +73,31 @@ export function closeSocket () {
   }
 }
 
-export function sendMessage (message: SendMessageInput, retries = 0) {
+export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
       return console.error('Could not validate - websocket not available')
     }
     setTimeout(() => {
-      sendMessage(message, retries + 1)
+      sendMessage(job, retries + 1)
     }, 1000)
     return
   }
-  console.log(JSON.stringify(message))
-  webSocket.send(JSON.stringify(message))
+  console.warn('sendMessage', JSON.stringify(job))
+  webSocket.send(JSON.stringify(job))
+}
+
+export async function processQueue () {
+  console.warn('[debug] processQueue')
+  const job: jobs.EnqueuedJob = jobs.dequeue()
+  if (job) {
+    try {
+      const src = fs.readFileSync(job.uri, 'utf8')
+      sendMessage({ ...job, src })
+    } catch (err) {
+      console.error('Could not read file in queue', job)
+    }
+  } else {
+    console.warn('[debug] Queue empty')
+  }
 }

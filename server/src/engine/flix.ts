@@ -1,9 +1,9 @@
-import _ from 'lodash/fp'
 import downloadFlix from '../util/downloadFlix'
 
-import { jobs } from './jobs'
+import * as jobs from './jobs'
 import * as socket from './socket'
 
+const _ = require('lodash/fp')
 const path = require('path')
 const ChildProcess = require('child_process')
 const globby = require('globby')
@@ -23,8 +23,9 @@ export async function start ({ rootPath, globalStoragePath }: StartEngineInput) 
   }
 
   async function handleOpen () {
-    const workspaceFiles = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
-    console.log({workspaceFiles}) // TODO: Add to compiler as a job
+    const workspaceFiles: string = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
+    jobs.enqueueMany(_.map((uri: string) => ({ uri, request: 'api/addUri' }), workspaceFiles))
+    socket.processQueue()
   }
 
   try {

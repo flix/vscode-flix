@@ -1,10 +1,13 @@
 import { TextDocument } from 'vscode-languageserver'
-import { validate } from '../engine'
+
+import * as jobs from '../engine/jobs'
 
 export function handleChangeContent (listener: any) {
   const document: TextDocument = listener.document
-  validate({ 
+  const job: jobs.Job = {
+    request: 'lsp/check',
     uri: document.uri,
     src: document.getText()
-  })
+  }
+  jobs.enqueue(job)
 }

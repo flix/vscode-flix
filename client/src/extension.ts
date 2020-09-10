@@ -62,7 +62,8 @@ export async function activate(context: vscode.ExtensionContext) {
   })
 
   client.sendNotification('ready', { 
-    extensionPath: EXTENSION_PATH
+    extensionPath: EXTENSION_PATH || context.extensionPath,
+    globalStoragePath: context.globalStoragePath
   })
 }
 

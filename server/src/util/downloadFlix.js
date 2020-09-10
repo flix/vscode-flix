@@ -27,6 +27,9 @@ export default async function ({ targetPath, skipIfExists = false } = {}) {
     return
   }
   try {
+    if (!fs.existsSync(targetPath)) {
+      fs.mkdirSync(targetPath)
+    }
     const targetFile = fs.createWriteStream(filename)
     return downloadFile({ url: FLIX_URL, targetFile })
   } catch (err) {

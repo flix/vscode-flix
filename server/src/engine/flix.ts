@@ -6,6 +6,7 @@ import * as socket from './socket'
 
 const path = require('path')
 const ChildProcess = require('child_process')
+const globby = require('globby')
 
 let flixInstance: any
 let port = 8888
@@ -19,6 +20,11 @@ export interface StartEngineInput {
 export async function start ({ rootPath, extensionPath, globalStoragePath }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
+  }
+
+  async function handleOpen () {
+    const workspaceFiles = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
+    console.log({workspaceFiles}) // TODO: Add to compiler as a job
   }
 
   try {
@@ -35,7 +41,10 @@ export async function start ({ rootPath, extensionPath, globalStoragePath }: Sta
 
     if(str.includes(webSocketUrl)) {
       // initialise websocket, listening to messages and what not
-      socket.initialiseSocket({ uri: webSocketUrl })
+      socket.initialiseSocket({ 
+        uri: webSocketUrl,
+        onOpen: handleOpen
+      })
 
       // now that the connection is established, there's no reason to listen for new messages
       flixInstance.stdout.removeAllListeners('data')

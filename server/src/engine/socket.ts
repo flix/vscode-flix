@@ -87,7 +87,18 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   webSocket.send(JSON.stringify(job))
 }
 
-export async function processQueue () {
+let queueRunning = false
+
+export function startQueue () {
+  console.warn('[debug] startQueue', queueRunning)
+  if (queueRunning) {
+    return
+  }
+  queueRunning = true
+  processQueue()
+}
+
+async function processQueue () {
   console.warn('[debug] processQueue')
   const job: jobs.EnqueuedJob = jobs.dequeue()
   if (job) {
@@ -103,5 +114,6 @@ export async function processQueue () {
     }
   } else {
     console.warn('[debug] Queue empty')
+    queueRunning = false
   }
 }

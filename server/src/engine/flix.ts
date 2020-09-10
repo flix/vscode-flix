@@ -25,7 +25,6 @@ export async function start ({ rootPath, globalStoragePath }: StartEngineInput) 
   async function handleOpen () {
     const workspaceFiles: string = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
     jobs.enqueueMany(_.map((uri: string) => ({ uri, request: 'api/addUri' }), workspaceFiles))
-    socket.processQueue()
   }
 
   try {

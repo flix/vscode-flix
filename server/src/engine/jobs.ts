@@ -1,3 +1,5 @@
+import * as socket from './socket'
+
 const _ = require('lodash/fp')
 
 let counter = 0
@@ -26,6 +28,7 @@ export function enqueue (job: Job) {
   jobs[id] = enqueuedJob
   queue.push(enqueuedJob)
   console.warn(`[debug] added job`, enqueuedJob)
+  socket.startQueue()
 }
 
 export function enqueueMany (jobs: [Job]) {

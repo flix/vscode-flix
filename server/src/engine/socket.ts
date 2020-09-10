@@ -92,8 +92,12 @@ export async function processQueue () {
   const job: jobs.EnqueuedJob = jobs.dequeue()
   if (job) {
     try {
-      const src = fs.readFileSync(job.uri, 'utf8')
-      sendMessage({ ...job, src })
+      if (job.request === 'api/addUri') {
+        const src = fs.readFileSync(job.uri, 'utf8')
+        sendMessage({ ...job, src })
+      } else {
+        sendMessage(job)
+      }
     } catch (err) {
       console.error('Could not read file in queue', job)
     }

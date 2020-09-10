@@ -35,6 +35,8 @@ let hasConfigurationCapability: boolean = false
 let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
 
+// root path for client's files
+let rootPath: string
 connection.onInitialize((params: InitializeParams) => {
   let capabilities = params.capabilities
 
@@ -68,6 +70,13 @@ connection.onInitialize((params: InitializeParams) => {
       }
     }
   }
+
+  if (!params.rootPath) {
+    // at this stage we require a root path for client files
+    throw new Error('Unable to get root path for files')
+  }
+  rootPath = params.rootPath!
+
   return result
 })
 

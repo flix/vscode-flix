@@ -1,5 +1,10 @@
-import * as jobs from './jobs'
+import { Diagnostic } from 'vscode-languageserver'
 
+import * as jobs from './jobs'
+import { connection } from '../server'
+import { pathToFileURL } from 'url'
+
+const _ = require('lodash/fp')
 const WebSocket = require('ws')
 const fs = require('fs')
 
@@ -67,13 +72,15 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   })
 
   webSocket.on('message', (data: string) => {
-    const { id, status }: FlixResponse = JSON.parse(data)
+    const { id, status, result }: FlixResponse = JSON.parse(data)
     const job: jobs.EnqueuedJob = jobs.getJob(id)
 
     console.warn('[debug]', id, status, job)
 
     if (status !== 'success') {
       console.error('Failed job', job)
+
+      _.each((r: FlixResult) => connection.sendDiagnostics(_.set('uri', pathToFileURL(r.uri), r)), result)
     } else {
 
       if (job.request === 'api/addUri') {

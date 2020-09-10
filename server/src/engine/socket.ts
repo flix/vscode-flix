@@ -103,7 +103,7 @@ async function processQueue () {
   const job: jobs.EnqueuedJob = jobs.dequeue()
   if (job) {
     try {
-      if (job.request === 'api/addUri') {
+      if (job.request === 'api/addUri' && !job.src) {
         const src = fs.readFileSync(job.uri, 'utf8')
         sendMessage({ ...job, src })
       } else {

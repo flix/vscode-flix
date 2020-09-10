@@ -1,5 +1,4 @@
 import _ from 'lodash/fp'
-import { ReadyParams } from '../handlers/lifecycle'
 import downloadFlix from '../util/downloadFlix'
 
 import { jobs } from './jobs'
@@ -11,13 +10,19 @@ const ChildProcess = require('child_process')
 let flixInstance: any
 let port = 8888
 
-export async function start ({ extensionPath }: ReadyParams) {
+export interface StartEngineInput {
+  rootPath: string,
+  extensionPath: string,
+  globalStoragePath: string
+}
+
+export async function start ({ rootPath, extensionPath, globalStoragePath }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
 
   try {
-    await downloadFlix({ targetPath: extensionPath, skipIfExists: true })
+    await downloadFlix({ targetPath: globalStoragePath, skipIfExists: true })
   } catch (err) {
     throw 'Could not download flix - refusing to start'
   }

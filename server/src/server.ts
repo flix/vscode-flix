@@ -17,10 +17,10 @@ import {
 import {
   handleChangeContent,
   handleCompletion, 
-  handleCompletionResolve, 
-  handleReady, 
-  handleExit
+  handleCompletionResolve
 } from './handlers'
+
+import * as engine from './engine'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -37,6 +37,21 @@ let hasDiagnosticRelatedInformationCapability: boolean = false
 
 // root path for client's files
 let rootPath: string
+
+/**
+ * Runs when both client and server are ready.
+ * 
+ * @param {String} obj.extensionPath - Install path of this extension.
+ */
+function handleReady (engineInput: engine.StartEngineInput) {
+  engine.start({ ...engineInput, rootPath })
+}
+
+function handleExit () {
+  engine.stop()
+}
+
+
 connection.onInitialize((params: InitializeParams) => {
   let capabilities = params.capabilities
 
@@ -80,7 +95,7 @@ connection.onInitialize((params: InitializeParams) => {
   return result
 })
 
-connection.onInitialized((parameters) => {
+connection.onInitialized((_params) => {
   if (hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined)

@@ -11,7 +11,9 @@ interface FlixResponse {
 }
 
 interface InitialiseSocketInput {
-  uri: string
+  uri: string,
+  onOpen?: () => void,
+  onClose?: () => void
 }
 
 interface SendMessageInput {
@@ -26,7 +28,7 @@ export function isClosed () {
   return !isOpen()
 }
 
-export function initialiseSocket ({ uri }: InitialiseSocketInput) {
+export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
   if (!uri) {
     throw 'Must be called with an uri'
   }
@@ -34,10 +36,12 @@ export function initialiseSocket ({ uri }: InitialiseSocketInput) {
 
   webSocket.on('open', () => {
     webSocketOpen = true
+    onOpen && setTimeout(onOpen!, 0)
   })
 
   webSocket.on('close', () => {
     webSocketOpen = false
+    onClose && setTimeout(onClose!, 0)
   })
 
   webSocket.on('message', (data: string) => {

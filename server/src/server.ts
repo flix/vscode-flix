@@ -51,7 +51,6 @@ function handleExit () {
   engine.stop()
 }
 
-
 connection.onInitialize((params: InitializeParams) => {
   let capabilities = params.capabilities
 

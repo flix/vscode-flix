@@ -6,9 +6,30 @@ const fs = require('fs')
 let webSocket: any
 let webSocketOpen = false
 
+interface FlixResult {
+  uri: string
+  diagnostics: [{
+    range: {
+      start: {
+        line: number
+        character: number
+      }
+      end: {
+        line: number
+        character: number
+      }
+    }
+    severity: number
+    code: string
+    message: string
+    tags: string[]
+  }]
+}
+
 interface FlixResponse {
   id: string
   status: string
+  result?: FlixResult
 }
 
 interface InitialiseSocketInput {

@@ -39,6 +39,8 @@ export async function start ({ rootPath, globalStoragePath }: StartEngineInput) 
   flixInstance.stdout.on('data', (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
 
+    console.warn('[debug]', str) // we keep this because some error messages are erroneously sent this way
+
     if(str.includes(webSocketUrl)) {
       // initialise websocket, listening to messages and what not
       socket.initialiseSocket({ 
@@ -47,7 +49,7 @@ export async function start ({ rootPath, globalStoragePath }: StartEngineInput) 
       })
 
       // now that the connection is established, there's no reason to listen for new messages
-      flixInstance.stdout.removeAllListeners('data')
+      // flixInstance.stdout.removeAllListeners('data')  -- TODO: Remove comment when LSP has been updated
     }
   })
 

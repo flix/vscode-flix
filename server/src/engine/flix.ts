@@ -17,7 +17,7 @@ export interface StartEngineInput {
   globalStoragePath: string
 }
 
-export async function start ({ rootPath, extensionPath, globalStoragePath }: StartEngineInput) {
+export async function start ({ rootPath, globalStoragePath }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
@@ -33,7 +33,7 @@ export async function start ({ rootPath, extensionPath, globalStoragePath }: Sta
     throw 'Could not download flix - refusing to start'
   }
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', path.join(extensionPath, 'flix.jar'), '--lsp', port])
+  flixInstance = ChildProcess.spawn('java', ['-jar', path.join(globalStoragePath, 'flix.jar'), '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   flixInstance.stdout.on('data', (data: any) => {

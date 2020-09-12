@@ -7,7 +7,7 @@ export function handleChangeContent (listener: any) {
   const document: TextDocument = listener.document
   const job: jobs.Job = {
     request: jobs.Request.addUri,
-    uri: document.uri,
+    uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
     src: document.getText()
   }
   queue.enqueue(job)

@@ -6,7 +6,7 @@ export enum Request {
 
 export interface Job {
   request: Request
-  uri: string
+  uri?: string
   src?: string
 }
 
@@ -26,4 +26,10 @@ export function setJob(id: string, job: EnqueuedJob) {
 
 export function getJob (id: string) {
   return jobs[id]
+}
+
+export function createCheck (): Job {
+  return {
+    request: Request.check
+  }
 }

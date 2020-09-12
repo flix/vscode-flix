@@ -27,6 +27,7 @@ export function enqueue (job: jobs.Job) {
 
 export function enqueueMany (jobArray: [jobs.Job]) {
   _.each(enqueue, jobArray)
+  enqueue(jobs.createCheck())
 }
 
 function dequeue () {

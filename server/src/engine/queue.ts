@@ -6,7 +6,8 @@ const fs = require('fs')
 
 let jobCounter = 0
 
-let queue: jobs.EnqueuedJob[] = []
+let priorityQueue: jobs.EnqueuedJob[] = []
+let taskQueue: jobs.EnqueuedJob[] = []
 
 let queueRunning = false
 
@@ -14,22 +15,34 @@ export function enqueue (job: jobs.Job) {
   const id = `${jobCounter++}`
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
-  queue.push(enqueuedJob)
-  console.warn(`[debug] added job`, enqueuedJob)
+  if (job.request === jobs.Request.addUri || job.request === jobs.Request.remUri) {
+    priorityQueue.push(enqueuedJob)
+    console.warn(`[debug] added job to priority queue`, enqueuedJob.request)
+  } else {
+    taskQueue.push(enqueuedJob)
+    console.warn(`[debug] added job to task queue`, enqueuedJob.request)
+  }
   startQueue()
 }
 
-export function enqueueMany (jobs: [jobs.Job]) {
-  _.each(enqueue, jobs)
+export function enqueueMany (jobArray: [jobs.Job]) {
+  _.each(enqueue, jobArray)
 }
 
 function dequeue () {
-  if (_.isEmpty(queue)) {
-    return undefined
+  if (_.isEmpty(priorityQueue)) {
+    if (_.isEmpty(taskQueue)) {
+      return undefined
+    }
+    const first = _.first(taskQueue)
+    taskQueue.shift()
+    return first
+  } else {
+    // priorityQueue has items
+    const first = _.first(priorityQueue)
+    priorityQueue.shift()
+    return first
   }
-  const first = _.first(queue)
-  queue.shift()
-  return first
 }
 
 function startQueue () {

@@ -11,4 +11,5 @@ export function handleChangeContent (listener: any) {
     src: document.getText()
   }
   queue.enqueue(job)
+  queue.enqueue(jobs.createCheck())
 }

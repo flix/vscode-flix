@@ -1,6 +1,7 @@
 import { TextDocument } from 'vscode-languageserver'
 
 import * as jobs from '../engine/jobs'
+import * as queue from '../engine/queue'
 
 export function handleChangeContent (listener: any) {
   const document: TextDocument = listener.document
@@ -9,5 +10,5 @@ export function handleChangeContent (listener: any) {
     uri: document.uri,
     src: document.getText()
   }
-  jobs.enqueue(job)
+  queue.enqueue(job)
 }

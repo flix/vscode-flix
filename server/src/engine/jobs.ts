@@ -1,7 +1,3 @@
-import * as socket from './socket'
-
-const _ = require('lodash/fp')
-
 export enum Request {
   check = 'lsp/check',
   addUri = 'api/addUri',
@@ -24,30 +20,8 @@ interface JobMap {
 
 let jobs: JobMap = {}
 
-let jobCounter = 0
-
-let queue: EnqueuedJob[] = []
-
-export function enqueue (job: Job) {
-  const id = `${jobCounter++}`
-  const enqueuedJob = { ...job, id }
-  jobs[id] = enqueuedJob
-  queue.push(enqueuedJob)
-  console.warn(`[debug] added job`, enqueuedJob)
-  socket.startQueue()
-}
-
-export function enqueueMany (jobs: [Job]) {
-  _.each(enqueue, jobs)
-}
-
-export function dequeue () {
-  if (_.isEmpty(queue)) {
-    return undefined
-  }
-  const first = _.first(queue)
-  queue.shift()
-  return first
+export function setJob(id: string, job: EnqueuedJob) {
+  jobs[id] = job
 }
 
 export function getJob (id: string) {

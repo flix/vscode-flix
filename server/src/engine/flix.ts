@@ -1,6 +1,7 @@
 import downloadFlix from '../util/downloadFlix'
 
 import * as jobs from './jobs'
+import * as queue from './queue'
 import * as socket from './socket'
 
 const _ = require('lodash/fp')
@@ -24,7 +25,7 @@ export async function start ({ rootPath, globalStoragePath }: StartEngineInput) 
 
   async function handleOpen () {
     const workspaceFiles: string = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
-    jobs.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.addUri }), workspaceFiles))
+    queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.addUri }), workspaceFiles))
   }
 
   try {

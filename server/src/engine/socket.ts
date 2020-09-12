@@ -1,12 +1,12 @@
 import { Diagnostic } from 'vscode-languageserver'
 
 import * as jobs from './jobs'
+import * as queue from './queue'
 import { connection } from '../server'
 import { pathToFileURL } from 'url'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
-const fs = require('fs')
 
 let webSocket: any
 let webSocketOpen = false
@@ -41,10 +41,6 @@ interface InitialiseSocketInput {
   uri: string,
   onOpen?: () => void,
   onClose?: () => void
-}
-
-interface SendMessageInput {
-
 }
 
 export function isOpen () {
@@ -89,7 +85,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 
     }
 
-    setTimeout(processQueue, 0)
+    setTimeout(queue.processQueue, 0)
   })
 }
 
@@ -113,36 +109,4 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   }
   console.warn('sendMessage', JSON.stringify(job))
   webSocket.send(JSON.stringify(job))
-}
-
-let queueRunning = false
-
-export function startQueue () {
-  console.warn('[debug] startQueue', queueRunning)
-  if (queueRunning) {
-    return
-  }
-  queueRunning = true
-  processQueue()
-}
-
-async function processQueue () {
-  console.warn('[debug] processQueue')
-  const job: jobs.EnqueuedJob = jobs.dequeue()
-  if (job) {
-    try {
-      if (job.request === jobs.Request.addUri && !job.src) {
-        console.warn('[debug] reading jobs.Request.addUri')
-        const src = fs.readFileSync(job.uri, 'utf8')
-        sendMessage({ ...job, src })
-      } else {
-        sendMessage(job)
-      }
-    } catch (err) {
-      console.error('Could not read file in queue', job)
-    }
-  } else {
-    console.warn('[debug] Queue empty')
-    queueRunning = false
-  }
 }

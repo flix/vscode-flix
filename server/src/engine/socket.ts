@@ -83,7 +83,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
       _.each((r: FlixResult) => connection.sendDiagnostics(_.set('uri', pathToFileURL(r.uri), r)), result)
     } else {
 
-      if (job.request === 'api/addUri') {
+      if (job.request === jobs.Request.addUri) {
         console.warn('[debug] Added uri', job)
       }
 
@@ -131,7 +131,8 @@ async function processQueue () {
   const job: jobs.EnqueuedJob = jobs.dequeue()
   if (job) {
     try {
-      if (job.request === 'api/addUri' && !job.src) {
+      if (job.request === jobs.Request.addUri && !job.src) {
+        console.warn('[debug] reading jobs.Request.addUri')
         const src = fs.readFileSync(job.uri, 'utf8')
         sendMessage({ ...job, src })
       } else {

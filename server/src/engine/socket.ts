@@ -76,7 +76,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     if (status !== 'success') {
       console.error('Failed job', job)
 
-      _.each((r: FlixResult) => connection.sendDiagnostics(_.set('uri', pathToFileURL(r.uri), r)), result)
+      _.each(connection.sendDiagnostics, result)
     } else {
 
       if (job.request === jobs.Request.addUri) {

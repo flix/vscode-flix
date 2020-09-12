@@ -1,5 +1,6 @@
 import * as jobs from './jobs'
 import * as socket from './socket'
+import { fileURLToPath } from 'url'
 
 const _ = require('lodash/fp')
 const fs = require('fs')
@@ -62,7 +63,7 @@ export async function processQueue () {
     try {
       if (job.request === jobs.Request.addUri && !job.src) {
         console.warn('[debug] reading jobs.Request.addUri')
-        const src = fs.readFileSync(job.uri, 'utf8')
+        const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
       } else {
         socket.sendMessage(job)
@@ -71,7 +72,7 @@ export async function processQueue () {
       console.error('Could not read file in queue', job)
     }
   } else {
-    console.warn('[debug1] Queue empty')
+    console.warn('[debug] Queue empty')
     queueRunning = false
   }
 }

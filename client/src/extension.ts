@@ -8,9 +8,22 @@ import {
   TransportKind
 } from 'vscode-languageclient'
 
+const _ = require('lodash/fp')
+const globby = require('globby')
+
 let client: LanguageClient
 
 const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
+
+/**
+ * Convert filename to VSCode compatible URI
+ * This is the same encoding used by TextDocument URIs.
+ * 
+ * @param path {string} - Path or filename
+ */
+function pathToURI (path) {
+  return vscode.Uri.file(path).toString(false)
+}
 
 export async function activate(context: vscode.ExtensionContext) {
   // The server is implemented in node
@@ -57,13 +70,16 @@ export async function activate(context: vscode.ExtensionContext) {
   // Wait for client and server to be ready before registering listeners
   await client.onReady()
 
+  const workspaceFiles: [string] = _.map(pathToURI, (await globby('**/*.flix', { cwd: vscode.workspace.rootPath, gitignore: true, absolute: true })))
+
   client.onNotification('ready', params => {
     console.log('I now know the server is ready.')
   })
 
   client.sendNotification('ready', { 
     extensionPath: EXTENSION_PATH || context.extensionPath,
-    globalStoragePath: context.globalStoragePath
+    globalStoragePath: context.globalStoragePath,
+    workspaceFiles
   })
 }
 

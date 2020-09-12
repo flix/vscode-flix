@@ -7,7 +7,6 @@ import * as socket from './socket'
 const _ = require('lodash/fp')
 const path = require('path')
 const ChildProcess = require('child_process')
-const globby = require('globby')
 
 let flixInstance: any
 let port = 8888
@@ -15,16 +14,16 @@ let port = 8888
 export interface StartEngineInput {
   rootPath: string,
   extensionPath: string,
-  globalStoragePath: string
+  globalStoragePath: string,
+  workspaceFiles: [string]
 }
 
-export async function start ({ rootPath, globalStoragePath }: StartEngineInput) {
+export async function start ({ globalStoragePath, workspaceFiles }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
 
-  async function handleOpen () {
-    const workspaceFiles: string = await globby('**/*.flix', { cwd: rootPath, gitignore: true, absolute: true })
+  function handleOpen () {
     queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.addUri }), workspaceFiles))
   }
 

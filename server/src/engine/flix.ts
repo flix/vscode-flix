@@ -67,9 +67,20 @@ export function stop () {
   socket.closeSocket()
 }
 
-export interface ValidateInput {
-  uri: String
-  src: String
+export function addUri (uri: string) {
+  const job = {
+    request: jobs.Request.addUri,
+    uri
+  }
+  queue.enqueue(job)
+  queue.enqueue(jobs.createCheck())
 }
 
+export function remUri (uri: string) {
+  const job = {
+    request: jobs.Request.remUri,
+    uri
+  }
+  queue.enqueue(job)
+  queue.enqueue(jobs.createCheck())
 }

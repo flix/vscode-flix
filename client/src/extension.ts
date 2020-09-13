@@ -26,6 +26,13 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
+function restartClient (context: vscode.ExtensionContext) {
+  return async function () {
+    await deactivate()
+    await activate(context)
+  }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
@@ -89,6 +96,8 @@ export async function activate(context: vscode.ExtensionContext) {
     globalStoragePath: context.globalStoragePath,
     workspaceFiles
   })
+
+  client.onNotification('restart', restartClient(context))
 }
 
 export function deactivate(): Thenable<void> | undefined {

@@ -13,7 +13,7 @@ import {
   PublishDiagnosticsParams, 
   Range, 
   Hover, 
-  HoverParams
+  HoverParams, NotificationType
 } from 'vscode-languageserver'
 
 import {
@@ -150,6 +150,24 @@ documents.listen(connection)
 // Listen on the connection
 connection.listen()
 
+function handleHover (params: HoverParams): Thenable<Hover> {
+  sendNotification('restart')
+  return new Promise((resolve, _reject) => {
+    const job = engine.context(params.textDocument.uri, params.position)
+    socket.eventEmitter.once(job.id, ({ status, result }) => {
+      if (status === 'success') {
+        resolve({
+          contents: `Type: ${result.tpe}`
+        })
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+connection.onHover(handleHover)
+
 let fileUrisWithErrors: Set<string> = new Set()
 
 /**
@@ -183,19 +201,6 @@ export function clearDiagnostics () {
   fileUrisWithErrors.clear()
 }
 
-function handleHover (params: HoverParams): Thenable<Hover> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.context(params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      if (status === 'success') {
-        resolve({
-          contents: `Type: ${result.tpe}`
-        })
-      } else {
-        resolve()
-      }
-    })
-  })
+export function sendNotification (notificationType: string, payload?: any) {
+  connection.sendNotification(notificationType, payload)
 }
-
-connection.onHover(handleHover)

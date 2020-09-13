@@ -1,3 +1,4 @@
+import { sendNotification } from '../server'
 import downloadFlix from '../util/downloadFlix'
 
 import * as jobs from './jobs'
@@ -57,6 +58,8 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
     // Text on missing/inaccessible: 'Error: Unable to access jarfile'
     const str = data.toString().split(/(\r?\n)/g).join('')
     console.error('[error]', str)
+    console.log('[debug] Attempt to restart')
+    sendNotification('restart')
   })
 }
 

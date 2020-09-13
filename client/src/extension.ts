@@ -70,6 +70,18 @@ export async function activate(context: vscode.ExtensionContext) {
   // Wait for client and server to be ready before registering listeners
   await client.onReady()
 
+  // watch for changes on the file system (delete, create, rename .flix files)
+  // TODO: refactor the initial workspaceFiles to use same API (and support gitignored files etc - "Ignore VS Code default exclusions")
+  const flixWatcher = vscode.workspace.createFileSystemWatcher('**/*.flix')
+  flixWatcher.onDidDelete(({ path }) => {
+    const uri = pathToURI(path)
+    client.sendNotification('remUri', { uri })
+  })
+  flixWatcher.onDidCreate(({ path }) => {
+    const uri = pathToURI(path)
+    client.sendNotification('addUri', { uri })
+  })
+
   const workspaceFiles: [string] = _.map(pathToURI, (await globby('**/*.flix', { cwd: vscode.workspace.rootPath, gitignore: true, absolute: true })))
 
   client.onNotification('ready', params => {

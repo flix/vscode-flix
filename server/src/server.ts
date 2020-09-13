@@ -45,6 +45,18 @@ function handleReady (engineInput: engine.StartEngineInput) {
   engine.start({ ...engineInput, rootPath })
 }
 
+interface UriInput {
+  uri: string
+}
+
+function handleAddUri ({ uri }: UriInput) {
+  engine.addUri(uri)
+}
+
+function handleRemUri ({ uri }: UriInput) {
+  engine.remUri(uri)
+}
+
 function handleExit () {
   engine.stop()
 }
@@ -105,6 +117,10 @@ connection.onInitialized((_params) => {
 })
 
 connection.onNotification('ready', handleReady)
+
+connection.onNotification('addUri', handleAddUri)
+
+connection.onNotification('remUri', handleRemUri)
 
 connection.onExit(handleExit)
 

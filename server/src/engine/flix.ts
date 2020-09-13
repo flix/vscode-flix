@@ -72,18 +72,4 @@ export interface ValidateInput {
   src: String
 }
 
-// https://github.com/flix/flix/blob/master/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L166
-export function validate ({ uri, src }: ValidateInput, retries = 0) {
-  // this is a step on the way to performing code checks
-  // we send a message with an id and add it to `jobs` to know what to do when it returns
-  // will have to be fleshed out further
-  // const id = '1'
-  // const message = {
-  //   request: 'api/addUri',
-  //   uri,
-  //   src,
-  //   id
-  // }
-  // jobs[id] = message
-  // socket.sendMessage(message)
 }

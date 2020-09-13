@@ -57,12 +57,10 @@ function startQueue () {
 }
 
 export async function processQueue () {
-  console.warn('[debug] processQueue')
   const job: jobs.EnqueuedJob = dequeue()
   if (job) {
     try {
       if (job.request === jobs.Request.addUri && !job.src) {
-        console.warn('[debug] reading jobs.Request.addUri')
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
       } else {
@@ -72,7 +70,7 @@ export async function processQueue () {
       console.error('Could not read file in queue', job)
     }
   } else {
-    console.warn('[debug] Queue empty')
+    console.log('[debug] Queue empty')
     queueRunning = false
   }
 }

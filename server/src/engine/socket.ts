@@ -1,9 +1,6 @@
-import { Diagnostic } from 'vscode-languageserver'
-
 import * as jobs from './jobs'
 import * as queue from './queue'
 import { connection } from '../server'
-import { pathToFileURL } from 'url'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -71,18 +68,10 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     const { id, status, result }: FlixResponse = JSON.parse(data)
     const job: jobs.EnqueuedJob = jobs.getJob(id)
 
-    console.warn('[debug]', id, status, job)
-
     if (status !== 'success') {
-      console.error('Failed job', job)
+      console.error('[debug] status !== success', job)
 
       _.each(connection.sendDiagnostics, result)
-    } else {
-
-      if (job.request === jobs.Request.addUri) {
-        console.warn('[debug] Added uri', job)
-      }
-
     }
 
     setTimeout(queue.processQueue, 0)
@@ -107,6 +96,5 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     }, 1000)
     return
   }
-  console.warn('sendMessage', JSON.stringify(job))
   webSocket.send(JSON.stringify(job))
 }

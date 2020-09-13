@@ -68,9 +68,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     const flixResponse: FlixResponse = JSON.parse(data)
     const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
 
-    if (job.request === jobs.Request.check) {
-      handleCheck(flixResponse)
-    }
+    handleResponse(flixResponse, job)
 
     setTimeout(queue.processQueue, 0)
   })
@@ -95,6 +93,15 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     return
   }
   webSocket.send(JSON.stringify(job))
+}
+
+function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
+  switch (job.request) {
+    case jobs.Request.check:
+      return handleCheck(flixResponse)
+    default:
+      return
+  }
 }
 
 function handleCheck (flixResponse: FlixResponse) {

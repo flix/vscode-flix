@@ -9,13 +9,13 @@ import {
 } from 'vscode-languageclient'
 
 const _ = require('lodash/fp')
-const globby = require('globby')
 
 let client: LanguageClient
 
 let flixWatcher: vscode.FileSystemWatcher
 
 const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
+const FLIX_GLOB_PATTERN = '**/*.flix'
 
 /**
  * Convert filename to VSCode compatible URI
@@ -73,8 +73,7 @@ export async function activate(context: vscode.ExtensionContext) {
   await client.onReady()
 
   // watch for changes on the file system (delete, create, rename .flix files)
-  // TODO: refactor the initial workspaceFiles to use same API (and support gitignored files etc - "Ignore VS Code default exclusions")
-  flixWatcher = vscode.workspace.createFileSystemWatcher('**/*.flix')
+  flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete(({ path }) => {
     const uri = pathToURI(path)
     client.sendNotification('remUri', { uri })
@@ -84,12 +83,7 @@ export async function activate(context: vscode.ExtensionContext) {
     client.sendNotification('addUri', { uri })
   })
 
-  const workspaceFiles: [string] = _.map(pathToURI, (await globby('**/*.flix', { cwd: vscode.workspace.rootPath, gitignore: true, absolute: true })))
-
-  client.onNotification('ready', params => {
-    console.log('I now know the server is ready.')
-  })
-
+  const workspaceFiles: [string] = _.map(pathToURI, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   client.sendNotification('ready', { 
     extensionPath: EXTENSION_PATH || context.extensionPath,
     globalStoragePath: context.globalStoragePath,

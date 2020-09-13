@@ -11,7 +11,9 @@ import {
   TextDocumentSyncKind,
   InitializeResult, 
   PublishDiagnosticsParams, 
-  Range
+  Range, 
+  Hover, 
+  HoverParams
 } from 'vscode-languageserver'
 
 import {
@@ -21,6 +23,7 @@ import {
 } from './handlers'
 
 import * as engine from './engine'
+import * as socket from './engine/socket'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -88,7 +91,8 @@ connection.onInitialize((params: InitializeParams) => {
       // Tell the client that this server supports code completion.
       completionProvider: {
         resolveProvider: true
-      }
+      },
+      hoverProvider: true
     }
   }
   if (hasWorkspaceFolderCapability) {
@@ -178,3 +182,20 @@ export function clearDiagnostics () {
   fileUrisWithErrors.forEach((uri: string) => sendDiagnostics({ uri, diagnostics: [] }))
   fileUrisWithErrors.clear()
 }
+
+function handleHover (params: HoverParams): Thenable<Hover> {
+  return new Promise((resolve, _reject) => {
+    const job = engine.context(params.textDocument.uri, params.position)
+    socket.eventEmitter.once(job.id, ({ status, result }) => {
+      if (status === 'success') {
+        resolve({
+          contents: `Type: ${result.tpe}`
+        })
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+connection.onHover(handleHover)

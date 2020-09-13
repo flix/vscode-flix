@@ -9,7 +9,9 @@ import {
   InitializeParams,
   DidChangeConfigurationNotification,
   TextDocumentSyncKind,
-  InitializeResult
+  InitializeResult, 
+  PublishDiagnosticsParams, 
+  Range
 } from 'vscode-languageserver'
 
 import {
@@ -22,9 +24,11 @@ import * as engine from './engine'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
+const _ = require('lodash/fp')
+
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-export let connection = createConnection(ProposedFeatures.all)
+let connection = createConnection(ProposedFeatures.all)
 
 // Create a simple text document manager.
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
@@ -141,3 +145,28 @@ documents.listen(connection)
 
 // Listen on the connection
 connection.listen()
+
+/**
+ * @function
+ * Update Diagnostic's Range subtracting one from line and character.
+ * In VSCode terminology these are 0-based, while in the Flix LSP they're 1-based.
+ */
+const rangeMinusOne = _.update(
+  'range', 
+  (range: Range) => range
+    ? {
+      start: { 
+        line: range.start.line - 1, 
+        character: range.start.character - 1 
+      },
+      end: { 
+        line: range.end.line - 1, 
+        character: range.end.character - 1 
+      }
+    }
+    : range
+)
+
+export function sendDiagnostics (params: PublishDiagnosticsParams) {
+  connection.sendDiagnostics(_.update('diagnostics', _.map(rangeMinusOne), params))
+}

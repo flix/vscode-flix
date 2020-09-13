@@ -1,6 +1,6 @@
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { connection } from '../server'
+import { sendDiagnostics } from '../server'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -71,7 +71,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     if (status !== 'success') {
       console.error('[debug] status !== success', job)
 
-      _.each(connection.sendDiagnostics, result)
+      _.each(sendDiagnostics, result)
     }
 
     setTimeout(queue.processQueue, 0)

@@ -68,7 +68,7 @@ export function stop () {
 }
 
 export function addUri (uri: string) {
-  const job = {
+  const job: jobs.Job = {
     request: jobs.Request.addUri,
     uri
   }
@@ -77,10 +77,22 @@ export function addUri (uri: string) {
 }
 
 export function remUri (uri: string) {
-  const job = {
+  const job: jobs.Job = {
     request: jobs.Request.remUri,
     uri
   }
   queue.enqueue(job)
   queue.enqueue(jobs.createCheck())
+}
+
+export function context (uri: string, position: jobs.Position) {
+  const job: jobs.Job = {
+    request: jobs.Request.context,
+    uri,
+    position: {
+      line: position.line + 1,
+      character: position.character + 1
+    }
+  }
+  return queue.enqueue(job)
 }

@@ -146,6 +146,8 @@ documents.listen(connection)
 // Listen on the connection
 connection.listen()
 
+let fileUrisWithErrors: Set<string> = new Set()
+
 /**
  * @function
  * Update Diagnostic's Range subtracting one from line and character.
@@ -168,5 +170,11 @@ const rangeMinusOne = _.update(
 )
 
 export function sendDiagnostics (params: PublishDiagnosticsParams) {
+  fileUrisWithErrors.add(params.uri)
   connection.sendDiagnostics(_.update('diagnostics', _.map(rangeMinusOne), params))
+}
+
+export function clearDiagnostics () {
+  fileUrisWithErrors.forEach((uri: string) => sendDiagnostics({ uri, diagnostics: [] }))
+  fileUrisWithErrors.clear()
 }

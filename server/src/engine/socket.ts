@@ -1,6 +1,6 @@
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { sendDiagnostics } from '../server'
+import { clearDiagnostics, sendDiagnostics } from '../server'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -65,13 +65,11 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   })
 
   webSocket.on('message', (data: string) => {
-    const { id, status, result }: FlixResponse = JSON.parse(data)
-    const job: jobs.EnqueuedJob = jobs.getJob(id)
+    const flixResponse: FlixResponse = JSON.parse(data)
+    const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
 
-    if (status !== 'success') {
-      console.error('[debug] status !== success', job)
-
-      _.each(sendDiagnostics, result)
+    if (job.request === jobs.Request.check) {
+      handleCheck(flixResponse)
     }
 
     setTimeout(queue.processQueue, 0)
@@ -97,4 +95,11 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     return
   }
   webSocket.send(JSON.stringify(job))
+}
+
+function handleCheck (flixResponse: FlixResponse) {
+  clearDiagnostics()
+  if (flixResponse.status !== 'success') {
+    _.each(sendDiagnostics, flixResponse.result)
+  }
 }

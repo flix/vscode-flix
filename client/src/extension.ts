@@ -18,13 +18,12 @@ const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
 const FLIX_GLOB_PATTERN = '**/*.flix'
 
 /**
- * Convert filename to VSCode compatible URI
- * This is the same encoding used by TextDocument URIs.
+ * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
  * 
- * @param path {string} - Path or filename
+ * @param uri {vscode.Uri}
  */
-function pathToURI (path) {
-  return vscode.Uri.file(path).toString(false)
+function vsCodeUriToUriString (uri: vscode.Uri) {
+  return vscode.Uri.file(uri.path).toString(false)
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -74,16 +73,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
-  flixWatcher.onDidDelete(({ path }) => {
-    const uri = pathToURI(path)
+  flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification('remUri', { uri })
   })
-  flixWatcher.onDidCreate(({ path }) => {
-    const uri = pathToURI(path)
+  flixWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification('addUri', { uri })
   })
 
-  const workspaceFiles: [string] = _.map(pathToURI, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
+  const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
+
   client.sendNotification('ready', { 
     extensionPath: EXTENSION_PATH || context.extensionPath,
     globalStoragePath: context.globalStoragePath,

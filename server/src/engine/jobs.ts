@@ -5,10 +5,16 @@ export enum Request {
   remUri = 'api/remUri'
 }
 
+export interface Position {
+  line: number
+  character: number
+}
+
 export interface Job {
   request: Request
   uri?: string
   src?: string
+  position?: Position
 }
 
 export interface EnqueuedJob extends Job {

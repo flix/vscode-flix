@@ -151,7 +151,6 @@ documents.listen(connection)
 connection.listen()
 
 function handleHover (params: HoverParams): Thenable<Hover> {
-  sendNotification('restart')
   return new Promise((resolve, _reject) => {
     const job = engine.context(params.textDocument.uri, params.position)
     socket.eventEmitter.once(job.id, ({ status, result }) => {

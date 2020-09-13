@@ -12,7 +12,7 @@ let taskQueue: jobs.EnqueuedJob[] = []
 
 let queueRunning = false
 
-export function enqueue (job: jobs.Job) {
+export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   const id = `${jobCounter++}`
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
@@ -24,6 +24,7 @@ export function enqueue (job: jobs.Job) {
     console.warn(`[debug] added job to task queue`, enqueuedJob.request)
   }
   startQueue()
+  return enqueuedJob
 }
 
 export function enqueueMany (jobArray: [jobs.Job]) {

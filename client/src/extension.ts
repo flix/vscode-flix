@@ -13,6 +13,8 @@ const globby = require('globby')
 
 let client: LanguageClient
 
+let flixWatcher: vscode.FileSystemWatcher
+
 const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
 
 /**
@@ -72,7 +74,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // watch for changes on the file system (delete, create, rename .flix files)
   // TODO: refactor the initial workspaceFiles to use same API (and support gitignored files etc - "Ignore VS Code default exclusions")
-  const flixWatcher = vscode.workspace.createFileSystemWatcher('**/*.flix')
+  flixWatcher = vscode.workspace.createFileSystemWatcher('**/*.flix')
   flixWatcher.onDidDelete(({ path }) => {
     const uri = pathToURI(path)
     client.sendNotification('remUri', { uri })
@@ -99,5 +101,6 @@ export function deactivate(): Thenable<void> | undefined {
   if (!client) {
     return undefined
   }
+  flixWatcher.dispose()
   return client.stop()
 }

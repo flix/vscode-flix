@@ -1,12 +1,16 @@
 import * as jobs from './jobs'
 import * as queue from './queue'
 import { clearDiagnostics, sendDiagnostics } from '../server'
+import { EventEmitter } from 'events'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
 
 let webSocket: any
 let webSocketOpen = false
+
+// event emitter to handle communication between socket handlers and connection handlers
+export const eventEmitter = new EventEmitter()
 
 interface FlixResult {
   uri: string
@@ -99,6 +103,8 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   switch (job.request) {
     case jobs.Request.check:
       return handleCheck(flixResponse)
+    case jobs.Request.context:
+      return handleContext(flixResponse)
     default:
       return
   }
@@ -109,4 +115,8 @@ function handleCheck (flixResponse: FlixResponse) {
   if (flixResponse.status !== 'success') {
     _.each(sendDiagnostics, flixResponse.result)
   }
+}
+
+function handleContext (flixResponse: FlixResponse) {
+  eventEmitter.emit(flixResponse.id, flixResponse)
 }

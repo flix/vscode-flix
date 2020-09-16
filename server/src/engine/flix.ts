@@ -99,3 +99,15 @@ export function hover (uri: string, position: jobs.Position) {
   }
   return queue.enqueue(job)
 }
+
+export function goto (uri: string, position: jobs.Position) {
+  const job: jobs.Job = {
+    request: jobs.Request.goto,
+    uri,
+    position: {
+      line: position.line + 1,
+      character: position.character + 1
+    }
+  }
+  return queue.enqueue(job)
+}

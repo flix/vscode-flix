@@ -1,6 +1,7 @@
 export enum Request {
   check = 'lsp/check',
   hover = 'lsp/hover',
+  goto = 'lsp/goto',
   addUri = 'api/addUri',
   remUri = 'api/remUri'
 }

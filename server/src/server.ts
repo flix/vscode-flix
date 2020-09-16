@@ -13,7 +13,7 @@ import {
   PublishDiagnosticsParams, 
   Range, 
   Hover, 
-  HoverParams, NotificationType
+  HoverParams, NotificationType, Definition, DefinitionParams
 } from 'vscode-languageserver'
 
 import {
@@ -92,7 +92,8 @@ connection.onInitialize((params: InitializeParams) => {
       completionProvider: {
         resolveProvider: true
       },
-      hoverProvider: true
+      hoverProvider: true,
+      definitionProvider: true
     }
   }
   if (hasWorkspaceFolderCapability) {
@@ -164,6 +165,22 @@ function handleHover (params: HoverParams): Thenable<Hover> {
 }
 
 connection.onHover(handleHover)
+
+function handleGotoDefinition (params: DefinitionParams): Thenable<Definition> {
+  return new Promise((resolve, _reject) => {
+    const job = engine.hover(params.textDocument.uri, params.position)
+    socket.eventEmitter.once(job.id, ({ status, result }) => {
+      console.log('handleGotoDefinition (compiler not done)', status, result)
+      if (status === 'success') {
+        resolve(result)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+connection.onDefinition(handleGotoDefinition)
 
 let fileUrisWithErrors: Set<string> = new Set()
 

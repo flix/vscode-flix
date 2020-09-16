@@ -88,9 +88,9 @@ export function remUri (uri: string) {
   queue.enqueue(jobs.createCheck())
 }
 
-export function context (uri: string, position: jobs.Position) {
+export function hover (uri: string, position: jobs.Position) {
   const job: jobs.Job = {
-    request: jobs.Request.context,
+    request: jobs.Request.hover,
     uri,
     position: {
       line: position.line + 1,

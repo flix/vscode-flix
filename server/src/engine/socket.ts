@@ -106,8 +106,8 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   switch (job.request) {
     case jobs.Request.check:
       return handleCheck(flixResponse)
-    case jobs.Request.context:
-      return handleContext(flixResponse)
+    case jobs.Request.hover:
+      return handleHover(flixResponse)
     default:
       return
   }
@@ -120,6 +120,6 @@ function handleCheck (flixResponse: FlixResponse) {
   }
 }
 
-function handleContext (flixResponse: FlixResponse) {
+function handleHover (flixResponse: FlixResponse) {
   eventEmitter.emit(flixResponse.id, flixResponse)
 }

@@ -152,12 +152,10 @@ connection.listen()
 
 function handleHover (params: HoverParams): Thenable<Hover> {
   return new Promise((resolve, _reject) => {
-    const job = engine.context(params.textDocument.uri, params.position)
+    const job = engine.hover(params.textDocument.uri, params.position)
     socket.eventEmitter.once(job.id, ({ status, result }) => {
       if (status === 'success') {
-        resolve({
-          contents: `Type: ${result.tpe}`
-        })
+        resolve(result)
       } else {
         resolve()
       }

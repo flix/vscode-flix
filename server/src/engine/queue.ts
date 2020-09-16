@@ -71,7 +71,6 @@ export async function processQueue () {
       console.error('Could not read file in queue', job)
     }
   } else {
-    console.log('[debug] Queue empty')
     queueRunning = false
   }
 }

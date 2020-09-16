@@ -8,6 +8,7 @@ const WebSocket = require('ws')
 
 let webSocket: any
 let webSocketOpen = false
+let queueProcessingTimer: NodeJS.Timeout
 
 // event emitter to handle communication between socket handlers and connection handlers
 export const eventEmitter = new EventEmitter()
@@ -61,11 +62,13 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   webSocket.on('open', () => {
     webSocketOpen = true
     onOpen && setTimeout(onOpen!, 0)
+    queueProcessingTimer = setInterval(queue.processQueue, 2000)
   })
 
   webSocket.on('close', () => {
     webSocketOpen = false
     onClose && setTimeout(onClose!, 0)
+    clearInterval(queueProcessingTimer)
   })
 
   webSocket.on('message', (data: string) => {

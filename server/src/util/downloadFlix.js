@@ -2,7 +2,7 @@ const { https } = require('follow-redirects')
 const fs = require('fs')
 const path = require('path')
 
-const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-10.jar'
+const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-16.jar'
 
 const downloadFile = ({ url, targetFile }) => new Promise((resolve, reject) => {
   try {
@@ -30,6 +30,7 @@ export default async function ({ targetPath, skipIfExists = false } = {}) {
     if (!fs.existsSync(targetPath)) {
       fs.mkdirSync(targetPath)
     }
+    console.log(`[debug] Downloading ${FLIX_URL} to ${filename}`)
     const targetFile = fs.createWriteStream(filename)
     return downloadFile({ url: FLIX_URL, targetFile })
   } catch (err) {

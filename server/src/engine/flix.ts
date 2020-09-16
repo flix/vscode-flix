@@ -42,7 +42,7 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
 
     console.warn('[debug]', str) // we keep this because some error messages are erroneously sent this way
 
-    if(str.includes(webSocketUrl)) {
+    if(str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
       socket.initialiseSocket({ 
         uri: webSocketUrl,

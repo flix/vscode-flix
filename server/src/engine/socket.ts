@@ -107,7 +107,8 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspCheck:
       return handleCheck(flixResponse)
     case jobs.Request.lspHover:
-      return handleHover(flixResponse)
+    case jobs.Request.lspGoto:
+      return handleGenericRoundtripResponse(flixResponse)
     default:
       return
   }
@@ -120,6 +121,6 @@ function handleCheck (flixResponse: FlixResponse) {
   }
 }
 
-function handleHover (flixResponse: FlixResponse) {
+function handleGenericRoundtripResponse (flixResponse: FlixResponse) {
   eventEmitter.emit(flixResponse.id, flixResponse)
 }

@@ -67,7 +67,6 @@ export function handleGotoDefinition (params: DefinitionParams): Thenable<Defini
   return new Promise((resolve, _reject) => {
     const job = engine.goto(params.textDocument.uri, params.position)
     socket.eventEmitter.once(job.id, ({ status, result }) => {
-      console.log('handleGotoDefinition (compiler not done)', status, result)
       if (status === 'success') {
         resolve(result)
       } else {

@@ -1,13 +1,13 @@
 {
-	"name": "lsp-sample-client",
-	"description": "VSCode part of a language server",
-	"author": "Microsoft Corporation",
-	"license": "MIT",
-	"version": "0.0.1",
-	"publisher": "vscode",
+	"name": "flix-language-client",
+	"description": "Flix Language Server - client part.",
+	"author": "Flix",
+	"license": "Apache-2.0",
+	"version": "1.0.0",
+	"publisher": "flix",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/flix/vscode-flix"
 	},
 	"engines": {
 		"vscode": "^1.43.0"

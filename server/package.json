@@ -1,15 +1,15 @@
 {
-	"name": "lsp-sample-server",
-	"description": "Example implementation of a language server in node.",
+	"name": "flix-language-server",
+	"description": "Flix Language Server - server part.",
 	"version": "1.0.0",
-	"author": "Microsoft Corporation",
-	"license": "MIT",
+	"author": "Flix",
+	"license": "Apache-2.0",
 	"engines": {
 		"node": "*"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/flix/vscode-flix"
 	},
 	"dependencies": {
 		"follow-redirects": "^1.13.0",

@@ -1,8 +1,8 @@
 {
 	"name": "flix",
-	"description": "A language server example",
+	"description": "Flix Language Server Extension",
 	"author": "Flix",
-	"license": "MIT",
+	"license": "Apache-2.0",
 	"version": "1.0.0",
 	"repository": {
 		"type": "git",
@@ -11,7 +11,7 @@
 	"publisher": "flix",
 	"categories": [],
 	"keywords": [
-		"multi-root ready"
+		"flix"
 	],
 	"engines": {
 		"vscode": "^1.43.0"
@@ -37,12 +37,6 @@
 			"type": "object",
 			"title": "Flix",
 			"properties": {
-				"flixLanguageServer.maxNumberOfProblems": {
-					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
-				},
 				"flixLanguageServer.trace.server": {
 					"scope": "window",
 					"type": "string",

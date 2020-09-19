@@ -1,7 +1,3 @@
-// Allow import of internal and external JS modules without TypeScript complaining
-// To a TypeScript proponent this is surely very bad form
-import './allowJavascriptModules'
-
 import {
   createConnection,
   TextDocuments,

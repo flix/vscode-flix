@@ -1,4 +1,4 @@
-import { TextDocument } from 'vscode-languageserver'
+import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
 import * as queue from '../engine/queue'

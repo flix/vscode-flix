@@ -10,6 +10,12 @@ If you make changes to the code you need to restart the `Launch Client` (see *Ca
 
 You can set breakpoints in the compiled code, e.g. `server/out/server.js`.
 
+## Commits
+
+This project loosely uses the format from [conventionalcommits.org](https://www.conventionalcommits.org/) which groups commits into categories.
+
+Pull requests should be squash merged with a commit message category in keeping with its overall contribution.
+
 ## Known oddities
 
 * Can't connect to debug target

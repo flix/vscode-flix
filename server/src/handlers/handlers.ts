@@ -1,12 +1,6 @@
 import {
-  Definition,
-  DefinitionParams,
-  Hover,
-  HoverParams,
   InitializeParams, 
   InitializeResult,
-  Location,
-  ReferenceParams,
   TextDocumentSyncKind
 } from 'vscode-languageserver'
 
@@ -66,41 +60,33 @@ export function handleChangeContent (listener: any) {
   queue.enqueue(jobs.createCheck())
 }
 
-export function handleGotoDefinition (params: DefinitionParams): Thenable<Definition> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.enqueueJobWithPosition(jobs.Request.lspGoto, params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      if (status === 'success') {
-        resolve(result)
-      } else {
-        resolve()
-      }
+function makePositionalHandler (type: jobs.Request) {
+  return function positionalHandler (params: any): Thenable<any> {
+    return new Promise(function handler (resolve) {
+      const job = engine.enqueueJobWithPosition(type, params.textDocument.uri, params.position)
+      socket.eventEmitter.once(job.id, ({ status, result }) => {
+        if (status === 'success') {
+          resolve(result)
+        } else {
+          resolve()
+        }
+      })
     })
-  })
+  }
 }
 
-export function handleHover (params: HoverParams): Thenable<Hover> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.enqueueJobWithPosition(jobs.Request.lspHover, params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      if (status === 'success') {
-        resolve(result)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
+/**
+ * @function
+ */
+export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto)
 
-export function handleReferences (params: ReferenceParams): Thenable<Location[]> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.enqueueJobWithPosition(jobs.Request.lspUses, params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      if (status === 'success') {
-        resolve(result)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
+/**
+ * @function
+ */
+export const handleHover = makePositionalHandler(jobs.Request.lspHover)
+
+/**
+ * @function
+ */
+export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
+

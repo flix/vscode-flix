@@ -26,7 +26,7 @@ export enum Request {
   lspFoldingRange = 'lsp/foldingRange', // TODO
   lspGoto = 'lsp/goto',
   lspSymbols = 'lsp/symbols', // TODO
-  lspUses = 'lsp/uses', // TODO
+  lspUses = 'lsp/uses',
 
   pkgBenchmark = 'pkg/benchmark', // TODO
   pkgBuild = 'pkg/build', // TODO

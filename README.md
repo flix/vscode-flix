@@ -12,6 +12,8 @@ This extension aims to make it easy to get started using **Flix** by automatical
 Notable features:
 
 - On-the-fly compilation and code checking
+- Hover over expressions to see more information
+- Go to definition (usually F12)
 - *More on the way*
 
 ## Requirements

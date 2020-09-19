@@ -2,7 +2,7 @@ const { https } = require('follow-redirects')
 const fs = require('fs')
 const path = require('path')
 
-const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-18.jar'
+const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-19.jar'
 
 interface DownloadFileInput {
   url: string

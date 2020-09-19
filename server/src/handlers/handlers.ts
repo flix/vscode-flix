@@ -5,6 +5,8 @@ import {
   HoverParams,
   InitializeParams, 
   InitializeResult,
+  Location,
+  ReferenceParams,
   TextDocumentSyncKind
 } from 'vscode-languageserver'
 
@@ -27,7 +29,8 @@ export function handleInitialize (_params: InitializeParams) {
         resolveProvider: true
       },
       hoverProvider: true,
-      definitionProvider: true
+      definitionProvider: true,
+      referencesProvider: true
     }
   }
   return result
@@ -65,7 +68,7 @@ export function handleChangeContent (listener: any) {
 
 export function handleGotoDefinition (params: DefinitionParams): Thenable<Definition> {
   return new Promise((resolve, _reject) => {
-    const job = engine.goto(params.textDocument.uri, params.position)
+    const job = engine.enqueueJobWithPosition(jobs.Request.lspGoto, params.textDocument.uri, params.position)
     socket.eventEmitter.once(job.id, ({ status, result }) => {
       if (status === 'success') {
         resolve(result)
@@ -78,7 +81,20 @@ export function handleGotoDefinition (params: DefinitionParams): Thenable<Defini
 
 export function handleHover (params: HoverParams): Thenable<Hover> {
   return new Promise((resolve, _reject) => {
-    const job = engine.hover(params.textDocument.uri, params.position)
+    const job = engine.enqueueJobWithPosition(jobs.Request.lspHover, params.textDocument.uri, params.position)
+    socket.eventEmitter.once(job.id, ({ status, result }) => {
+      if (status === 'success') {
+        resolve(result)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+export function handleReferences (params: ReferenceParams): Thenable<Location[]> {
+  return new Promise((resolve, _reject) => {
+    const job = engine.enqueueJobWithPosition(jobs.Request.lspUses, params.textDocument.uri, params.position)
     socket.eventEmitter.once(job.id, ({ status, result }) => {
       if (status === 'success') {
         resolve(result)

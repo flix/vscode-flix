@@ -39,11 +39,14 @@ documents.onDidChangeContent(handlers.handleChangeContent)
 // Document has been saved
 documents.onDidSave(handlers.handleChangeContent)
 
+// Go to definition (from context menu or F12 usually)
+connection.onDefinition(handlers.handleGotoDefinition)
+
 // Hover over [line, character]
 connection.onHover(handlers.handleHover)
 
-// Go to definition (from context menu or F12 usually)
-connection.onDefinition(handlers.handleGotoDefinition)
+// Find uses of (references to)
+connection.onReferences(handlers.handleReferences)
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

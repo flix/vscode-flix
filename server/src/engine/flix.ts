@@ -87,21 +87,9 @@ export function remUri (uri: string) {
   queue.enqueue(jobs.createCheck())
 }
 
-export function hover (uri: string, position: jobs.Position) {
+export function enqueueJobWithPosition (request: jobs.Request, uri: string, position: jobs.Position) {
   const job: jobs.Job = {
-    request: jobs.Request.lspHover,
-    uri,
-    position: {
-      line: position.line + 1,
-      character: position.character + 1
-    }
-  }
-  return queue.enqueue(job)
-}
-
-export function goto (uri: string, position: jobs.Position) {
-  const job: jobs.Job = {
-    request: jobs.Request.lspGoto,
+    request,
     uri,
     position: {
       line: position.line + 1,

@@ -182,18 +182,32 @@ function handleGotoDefinition (params: DefinitionParams): Thenable<Definition> {
 
 connection.onDefinition(handleGotoDefinition)
 
-let fileUrisWithErrors: Set<string> = new Set()
-
-export function sendDiagnostics (params: PublishDiagnosticsParams) {
-  fileUrisWithErrors.add(params.uri)
-  connection.sendDiagnostics(params)
+/**
+ * Send arbitrary notifications back to the client.
+ * 
+ * @param notificationType {String} - Notification key, has to match a listener in the client
+ * @param payload {*} - Anything (can be empty)
+ */
+export function sendNotification (notificationType: string, payload?: any) {
+  connection.sendNotification(notificationType, payload)
 }
 
+// A set of files that previously had errors which should be cleared when a new lsp/check is performed
+// VS Code remembers files with errors and won't clear them itself.
+let fileUrisWithErrors: Set<string> = new Set()
+
+/**
+ * Clear `fileUrisWithErrors` after removing error flags for all `uri`s.
+ */
 export function clearDiagnostics () {
   fileUrisWithErrors.forEach((uri: string) => sendDiagnostics({ uri, diagnostics: [] }))
   fileUrisWithErrors.clear()
 }
 
-export function sendNotification (notificationType: string, payload?: any) {
-  connection.sendNotification(notificationType, payload)
+/**
+ * Proxy for `connection.sendDiagnostics` that also adds the `uri` to `fileUrisWithErrors`.
+ */
+export function sendDiagnostics (params: PublishDiagnosticsParams) {
+  fileUrisWithErrors.add(params.uri)
+  connection.sendDiagnostics(params)
 }

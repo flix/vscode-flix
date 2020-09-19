@@ -24,7 +24,9 @@ export function handleInitialize (_params: InitializeParams) {
       },
       hoverProvider: true,
       definitionProvider: true,
-      referencesProvider: true
+      referencesProvider: true,
+      foldingRangeProvider: true,
+      selectionRangeProvider: true
     }
   }
   return result
@@ -94,3 +96,13 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  * @function
  */
 export const handleCompletion = makePositionalHandler(jobs.Request.lspComplete)
+
+/**
+ * @function
+ */
+export const handleFoldingRanges = makePositionalHandler(jobs.Request.lspFoldingRange)
+
+/**
+ * @function
+ */
+export const handleSelectionRanges = makePositionalHandler(jobs.Request.lspSelectionRange)

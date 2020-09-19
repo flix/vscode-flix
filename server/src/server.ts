@@ -52,6 +52,10 @@ connection.onReferences(handlers.handleReferences)
 // connection.onCompletion(handlers.handleCompletion)
 // TODO enable when server part works
 
+connection.onFoldingRanges(handlers.handleFoldingRanges)
+
+connection.onSelectionRanges(handlers.handleSelectionRanges)
+
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection)

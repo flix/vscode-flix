@@ -8,6 +8,8 @@ import {
   TransportKind
 } from 'vscode-languageclient'
 
+import * as jobs from './engine/jobs'
+
 const _ = require('lodash/fp')
 
 let client: LanguageClient
@@ -82,11 +84,11 @@ export async function activate(context: vscode.ExtensionContext) {
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
-    client.sendNotification('remUri', { uri })
+    client.sendNotification(jobs.Request.apiRemUri, { uri })
   })
   flixWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
-    client.sendNotification('addUri', { uri })
+    client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))

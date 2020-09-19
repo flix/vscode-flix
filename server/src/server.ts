@@ -23,6 +23,7 @@ import {
 } from './handlers'
 
 import * as engine from './engine'
+import * as jobs from './engine/jobs'
 import * as socket from './engine/socket'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -127,9 +128,9 @@ connection.onInitialized((_params) => {
 
 connection.onNotification('ready', handleReady)
 
-connection.onNotification('addUri', handleAddUri)
+connection.onNotification(jobs.Request.apiAddUri, handleAddUri)
 
-connection.onNotification('remUri', handleRemUri)
+connection.onNotification(jobs.Request.apiRemUri, handleRemUri)
 
 connection.onExit(handleExit)
 

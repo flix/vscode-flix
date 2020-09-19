@@ -6,22 +6,11 @@ import {
   DidChangeConfigurationNotification,
   TextDocumentSyncKind,
   InitializeResult, 
-  PublishDiagnosticsParams, 
-  Hover, 
-  HoverParams, 
-  Definition, 
-  DefinitionParams
+  PublishDiagnosticsParams
 } from 'vscode-languageserver'
 
-import {
-  handleChangeContent,
-  handleCompletion, 
-  handleCompletionResolve
-} from './handlers'
-
-import * as engine from './engine'
+import * as handlers from './handlers'
 import * as jobs from './engine/jobs'
-import * as socket from './engine/socket'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -37,29 +26,6 @@ let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 let hasConfigurationCapability: boolean = false
 let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
-
-/**
- * Runs when both client and server are ready.
- */
-function handleReady (engineInput: engine.StartEngineInput) {
-  engine.start(engineInput)
-}
-
-interface UriInput {
-  uri: string
-}
-
-function handleAddUri ({ uri }: UriInput) {
-  engine.addUri(uri)
-}
-
-function handleRemUri ({ uri }: UriInput) {
-  engine.remUri(uri)
-}
-
-function handleExit () {
-  engine.stop()
-}
 
 connection.onInitialize((params: InitializeParams) => {
   let capabilities = params.capabilities
@@ -112,62 +78,26 @@ connection.onInitialized((_params) => {
   }
 })
 
-connection.onNotification(jobs.Request.internalReady, handleReady)
+connection.onNotification(jobs.Request.internalReady, handlers.handleReady)
 
-connection.onNotification(jobs.Request.apiAddUri, handleAddUri)
+connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 
-connection.onNotification(jobs.Request.apiRemUri, handleRemUri)
+connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
-connection.onExit(handleExit)
+connection.onExit(handlers.handleExit)
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(handleChangeContent)
+documents.onDidChangeContent(handlers.handleChangeContent)
 
 // Document has been saved
-documents.onDidSave(handleChangeContent)
+documents.onDidSave(handlers.handleChangeContent)
 
-connection.onCompletion(handleCompletion)
+// Hover over [line, character]
+connection.onHover(handlers.handleHover)
 
-connection.onCompletionResolve(handleCompletionResolve)
-
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection)
-
-// Listen on the connection
-connection.listen()
-
-function handleHover (params: HoverParams): Thenable<Hover> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.hover(params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      if (status === 'success') {
-        resolve(result)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
-
-connection.onHover(handleHover)
-
-function handleGotoDefinition (params: DefinitionParams): Thenable<Definition> {
-  return new Promise((resolve, _reject) => {
-    const job = engine.goto(params.textDocument.uri, params.position)
-    socket.eventEmitter.once(job.id, ({ status, result }) => {
-      console.log('handleGotoDefinition (compiler not done)', status, result)
-      if (status === 'success') {
-        resolve(result)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
-
-connection.onDefinition(handleGotoDefinition)
+// Go to definition (from context menu or F12 usually)
+connection.onDefinition(handlers.handleGotoDefinition)
 
 /**
  * Send arbitrary notifications back to the client.
@@ -198,3 +128,10 @@ export function sendDiagnostics (params: PublishDiagnosticsParams) {
   fileUrisWithErrors.add(params.uri)
   connection.sendDiagnostics(params)
 }
+
+// Make the text document manager listen on the connection
+// for open, change and close text document events
+documents.listen(connection)
+
+// Listen on the connection
+connection.listen()

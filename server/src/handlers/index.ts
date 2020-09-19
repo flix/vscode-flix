@@ -1,2 +1,1 @@
-export { handleCompletion, handleCompletionResolve } from './codeCompletion'
-export { handleChangeContent } from './changeContent'
+export * from './handlers'

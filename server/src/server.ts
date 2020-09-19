@@ -48,6 +48,10 @@ connection.onHover(handlers.handleHover)
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 
+// Autocomplete
+// connection.onCompletion(handlers.handleCompletion)
+// TODO enable when server part works
+
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection)

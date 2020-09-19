@@ -109,6 +109,7 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspHover:
     case jobs.Request.lspGoto:
     case jobs.Request.lspUses:
+    case jobs.Request.lspComplete:
       return handleGenericRoundtripResponse(flixResponse)
     default:
       return

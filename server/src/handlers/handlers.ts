@@ -90,3 +90,7 @@ export const handleHover = makePositionalHandler(jobs.Request.lspHover)
  */
 export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
 
+/**
+ * @function
+ */
+export const handleCompletion = makePositionalHandler(jobs.Request.lspComplete)

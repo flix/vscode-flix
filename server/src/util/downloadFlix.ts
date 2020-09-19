@@ -2,11 +2,16 @@ const { https } = require('follow-redirects')
 const fs = require('fs')
 const path = require('path')
 
-const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-16.jar'
+const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-18.jar'
 
-const downloadFile = ({ url, targetFile }) => new Promise((resolve, reject) => {
+interface DownloadFileInput {
+  url: string
+  targetFile: string
+}
+
+const downloadFile = ({ url, targetFile }: DownloadFileInput) => new Promise((resolve, reject) => {
   try {
-    https.get(url, response => {
+    https.get(url, (response: any) => {
       response.pipe(targetFile)
       response.on('close', resolve)
       response.on('error', reject)
@@ -16,7 +21,7 @@ const downloadFile = ({ url, targetFile }) => new Promise((resolve, reject) => {
   }
 })
 
-export default async function ({ targetPath, skipIfExists = false } = {}) {
+export default async function (targetPath: string, skipIfExists = false) {
   if (!targetPath) {
     throw 'Must be called with targetPath'
   }

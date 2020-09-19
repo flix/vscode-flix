@@ -29,7 +29,7 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
   }
 
   try {
-    await downloadFlix({ targetPath: globalStoragePath, skipIfExists: true })
+    await downloadFlix(globalStoragePath, /* true (skip download) */)
   } catch (err) {
     throw 'Could not download flix - refusing to start'
   }

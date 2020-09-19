@@ -1,8 +1,11 @@
 import {
-  Hover, 
-  HoverParams, 
-  Definition, 
-  DefinitionParams
+  Definition,
+  DefinitionParams,
+  Hover,
+  HoverParams,
+  InitializeParams, 
+  InitializeResult,
+  TextDocumentSyncKind
 } from 'vscode-languageserver'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -14,6 +17,20 @@ import * as socket from '../engine/socket'
 
 interface UriInput {
   uri: string
+}
+
+export function handleInitialize (_params: InitializeParams) {
+  const result: InitializeResult = {
+    capabilities: {
+      textDocumentSync: TextDocumentSyncKind.Incremental,
+      completionProvider: {
+        resolveProvider: true
+      },
+      hoverProvider: true,
+      definitionProvider: true
+    }
+  }
+  return result
 }
 
 /**

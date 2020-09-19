@@ -2,19 +2,13 @@ import {
   createConnection,
   TextDocuments,
   ProposedFeatures,
-  InitializeParams,
-  DidChangeConfigurationNotification,
-  TextDocumentSyncKind,
-  InitializeResult, 
   PublishDiagnosticsParams
 } from 'vscode-languageserver'
 
-import * as handlers from './handlers'
-import * as jobs from './engine/jobs'
-
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
-const _ = require('lodash/fp')
+import * as handlers from './handlers'
+import * as jobs from './engine/jobs'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -23,67 +17,19 @@ let connection = createConnection(ProposedFeatures.all)
 // Create a simple text document manager.
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 
-let hasConfigurationCapability: boolean = false
-let hasWorkspaceFolderCapability: boolean = false
-let hasDiagnosticRelatedInformationCapability: boolean = false
+// Initialise tells the client which capabilities we support
+connection.onInitialize(handlers.handleInitialize)
 
-connection.onInitialize((params: InitializeParams) => {
-  let capabilities = params.capabilities
-
-  // Does the client support the `workspace/configuration` request?
-  // If not, we fall back using global settings.
-  hasConfigurationCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.configuration
-  )
-  hasWorkspaceFolderCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.workspaceFolders
-  )
-  hasDiagnosticRelatedInformationCapability = !!(
-    capabilities.textDocument &&
-    capabilities.textDocument.publishDiagnostics &&
-    capabilities.textDocument.publishDiagnostics.relatedInformation
-  )
-
-  const result: InitializeResult = {
-    capabilities: {
-      textDocumentSync: TextDocumentSyncKind.Incremental,
-      // Tell the client that this server supports code completion.
-      completionProvider: {
-        resolveProvider: true
-      },
-      hoverProvider: true,
-      definitionProvider: true
-    }
-  }
-  if (hasWorkspaceFolderCapability) {
-    result.capabilities.workspace = {
-      workspaceFolders: {
-        supported: true
-      }
-    }
-  }
-
-  return result
-})
-
-connection.onInitialized((_params) => {
-  if (hasConfigurationCapability) {
-    // Register for all configuration changes.
-    connection.client.register(DidChangeConfigurationNotification.type, undefined)
-  }
-  if (hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders(_event => {
-      connection.console.log('Workspace folder change event received.')
-    })
-  }
-})
-
+// Event happens once after either startup or a restart - starts the engine
 connection.onNotification(jobs.Request.internalReady, handlers.handleReady)
 
+// A file has been added or updated
 connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 
+// A file has been removed
 connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
+// Cleanup after exit
 connection.onExit(handlers.handleExit)
 
 // The content of a text document has changed. This event is emitted
@@ -98,6 +44,13 @@ connection.onHover(handlers.handleHover)
 
 // Go to definition (from context menu or F12 usually)
 connection.onDefinition(handlers.handleGotoDefinition)
+
+// Make the text document manager listen on the connection
+// for open, change and close text document events
+documents.listen(connection)
+
+// Listen on the connection - now everything is running
+connection.listen()
 
 /**
  * Send arbitrary notifications back to the client.
@@ -128,10 +81,3 @@ export function sendDiagnostics (params: PublishDiagnosticsParams) {
   fileUrisWithErrors.add(params.uri)
   connection.sendDiagnostics(params)
 }
-
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection)
-
-// Listen on the connection
-connection.listen()

@@ -25,7 +25,7 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
   }
 
   function handleOpen () {
-    queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.addUri }), workspaceFiles))
+    queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
   }
 
   try {
@@ -72,7 +72,7 @@ export function stop () {
 
 export function addUri (uri: string) {
   const job: jobs.Job = {
-    request: jobs.Request.addUri,
+    request: jobs.Request.apiAddUri,
     uri
   }
   queue.enqueue(job)
@@ -81,7 +81,7 @@ export function addUri (uri: string) {
 
 export function remUri (uri: string) {
   const job: jobs.Job = {
-    request: jobs.Request.remUri,
+    request: jobs.Request.apiRemUri,
     uri
   }
   queue.enqueue(job)
@@ -90,7 +90,7 @@ export function remUri (uri: string) {
 
 export function hover (uri: string, position: jobs.Position) {
   const job: jobs.Job = {
-    request: jobs.Request.hover,
+    request: jobs.Request.lspHover,
     uri,
     position: {
       line: position.line + 1,
@@ -102,7 +102,7 @@ export function hover (uri: string, position: jobs.Position) {
 
 export function goto (uri: string, position: jobs.Position) {
   const job: jobs.Job = {
-    request: jobs.Request.goto,
+    request: jobs.Request.lspGoto,
     uri,
     position: {
       line: position.line + 1,

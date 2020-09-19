@@ -16,7 +16,7 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   const id = `${jobCounter++}`
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
-  if (job.request === jobs.Request.addUri || job.request === jobs.Request.remUri) {
+  if (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri) {
     priorityQueue.push(enqueuedJob)
     console.warn(`[debug] added job to priority queue`, enqueuedJob.request)
   } else {
@@ -61,7 +61,7 @@ export async function processQueue () {
   const job: jobs.EnqueuedJob = dequeue()
   if (job) {
     try {
-      if (job.request === jobs.Request.addUri && !job.src) {
+      if (job.request === jobs.Request.apiAddUri && !job.src) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
       } else {

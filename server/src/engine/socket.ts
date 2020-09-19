@@ -104,9 +104,9 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
 
 function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   switch (job.request) {
-    case jobs.Request.check:
+    case jobs.Request.lspCheck:
       return handleCheck(flixResponse)
-    case jobs.Request.hover:
+    case jobs.Request.lspHover:
       return handleHover(flixResponse)
     default:
       return

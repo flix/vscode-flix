@@ -184,30 +184,9 @@ connection.onDefinition(handleGotoDefinition)
 
 let fileUrisWithErrors: Set<string> = new Set()
 
-/**
- * @function
- * Update Diagnostic's Range subtracting one from line and character.
- * In VSCode terminology these are 0-based, while in the Flix LSP they're 1-based.
- */
-const rangeMinusOne = _.update(
-  'range', 
-  (range: Range) => range
-    ? {
-      start: { 
-        line: range.start.line - 1, 
-        character: range.start.character - 1 
-      },
-      end: { 
-        line: range.end.line - 1, 
-        character: range.end.character - 1 
-      }
-    }
-    : range
-)
-
 export function sendDiagnostics (params: PublishDiagnosticsParams) {
   fileUrisWithErrors.add(params.uri)
-  connection.sendDiagnostics(_.update('diagnostics', _.map(rangeMinusOne), params))
+  connection.sendDiagnostics(params)
 }
 
 export function clearDiagnostics () {

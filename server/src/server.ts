@@ -7,9 +7,10 @@ import {
   TextDocumentSyncKind,
   InitializeResult, 
   PublishDiagnosticsParams, 
-  Range, 
   Hover, 
-  HoverParams, NotificationType, Definition, DefinitionParams
+  HoverParams, 
+  Definition, 
+  DefinitionParams
 } from 'vscode-languageserver'
 
 import {
@@ -37,16 +38,11 @@ let hasConfigurationCapability: boolean = false
 let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
 
-// root path for client's files
-let rootPath: string
-
 /**
  * Runs when both client and server are ready.
- * 
- * @param {String} obj.extensionPath - Install path of this extension.
  */
 function handleReady (engineInput: engine.StartEngineInput) {
-  engine.start({ ...engineInput, rootPath })
+  engine.start(engineInput)
 }
 
 interface UriInput {
@@ -100,12 +96,6 @@ connection.onInitialize((params: InitializeParams) => {
       }
     }
   }
-
-  if (!params.rootPath) {
-    // at this stage we require a root path for client files
-    throw new Error('Unable to get root path for files')
-  }
-  rootPath = params.rootPath!
 
   return result
 })

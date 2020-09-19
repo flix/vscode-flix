@@ -13,7 +13,6 @@ let flixInstance: any
 let port = 8888
 
 export interface StartEngineInput {
-  rootPath: string,
   extensionPath: string,
   globalStoragePath: string,
   workspaceFiles: [string]

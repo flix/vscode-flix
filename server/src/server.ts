@@ -126,7 +126,7 @@ connection.onInitialized((_params) => {
   }
 })
 
-connection.onNotification('ready', handleReady)
+connection.onNotification(jobs.Request.internalReady, handleReady)
 
 connection.onNotification(jobs.Request.apiAddUri, handleAddUri)
 

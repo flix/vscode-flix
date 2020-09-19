@@ -34,7 +34,10 @@ export enum Request {
   pkgBuildJar = 'pkg/buildJar', // TODO
   pkgBuildPkg = 'pkg/buildPkg', // TODO
   pkgInit = 'pkg/init', // TODO
-  pkgTest = 'pkg/test' // TODO
+  pkgTest = 'pkg/test', // TODO
+
+  internalRestart = 'ext/restart', // Internal Extension Request
+  internalReady = 'ext/ready' // Internal Extension Request
 }
 
 export interface Position {

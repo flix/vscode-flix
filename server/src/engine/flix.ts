@@ -59,7 +59,7 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
     const str = data.toString().split(/(\r?\n)/g).join('')
     console.error('[error]', str)
     console.log('[debug] Attempt to restart')
-    sendNotification('restart')
+    sendNotification(jobs.Request.internalRestart)
   })
 }
 

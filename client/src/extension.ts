@@ -93,13 +93,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
 
-  client.sendNotification('ready', { 
+  client.sendNotification(jobs.Request.internalReady, { 
     extensionPath: EXTENSION_PATH || context.extensionPath,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles
   })
 
-  client.onNotification('restart', restartClient(context))
+  client.onNotification(jobs.Request.internalRestart, restartClient(context))
 }
 
 export function deactivate(): Thenable<void> | undefined {

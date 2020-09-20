@@ -91,9 +91,11 @@ export async function activate(context: vscode.ExtensionContext) {
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
+  const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
 
-  client.sendNotification(jobs.Request.internalReady, { 
+  client.sendNotification(jobs.Request.internalReady, {
+    workspaceFolders,
     extensionPath: EXTENSION_PATH || context.extensionPath,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles

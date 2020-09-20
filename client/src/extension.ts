@@ -108,6 +108,10 @@ export async function activate(context: vscode.ExtensionContext) {
   })
 
   client.onNotification(jobs.Request.internalRestart, restartClient(context))
+
+  client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
+
+  client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
 }
 
 export function deactivate(): Thenable<void> | undefined {

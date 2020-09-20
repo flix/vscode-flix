@@ -18,10 +18,9 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   jobs.setJob(id, enqueuedJob)
   if (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri) {
     priorityQueue.push(enqueuedJob)
-    console.warn(`[debug] added job to priority queue`, enqueuedJob.request)
   } else {
     taskQueue.push(enqueuedJob)
-    console.warn(`[debug] added job to task queue`, enqueuedJob.request)
+    console.log(`[add-job]`, enqueuedJob.request)
   }
   startQueue()
   return enqueuedJob
@@ -49,7 +48,6 @@ function dequeue () {
 }
 
 function startQueue () {
-  console.warn('[debug] startQueue', queueRunning)
   if (queueRunning) {
     return
   }

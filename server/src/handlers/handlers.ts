@@ -65,7 +65,9 @@ export function handleChangeContent (listener: any) {
 function makePositionalHandler (type: jobs.Request) {
   return function positionalHandler (params: any): Thenable<any> {
     return new Promise(function handler (resolve) {
-      const job = engine.enqueueJobWithPosition(type, params.textDocument.uri, params.position)
+      // some jobs (e.g. symbols) don't have uris
+      const uri = params.textDocument ? params.textDocument.uri : undefined
+      const job = engine.enqueueJobWithPosition(type, uri, params.position)
       socket.eventEmitter.once(job.id, ({ status, result }) => {
         if (status === 'success') {
           resolve(result)

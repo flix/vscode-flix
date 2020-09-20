@@ -1,0 +1,154 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "copyright_notice": "Copyright 2020 Stephen Tetley",
+    "license": "Apache License, Version 2.0",
+    "name": "flix",
+    "scopeName": "source.flix",
+    "patterns": [
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#annotations"
+        },
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#string_literals"
+        },
+        {
+            "include": "#char_literals"
+        },
+        {
+            "include": "#constants"
+        }
+    ],
+    "repository": {
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.declaration.flix",
+                    "match": "\\b(namespace|def|handler|law|enum|case|type|rel|lat|let|class|impl|disallow)\\b"
+                },
+                {
+                    "name": "keyword.expression.native.flix",
+                    "match": "\\b(import|new|get|set|as)\\b"
+                },
+                {
+                    "name": "keyword.expression.channel.flix",
+                    "match": "\\b(chan|select)\\b"
+                },
+                {
+                    "name": "keyword.expression.process.flix",
+                    "match": "\\b(spawn|sleep|panic)\\b"
+                },
+                {
+                    "name": "keyword.expression.fixpoint.flix",
+                    "match": "\\b(solve|project)\\b"
+                },                
+                {
+                    "name": "keyword.expression.handler.flix",
+                    "match": "\\b(eff|do)\\b"
+                }, 
+                {
+                    "name": "keyword.expression.let.flix",
+                    "match": "\\b(letrec|let\\*|let)\\b"
+                },
+                {
+                    "name": "keyword.expression.match.flix",
+                    "match": "\\b(case|if|match|with)\\b"
+                },
+                {
+                    "name": "keyword.expression.switch.flix",
+                    "match": "\\b(switch)\\b"
+                },
+                {
+                    "name": "keyword.expression.try.flix",
+                    "match": "\\b(try|catch)\\b"
+                },
+                {
+                    "name": "keyword.modifier.flix",
+                    "match": "\\b(pub|line)\\b"
+                },
+                {
+                    "name": "keyword.type.builtin.flix",
+                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Array|List|Result)\\b"
+                },
+                
+                {
+                    "name": "keyword.symbols.flix",
+                    "match": "(\\->|=>|<\\-)"
+                },
+                {
+                    "name": "keyword.operators.flix",
+                    "match": "(==|\\|>|\\+|\\-|\\*|>>|<<|::)"
+                }
+            ]
+        },
+        "annotations": {
+            "patterns": [
+                {
+                    "name": "annotation.test.flix",
+                    "match": "\\b(@test)\\b"
+                },
+                {
+                    "name": "annotation.benchmark.flix",
+                    "match": "\\b(@benchmark)\\b"
+                }         
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.flix",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.flix",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+            
+        },
+        "string_literals": {
+            "name": "string.quoted.double.flix",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.flix",
+                    "match": "\\\\."
+                }
+            ]
+        }, 
+        "char_literals": {
+            "name": "String.quoted.single.flix",
+            "begin": "'",
+            "end": "'",
+            "patterns": [
+                {
+                    "name": "constant.character.doublequote",
+                    "match": "\""
+                },
+                {
+                    "name": "constant.character.escape",
+                    "match": "\\"
+                }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                {
+                    "name": "constant.unit.flix",
+                    "match": "\\b\\(\\)\\b"
+                },
+                {
+                    "name": "constant.bool.flix",
+                    "match": "\\b(true|false)\\b"
+                }
+            ]
+        }
+    }
+}

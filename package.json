@@ -21,6 +21,10 @@
   ],
   "main": "./client/out/extension",
   "contributes": {
+    "commands": [{
+      "command": "flix.internalRestart",
+      "title": "Flix: Restart"
+    }],
     "languages": [
       {
         "id": "flix",

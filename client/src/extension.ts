@@ -80,6 +80,12 @@ export async function activate(context: vscode.ExtensionContext) {
   // Wait for client and server to be ready before registering listeners
   await client.onReady()
 
+  const registeredCommands = await vscode.commands.getCommands(true)
+  const flixInternalRestart = 'flix.internalRestart'
+  if (!_.includes(flixInternalRestart, registeredCommands)) {
+    vscode.commands.registerCommand(flixInternalRestart, restartClient(context))
+  }
+
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {

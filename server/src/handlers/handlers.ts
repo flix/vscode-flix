@@ -22,7 +22,6 @@ export function handleInitialize (_params: InitializeParams) {
       hoverProvider: true,
       definitionProvider: true,
       referencesProvider: true,
-      foldingRangeProvider: true,
       selectionRangeProvider: true,
       workspaceSymbolProvider: true,
       codeLensProvider: {

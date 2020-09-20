@@ -6,19 +6,19 @@ import * as queue from './queue'
 import * as socket from './socket'
 
 const _ = require('lodash/fp')
-const path = require('path')
 const ChildProcess = require('child_process')
 
 let flixInstance: any
 let port = 8888
 
 export interface StartEngineInput {
+  workspaceFolders: [string],
   extensionPath: string,
   globalStoragePath: string,
   workspaceFiles: [string]
 }
 
-export async function start ({ globalStoragePath, workspaceFiles }: StartEngineInput) {
+export async function start ({ workspaceFolders, globalStoragePath, workspaceFiles }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
@@ -27,13 +27,9 @@ export async function start ({ globalStoragePath, workspaceFiles }: StartEngineI
     queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
   }
 
-  try {
-    await downloadFlix(globalStoragePath, /* true (skip download) */)
-  } catch (err) {
-    throw 'Could not download flix - refusing to start'
-  }
+  const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', path.join(globalStoragePath, 'flix.jar'), '--lsp', port])
+  flixInstance = ChildProcess.spawn('java', ['-jar', filename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   flixInstance.stdout.on('data', (data: any) => {

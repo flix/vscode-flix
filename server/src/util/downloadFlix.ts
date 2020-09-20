@@ -3,10 +3,20 @@ const fs = require('fs')
 const path = require('path')
 
 const FLIX_URL = 'https://flix.dev/nightly/flix-2020-09-19.jar'
+const FLIX_JAR = 'flix.jar'
 
 interface DownloadFileInput {
   url: string
   targetFile: string
+}
+
+interface DownloadFlixInput {
+  workspaceFolders: [string],
+  globalStoragePath: string
+}
+
+interface DownloadFlixResult {
+  filename: string
 }
 
 const downloadFile = ({ url, targetFile }: DownloadFileInput) => new Promise((resolve, reject) => {
@@ -21,29 +31,33 @@ const downloadFile = ({ url, targetFile }: DownloadFileInput) => new Promise((re
   }
 })
 
-export default async function (targetPath: string, skipIfExists = false) {
-  if (!targetPath) {
-    throw 'Must be called with targetPath'
-  }
-  const filename = path.join(targetPath, 'flix.jar')
-  const flixExists = fs.existsSync(filename)
-  if (flixExists && skipIfExists) {
-    console.log('[downloadFlix] Skipping download')
-    return
-  }
-  try {
-    if (!fs.existsSync(targetPath)) {
-      fs.mkdirSync(targetPath)
-    }
-    console.log(`[debug] Downloading ${FLIX_URL} to ${filename}`)
-    const targetFile = fs.createWriteStream(filename)
-    return downloadFile({ url: FLIX_URL, targetFile })
-  } catch (err) {
-    if (!flixExists) {
-      throw err
-    } else {
-      // there is a flix available, so we just continue
-      console.error(err)
+/**
+ * Download Flix compiler when necessary.
+ * 
+ * 1. If `flix.jar` exists in any workspace folder, use that
+ * 2. If `flix.jar` exists in `globalStoragePath`, use that
+ * 3. Otherwise download `FLIX_URL` into `globalStoragePath`
+ * 
+ * @throws iff file download goes wrong
+ */
+export default async function downloadFlix ({ workspaceFolders, globalStoragePath }: DownloadFlixInput): Promise<DownloadFlixResult> {
+  // 1. If `flix.jar` exists in any workspace folder, use that
+  for (let folder of workspaceFolders) {
+    const filename = path.join(folder, FLIX_JAR)
+    if (fs.existsSync(filename)) {
+      return { filename }
     }
   }
+  // 2. If `flix.jar` exists in `globalStoragePath`, use that
+  const filename = path.join(globalStoragePath, FLIX_JAR)
+  if (fs.existsSync(filename)) {
+    return { filename }
+  }
+  // 3. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
+  if (!fs.existsSync(globalStoragePath)) {
+    fs.mkdirSync(globalStoragePath)
+  }
+  const targetFile = fs.createWriteStream(filename)
+  await downloadFile({ url: FLIX_URL, targetFile })
+  return { filename }
 }

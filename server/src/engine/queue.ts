@@ -55,6 +55,12 @@ function startQueue () {
   processQueue()
 }
 
+function emptyQueue () {
+  priorityQueue = []
+  taskQueue = []
+  queueRunning = false
+}
+
 export async function processQueue () {
   const job: jobs.EnqueuedJob = dequeue()
   if (job) {
@@ -71,4 +77,17 @@ export async function processQueue () {
   } else {
     queueRunning = false
   }
+}
+
+export async function terminateQueue () {
+  const id = 'shutdown'
+  const job: jobs.EnqueuedJob = {
+    id,
+    request: jobs.Request.apiShutdown
+  }
+  socket.sendMessage(job)
+  await new Promise(resolve => {
+    socket.eventEmitter.once(id, resolve)
+  })
+  emptyQueue()
 }

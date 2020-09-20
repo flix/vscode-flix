@@ -48,9 +48,6 @@ connection.onHover(handlers.handleHover)
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 
-// Autocomplete - TODO enable when server part works
-// connection.onCompletion(handlers.handleCompletion)
-
 connection.onFoldingRanges(handlers.handleFoldingRanges)
 
 connection.onSelectionRanges(handlers.handleSelectionRanges)

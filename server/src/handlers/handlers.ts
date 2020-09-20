@@ -19,9 +19,6 @@ export function handleInitialize (_params: InitializeParams) {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider: {
-        resolveProvider: true
-      },
       hoverProvider: true,
       definitionProvider: true,
       referencesProvider: true,

@@ -1,6 +1,6 @@
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { clearDiagnostics, sendDiagnostics } from '../server'
+import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
 
 const _ = require('lodash/fp')
@@ -112,7 +112,10 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspSelectionRange:
     case jobs.Request.lspSymbols:
     case jobs.Request.lspCodelens:
+    case jobs.Request.apiShutdown:
       return handleGenericRoundtripResponse(flixResponse)
+    case jobs.Request.apiVersion:
+      return handleVersion(flixResponse)
     default:
       return
   }
@@ -127,4 +130,17 @@ function handleCheck (flixResponse: FlixResponse) {
 
 function handleGenericRoundtripResponse (flixResponse: FlixResponse) {
   eventEmitter.emit(flixResponse.id, flixResponse)
+}
+
+/**
+ * This is only called on startup.
+ */
+function handleVersion ({ status, result }: any) {
+  if (status !== 'success') {
+    sendNotification(jobs.Request.internalError, 'Failed starting Flix')
+  } else {
+    const { major, minor, revision } = result
+    const message = `Started Flix (${major}.${minor}-rev${revision})`
+    sendNotification(jobs.Request.internalMessage, message)
+  }
 }

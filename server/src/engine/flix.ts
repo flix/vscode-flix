@@ -25,6 +25,7 @@ export async function start ({ workspaceFolders, globalStoragePath, workspaceFil
 
   function handleOpen () {
     queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
+    queue.enqueue({ request: jobs.Request.apiVersion })
   }
 
   const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath })

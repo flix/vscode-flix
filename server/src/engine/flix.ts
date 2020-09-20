@@ -59,10 +59,11 @@ export async function start ({ workspaceFolders, globalStoragePath, workspaceFil
 }
 
 export function stop () {
+  queue.terminateQueue()
+  socket.closeSocket()
   if (flixInstance) {
     flixInstance.kill()
   }
-  socket.closeSocket()
 }
 
 export function addUri (uri: string) {

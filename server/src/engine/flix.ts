@@ -84,12 +84,6 @@ export function remUri (uri: string) {
 }
 
 export function enqueueJobWithPosition (request: jobs.Request, uri: string, position?: jobs.Position) {
-  position = position 
-    ? {
-      line: position.line + 1,
-      character: position.character + 1
-    }
-    : undefined 
   const job: jobs.Job = {
     request,
     uri,

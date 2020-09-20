@@ -109,8 +109,6 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspHover:
     case jobs.Request.lspGoto:
     case jobs.Request.lspUses:
-    case jobs.Request.lspComplete:
-    case jobs.Request.lspFoldingRange:
     case jobs.Request.lspSelectionRange:
     case jobs.Request.lspSymbols:
     case jobs.Request.lspCodelens:

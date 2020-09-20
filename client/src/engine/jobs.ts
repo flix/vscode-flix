@@ -19,13 +19,11 @@ export enum Request {
   cmdRunTests = 'cmd/runTests', // TODO
 
   lspCheck = 'lsp/check',
-  lspCodelens = 'lsp/codelens', // TODO
-  lspComplete = 'lsp/complete', // TODO
+  lspCodelens = 'lsp/codelens',
   lspHover = 'lsp/hover',
-  lspSelectionRange = 'lsp/selectionRange', // TODO
-  lspFoldingRange = 'lsp/foldingRange', // TODO
+  lspSelectionRange = 'lsp/selectionRange',
   lspGoto = 'lsp/goto',
-  lspSymbols = 'lsp/symbols', // TODO
+  lspSymbols = 'lsp/symbols',
   lspUses = 'lsp/uses',
 
   pkgBenchmark = 'pkg/benchmark', // TODO

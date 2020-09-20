@@ -98,16 +98,6 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
 /**
  * @function
  */
-export const handleCompletion = makePositionalHandler(jobs.Request.lspComplete)
-
-/**
- * @function
- */
-export const handleFoldingRanges = makePositionalHandler(jobs.Request.lspFoldingRange)
-
-/**
- * @function
- */
 export const handleSelectionRanges = makePositionalHandler(jobs.Request.lspSelectionRange)
 
 /**

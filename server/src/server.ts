@@ -48,8 +48,6 @@ connection.onHover(handlers.handleHover)
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 
-connection.onFoldingRanges(handlers.handleFoldingRanges)
-
 connection.onSelectionRanges(handlers.handleSelectionRanges)
 
 connection.onWorkspaceSymbol(handlers.handleSymbols)

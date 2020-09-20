@@ -26,7 +26,11 @@ export function handleInitialize (_params: InitializeParams) {
       definitionProvider: true,
       referencesProvider: true,
       foldingRangeProvider: true,
-      selectionRangeProvider: true
+      selectionRangeProvider: true,
+      workspaceSymbolProvider: true,
+      codeLensProvider: {
+        resolveProvider: true
+      }
     }
   }
   return result
@@ -108,3 +112,13 @@ export const handleFoldingRanges = makePositionalHandler(jobs.Request.lspFolding
  * @function
  */
 export const handleSelectionRanges = makePositionalHandler(jobs.Request.lspSelectionRange)
+
+/**
+ * @function
+ */
+export const handleSymbols = makePositionalHandler(jobs.Request.lspSymbols)
+
+/**
+ * @function
+ */
+export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)

@@ -112,6 +112,8 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspComplete:
     case jobs.Request.lspFoldingRange:
     case jobs.Request.lspSelectionRange:
+    case jobs.Request.lspSymbols:
+    case jobs.Request.lspCodelens:
       return handleGenericRoundtripResponse(flixResponse)
     default:
       return

@@ -1,10 +1,13 @@
 {
     "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-    "copyright_notice": "Copyright 2020 Stephen Tetley",
+    "copyright_notice": "Copyright 2020 Stephen Tetley, Magnus Madsen",
     "license": "Apache License, Version 2.0",
     "name": "flix",
     "scopeName": "source.flix",
     "patterns": [
+        {
+            "include": "#constants"
+        },
         {
             "include": "#keywords"
         },
@@ -19,61 +22,94 @@
         },
         {
             "include": "#char_literals"
-        },
-        {
-            "include": "#constants"
         }
     ],
     "repository": {
+        "constants": {
+            "patterns": [
+                {
+                    "name": "constant.language.unit.flix",
+                    "match": "\\b\\(\\)\\b"
+                },
+                {
+                    "name": "constant.language.bool.flix",
+                    "match": "\\b(true|false)\\b"
+                },
+                {
+                    "name": "constant.language.null.flix",
+                    "match": "\\b(null)\\b"
+                },
+                {
+                    "name": "constant.language.effect.flix",
+                    "match": "\\b(Pure|Impure)\\b"
+                }
+            ]
+        },
         "keywords": {
             "patterns": [
                 {
+                    "name": "keyword.control.if.flix",
+                    "match": "\\b(if|else)\\b"
+                },
+                {
+                    "name": "keyword.control.match.flix",
+                    "match": "\\b(case|match)\\b"
+                },
+                {
+                    "name": "keyword.control.select.flix",
+                    "match": "\\b(select)\\b"
+                },
+                {
+                    "name": "keyword.operator.bool.flix",
+                    "match": "\\b(not|and|or)\\b"
+                }, 
+                {
                     "name": "keyword.declaration.flix",
-                    "match": "\\b(namespace|def|handler|law|enum|case|type|rel|lat|let|class|impl|disallow)\\b"
+                    "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias)\\b"
                 },
                 {
-                    "name": "keyword.expression.native.flix",
-                    "match": "\\b(import|new|get|set|as)\\b"
-                },
+                    "name": "keyword.expression.cast.flix",
+                    "match": "\\b(as)\\b"
+                }, 
                 {
-                    "name": "keyword.expression.channel.flix",
-                    "match": "\\b(chan|select)\\b"
-                },
-                {
-                    "name": "keyword.expression.process.flix",
-                    "match": "\\b(spawn|sleep|panic)\\b"
+                    "name": "keyword.expression.default.flix",
+                    "match": "\\b(default)\\b"
                 },
                 {
                     "name": "keyword.expression.fixpoint.flix",
                     "match": "\\b(solve|project)\\b"
                 },                
                 {
-                    "name": "keyword.expression.handler.flix",
-                    "match": "\\b(eff|do)\\b"
-                }, 
+                    "name": "keyword.expression.force.flix",
+                    "match": "\\b(force)\\b"
+                },
+                {
+                    "name": "keyword.expression.jvm.flix",
+                    "match": "\\b(import|new|get|set)\\b"
+                },
                 {
                     "name": "keyword.expression.let.flix",
-                    "match": "\\b(letrec|let\\*|let)\\b"
+                    "match": "\\b(let\\*|let)\\b"
                 },
                 {
-                    "name": "keyword.expression.match.flix",
-                    "match": "\\b(case|if|match|with)\\b"
+                    "name": "keyword.expression.lazy.flix",
+                    "match": "\\b(lazy)\\b"
                 },
                 {
-                    "name": "keyword.expression.switch.flix",
-                    "match": "\\b(switch)\\b"
+                    "name": "keyword.expression.references.flix",
+                    "match": "\\b(ref|deref)\\b"
                 },
                 {
-                    "name": "keyword.expression.try.flix",
-                    "match": "\\b(try|catch)\\b"
+                    "name": "keyword.expression.use.flix",
+                    "match": "\\b(use)\\b"
                 },
                 {
                     "name": "keyword.modifier.flix",
-                    "match": "\\b(pub|line)\\b"
+                    "match": "\\b(opaque|pub|inline|mut)\\b"
                 },
                 {
                     "name": "keyword.type.builtin.flix",
-                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Array|List|Result)\\b"
+                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Result|Array|List)\\b"
                 },
                 
                 {
@@ -110,19 +146,7 @@
                     "end": "\\*/"
                 }
             ]
-            
         },
-        "string_literals": {
-            "name": "string.quoted.double.flix",
-            "begin": "\"",
-            "end": "\"",
-            "patterns": [
-                {
-                    "name": "constant.character.escape.flix",
-                    "match": "\\\\."
-                }
-            ]
-        }, 
         "char_literals": {
             "name": "String.quoted.single.flix",
             "begin": "'",
@@ -138,15 +162,14 @@
                 }
             ]
         },
-        "constants": {
+        "string_literals": {
+            "name": "string.quoted.double.flix",
+            "begin": "\"",
+            "end": "\"",
             "patterns": [
                 {
-                    "name": "constant.unit.flix",
-                    "match": "\\b\\(\\)\\b"
-                },
-                {
-                    "name": "constant.bool.flix",
-                    "match": "\\b(true|false)\\b"
+                    "name": "constant.character.escape.flix",
+                    "match": "\\\\."
                 }
             ]
         }

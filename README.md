@@ -33,15 +33,15 @@ programming language.
 
 * __Find References__
     - Find all references to uses of a specific function.
-    - Find all references to uses of a local variable or formal parameter.
-    - Find all references to uses of an enum case.
+    - Find all references to uses of a specific local variable or formal parameter.
+    - Find all references to uses of a specific enum case.
 
 * __Code Lenses__
-    - Run main from within the editor.
+    - Run `main` from within the editor.
     - Run benchmarks and unit tests from within the editor.
 
 * __Highlight__
-    - Highlights semantically related symbols, not simply symbols that share the same name.
+    - Automatically highlights semantically related symbols.
 
 ## Installation
 

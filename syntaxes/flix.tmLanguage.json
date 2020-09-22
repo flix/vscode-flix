@@ -56,6 +56,10 @@
                     "match": "\\b(case|match)\\b"
                 },
                 {
+                    "name": "keyword.control.spawn.flix",
+                    "match": "\\b(spawn)\\b"
+                },
+                {
                     "name": "keyword.control.select.flix",
                     "match": "\\b(select)\\b"
                 },

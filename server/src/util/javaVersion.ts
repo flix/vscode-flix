@@ -30,7 +30,7 @@ export default async function javaMajorVersion (rootPath: string): Promise<JavaV
       const majorVersion = getMajorVersion(stdout) || 0
       return resolve({
         majorVersion,
-        versionString: stdout
+        versionString: _.trim(stdout)
       })
     })
   })

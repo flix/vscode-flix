@@ -25,9 +25,9 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
   }
 
   // Check for valid Java version
-  const version: number = await javaVersion(extensionPath)
-  if (version < 11) {
-    sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found Java ${version}.`)
+  const { majorVersion, versionString } = await javaVersion(extensionPath)
+  if (majorVersion < 11) {
+    sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found "${versionString}".`)
     return
   }
 

@@ -50,8 +50,6 @@ connection.onReferences(handlers.handleReferences)
 
 connection.onSelectionRanges(handlers.handleSelectionRanges)
 
-connection.onWorkspaceSymbol(handlers.handleSymbols)
-
 connection.onCodeLens(handlers.handleCodelens)
 
 // Make the text document manager listen on the connection

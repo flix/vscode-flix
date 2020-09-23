@@ -23,7 +23,6 @@ export enum Request {
   lspHover = 'lsp/hover',
   lspSelectionRange = 'lsp/selectionRange',
   lspGoto = 'lsp/goto',
-  lspSymbols = 'lsp/symbols',
   lspUses = 'lsp/uses',
 
   pkgBenchmark = 'pkg/benchmark', // TODO

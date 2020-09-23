@@ -23,7 +23,6 @@ export function handleInitialize (_params: InitializeParams) {
       definitionProvider: true,
       referencesProvider: true,
       selectionRangeProvider: true,
-      workspaceSymbolProvider: true,
       codeLensProvider: {
         resolveProvider: true
       }
@@ -98,11 +97,6 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  * @function
  */
 export const handleSelectionRanges = makePositionalHandler(jobs.Request.lspSelectionRange)
-
-/**
- * @function
- */
-export const handleSymbols = makePositionalHandler(jobs.Request.lspSymbols)
 
 /**
  * @function

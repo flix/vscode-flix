@@ -110,7 +110,6 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspGoto:
     case jobs.Request.lspUses:
     case jobs.Request.lspSelectionRange:
-    case jobs.Request.lspSymbols:
     case jobs.Request.lspCodelens:
     case jobs.Request.apiShutdown:
       return handleGenericRoundtripResponse(flixResponse)

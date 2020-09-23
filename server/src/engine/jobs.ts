@@ -33,6 +33,7 @@ export enum Request {
   pkgTest = 'pkg/test', // TODO
 
   internalRestart = 'ext/restart', // Internal Extension Request
+  internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request
   internalError = 'ext/error' // Internal Extension Request

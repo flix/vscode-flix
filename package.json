@@ -25,6 +25,10 @@
       {
         "command": "flix.internalRestart",
         "title": "Flix: Restart"
+      },
+      {
+        "command": "flix.internalDownloadLatest",
+        "title": "Flix: Download latest compiler"
       }
     ],
     "languages": [

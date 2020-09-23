@@ -84,12 +84,16 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   // Wait for client and server to be ready before registering listeners
   await client.onReady()
 
+  // Utility for safely registering commands
   const registeredCommands = await vscode.commands.getCommands(true)
-  const flixInternalRestart = 'flix.internalRestart'
-  if (!_.includes(flixInternalRestart, registeredCommands)) {
-    vscode.commands.registerCommand(flixInternalRestart, restartClient(context, { shouldUpdateFlix: false }))
+  const registerCommand = (command: string, callback: any) => {
+    if (!_.includes(command, registeredCommands)) {
+      vscode.commands.registerCommand(command, callback)
+    }
   }
 
+  // Register available commands
+  registerCommand('flix.internalRestart', restartClient(context, { shouldUpdateFlix: false }))
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {

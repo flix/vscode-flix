@@ -6,7 +6,7 @@
 
 # Flix for Visual Studio Code
 
-The **official** Visual Studio Code extension for the [Flix Programming Language
+The official Visual Studio Code extension for the [Flix Programming Language
 (flix.dev)](https://flix.dev/). 
 
 Flix is a next-generation reliable, safe, concise, and functional-first
@@ -32,30 +32,32 @@ programming language.
   - Jump to the definition of any enum case.
 
 * __Find References__
-    - Find all references to uses of a specific function.
-    - Find all references to uses of a specific local variable or formal parameter.
-    - Find all references to uses of a specific enum case.
+    - Find all references to a function.
+    - Find all references to a local variable or formal parameter.
+    - Find all references to an enum case.
 
 * __Code Lenses__
     - Run `main` from within the editor.
     - Run benchmarks and unit tests from within the editor.
 
 * __Highlight__
-    - Automatically highlights semantically related symbols.
+    - Highlights semantically related symbols.
 
 ## Installation
 
 - Install the Flix Visual Studio Code extension.
-- Upon startup, the extension will automatically download the newest version of the Flix compiler to local storage.
+    - The extension will automatically download the Flix compiler.
 
 Alternative (for advanced users):
 
-- If you place the Flix compiler, which must be named `flix.jar`, into the project root then the extension will use that instead its internal version. This should only be used if you want to run a nightly build or a custom version of the compiler.
+- Upon startup, the extension with look for a `flix.jar` compiler in the project
+  root and use that if available. 
+  - This can be used to run a nightly (or custom-built) version of the compiler.
 
 ## Requirements
 
-- Must have Java 11 (or later) installed.
-- Must have `java` on your path.
+- Requires Java 11 (or later).
+    - Ensure that the `java` command is on your path. 
 
 ## For Developers
 

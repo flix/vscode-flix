@@ -12,14 +12,19 @@ const ChildProcess = require('child_process')
 let flixInstance: any
 let port = 8888
 
+interface LaunchOptions {
+  shouldUpdateFlix: boolean
+}
+
 export interface StartEngineInput {
   workspaceFolders: [string],
   extensionPath: string,
   globalStoragePath: string,
-  workspaceFiles: [string]
+  workspaceFiles: [string],
+  launchOptions?: LaunchOptions
 }
 
-export async function start ({ workspaceFolders, extensionPath, globalStoragePath, workspaceFiles }: StartEngineInput) {
+export async function start ({ workspaceFolders, extensionPath, globalStoragePath, workspaceFiles, launchOptions }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
@@ -31,7 +36,8 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
     return
   }
 
-  const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath })
+  const shouldUpdateFlix = launchOptions && launchOptions.shouldUpdateFlix
+  const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath, shouldUpdateFlix })
 
   flixInstance = ChildProcess.spawn('java', ['-jar', filename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`

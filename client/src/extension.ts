@@ -12,6 +12,10 @@ import * as jobs from './engine/jobs'
 
 const _ = require('lodash/fp')
 
+interface LaunchOptions {
+  shouldUpdateFlix: boolean
+}
+
 let client: LanguageClient
 
 let flixWatcher: vscode.FileSystemWatcher
@@ -28,14 +32,14 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
-function restartClient (context: vscode.ExtensionContext) {
+function restartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function () {
     await deactivate()
-    await activate(context)
+    await activate(context, launchOptions)
   }
 }
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   // The server is implemented in node
   let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
@@ -83,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const registeredCommands = await vscode.commands.getCommands(true)
   const flixInternalRestart = 'flix.internalRestart'
   if (!_.includes(flixInternalRestart, registeredCommands)) {
-    vscode.commands.registerCommand(flixInternalRestart, restartClient(context))
+    vscode.commands.registerCommand(flixInternalRestart, restartClient(context, { shouldUpdateFlix: false }))
   }
 
   // watch for changes on the file system (delete, create, rename .flix files)
@@ -104,7 +108,8 @@ export async function activate(context: vscode.ExtensionContext) {
     workspaceFolders,
     extensionPath: EXTENSION_PATH || context.extensionPath,
     globalStoragePath: context.globalStoragePath,
-    workspaceFiles
+    workspaceFiles,
+    launchOptions
   })
 
   client.onNotification(jobs.Request.internalRestart, restartClient(context))

@@ -1,5 +1,6 @@
 import { sendNotification } from '../server'
 import downloadFlix from '../util/downloadFlix'
+import javaVersion from '../util/javaVersion'
 
 import * as jobs from './jobs'
 import * as queue from './queue'
@@ -18,14 +19,16 @@ export interface StartEngineInput {
   workspaceFiles: [string]
 }
 
-export async function start ({ workspaceFolders, globalStoragePath, workspaceFiles }: StartEngineInput) {
+export async function start ({ workspaceFolders, extensionPath, globalStoragePath, workspaceFiles }: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
 
-  function handleOpen () {
-    queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
-    queue.enqueue({ request: jobs.Request.apiVersion })
+  // Check for valid Java version
+  const version: number = await javaVersion(extensionPath)
+  if (version < 11) {
+    sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found Java ${version}.`)
+    return
   }
 
   const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath })
@@ -42,7 +45,10 @@ export async function start ({ workspaceFolders, globalStoragePath, workspaceFil
       // initialise websocket, listening to messages and what not
       socket.initialiseSocket({ 
         uri: webSocketUrl,
-        onOpen: handleOpen
+        onOpen: function handleOpen () {
+          queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
+          queue.enqueue({ request: jobs.Request.apiVersion })
+        }
       })
 
       // now that the connection is established, there's no reason to listen for new messages

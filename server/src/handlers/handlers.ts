@@ -22,7 +22,6 @@ export function handleInitialize (_params: InitializeParams) {
       hoverProvider: true,
       definitionProvider: true,
       referencesProvider: true,
-      selectionRangeProvider: true,
       codeLensProvider: {
         resolveProvider: true
       }
@@ -92,11 +91,6 @@ export const handleHover = makePositionalHandler(jobs.Request.lspHover)
  * @function
  */
 export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
-
-/**
- * @function
- */
-export const handleSelectionRanges = makePositionalHandler(jobs.Request.lspSelectionRange)
 
 /**
  * @function

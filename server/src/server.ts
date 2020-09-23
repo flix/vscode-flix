@@ -48,8 +48,6 @@ connection.onHover(handlers.handleHover)
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 
-connection.onSelectionRanges(handlers.handleSelectionRanges)
-
 connection.onCodeLens(handlers.handleCodelens)
 
 // Make the text document manager listen on the connection

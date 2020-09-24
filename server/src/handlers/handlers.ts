@@ -80,22 +80,12 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  */
 export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 
-function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
-    if (status === 'success') {
-      promiseResolver(result)
-    } else {
-      promiseResolver()
-    }
-  }
-}
-
 /**
  * @function
  */
 export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler)
 
-function makeRunMainResponseHandler (promiseResolver: Function) {
+function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse, ) {
     if (status === 'success') {
       promiseResolver(result)
@@ -110,7 +100,7 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
  */
 export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain, makeRunMainResponseHandler)
 
-function makeRunTestsResponseHandler (promiseResolver: Function) {
+function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse, ) {
     if (status === 'success') {
       promiseResolver(result)
@@ -125,6 +115,21 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
  */
 export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeRunTestsResponseHandler)
 
+function makeRunTestsResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+    if (status === 'success') {
+      promiseResolver(result)
+    } else {
+      promiseResolver()
+    }
+  }
+}
+
+/**
+ * @function
+ */
+export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
+
 function makeVersionResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: any) {
     if (status === 'success') {
@@ -137,11 +142,6 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     promiseResolver()
   }
 }
-
-/**
- * @function
- */
-export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
 
 /**
  * Handle response from lsp/check

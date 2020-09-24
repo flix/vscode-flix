@@ -88,8 +88,10 @@ export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchma
 function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse, ) {
     if (status === 'success') {
+      sendNotification(jobs.Request.internalMessage, 'Benchmarks ran successfully')
       promiseResolver(result)
     } else {
+      sendNotification(jobs.Request.internalError, 'Benchmarks failed to run')
       promiseResolver()
     }
   }
@@ -103,8 +105,10 @@ export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain, makeRun
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse, ) {
     if (status === 'success') {
+      sendNotification(jobs.Request.internalMessage, `Flix output:\n${result}`)
       promiseResolver(result)
     } else {
+      sendNotification(jobs.Request.internalError, `Flix output:\n${result}`)
       promiseResolver()
     }
   }
@@ -118,8 +122,10 @@ export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeR
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse, ) {
     if (status === 'success') {
+      sendNotification(jobs.Request.internalMessage, 'All tests ran successfully')
       promiseResolver(result)
     } else {
+      sendNotification(jobs.Request.internalError, 'Test(s) failed')
       promiseResolver()
     }
   }

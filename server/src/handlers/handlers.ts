@@ -60,12 +60,10 @@ export function handleChangeContent (listener: any) {
   queue.enqueue(jobs.createCheck())
 }
 
-function makePositionalHandler (type: jobs.Request) {
-  return function positionalHandler (params: any): Thenable<any> {
+function makeEnqueuePromise (type: jobs.Request, uri?: string, position?: any) {
+  return function enqueuePromise () {
     return new Promise(function handler (resolve) {
-      // some jobs (e.g. symbols) don't have uris
-      const uri = params.textDocument ? params.textDocument.uri : undefined
-      const job = engine.enqueueJobWithPosition(type, uri, params.position)
+      const job = engine.enqueueJobWithPosition(type, uri, position)
       socket.eventEmitter.once(job.id, ({ status, result }) => {
         if (status === 'success') {
           resolve(result)
@@ -74,6 +72,14 @@ function makePositionalHandler (type: jobs.Request) {
         }
       })
     })
+  }
+}
+
+function makePositionalHandler (type: jobs.Request) {
+  return function positionalHandler (params: any): Thenable<any> {
+    const uri = params.textDocument ? params.textDocument.uri : undefined
+    const position = params.position
+    return makeEnqueuePromise(type, uri, position)()
   }
 }
 

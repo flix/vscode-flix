@@ -1,3 +1,4 @@
+import { handleVersion } from '../handlers'
 import { sendNotification } from '../server'
 import downloadFlix from '../util/downloadFlix'
 import javaVersion from '../util/javaVersion'
@@ -53,7 +54,7 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
         uri: webSocketUrl,
         onOpen: function handleOpen () {
           queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
-          queue.enqueue({ request: jobs.Request.apiVersion })
+          handleVersion()
         }
       })
 

@@ -2,6 +2,7 @@ import * as jobs from './jobs'
 import * as queue from './queue'
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
+import { handleLspCheckResponse } from '../handlers'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -103,45 +104,9 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
 }
 
 function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
-  switch (job.request) {
-    case jobs.Request.lspCheck:
-      return handleCheck(flixResponse)
-    case jobs.Request.lspHover:
-    case jobs.Request.lspGoto:
-    case jobs.Request.lspUses:
-    case jobs.Request.lspCodelens:
-    case jobs.Request.apiShutdown:
-    case jobs.Request.cmdRunBenchmarks:
-    case jobs.Request.cmdRunMain:
-    case jobs.Request.cmdRunTests:
-      return handleGenericRoundtripResponse(flixResponse) // TODO everything should be handled like this
-    case jobs.Request.apiVersion:
-      return handleVersion(flixResponse)
-    default:
-      return
-  }
-}
-
-function handleCheck (flixResponse: FlixResponse) {
-  clearDiagnostics()
-  if (flixResponse.status !== 'success') {
-    _.each(sendDiagnostics, flixResponse.result)
-  }
-}
-
-function handleGenericRoundtripResponse (flixResponse: FlixResponse) {
-  eventEmitter.emit(flixResponse.id, flixResponse)
-}
-
-/**
- * This is only called on startup.
- */
-function handleVersion ({ status, result }: any) {
-  if (status !== 'success') {
-    sendNotification(jobs.Request.internalError, 'Failed starting Flix')
+  if (job.request === jobs.Request.lspCheck) {
+    handleLspCheckResponse(flixResponse)
   } else {
-    const { major, minor, revision } = result
-    const message = `Started Flix (${major}.${minor}-rev${revision})`
-    sendNotification(jobs.Request.internalMessage, message)
+    eventEmitter.emit(flixResponse.id, flixResponse)
   }
 }

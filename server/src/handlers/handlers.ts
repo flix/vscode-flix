@@ -10,6 +10,9 @@ import * as jobs from '../engine/jobs'
 import * as queue from '../engine/queue'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
+import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
+
+const _ = require('lodash/fp')
 
 interface UriInput {
   uri: string
@@ -49,8 +52,15 @@ export function handleExit () {
   engine.stop()
 }
 
-export function handleChangeContent (listener: any) {
-  const document: TextDocument = listener.document
+export function handleLspCheckResponse ({ status, result }: socket.FlixResponse, ) {
+  clearDiagnostics()
+  if (status !== 'success') {
+    _.each(sendDiagnostics, result)
+  }
+}
+
+export function handleChangeContent (params: any) {
+  const document: TextDocument = params.document
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
@@ -152,3 +162,21 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
  * @function
  */
 export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeRunTestsResponseHandler)
+
+function makeVersionResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: any) {
+    if (status !== 'success') {
+      sendNotification(jobs.Request.internalError, 'Failed starting Flix')
+    } else {
+      const { major, minor, revision } = result
+      const message = `Started Flix (${major}.${minor}-rev${revision})`
+      sendNotification(jobs.Request.internalMessage, message)
+    }
+    promiseResolver()
+  }
+}
+
+/**
+ * @function
+ */
+export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)

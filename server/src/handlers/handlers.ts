@@ -127,12 +127,12 @@ export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeR
 
 function makeVersionResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: any) {
-    if (status !== 'success') {
-      sendNotification(jobs.Request.internalError, 'Failed starting Flix')
-    } else {
+    if (status === 'success') {
       const { major, minor, revision } = result
-      const message = `Started Flix (${major}.${minor}-rev${revision})`
+      const message = `Running Flix (${major}.${minor}-rev${revision})`
       sendNotification(jobs.Request.internalMessage, message)
+    } else {
+      sendNotification(jobs.Request.internalError, 'Failed starting Flix')
     }
     promiseResolver()
   }

@@ -95,6 +95,15 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   // Register available commands
   registerCommand('flix.internalRestart', restartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', restartClient(context, { shouldUpdateFlix: true }))
+  registerCommand('flix.cmdRunBenchmarks', () => {
+    client.sendNotification(jobs.Request.cmdRunBenchmarks)
+  })
+  registerCommand('flix.cmdRunMain', () => {
+    client.sendNotification(jobs.Request.cmdRunMain)
+  })
+  registerCommand('flix.cmdRunTests', () => {
+    client.sendNotification(jobs.Request.cmdRunTests)
+  })
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

@@ -111,7 +111,10 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     case jobs.Request.lspUses:
     case jobs.Request.lspCodelens:
     case jobs.Request.apiShutdown:
-      return handleGenericRoundtripResponse(flixResponse)
+    case jobs.Request.cmdRunBenchmarks:
+    case jobs.Request.cmdRunMain:
+    case jobs.Request.cmdRunTests:
+      return handleGenericRoundtripResponse(flixResponse) // TODO everything should be handled like this
     case jobs.Request.apiVersion:
       return handleVersion(flixResponse)
     default:

@@ -102,3 +102,18 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  * @function
  */
 export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
+
+/**
+ * @function
+ */
+export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks)
+
+/**
+ * @function
+ */
+export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain)
+
+/**
+ * @function
+ */
+export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests)

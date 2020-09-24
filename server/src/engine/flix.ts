@@ -97,7 +97,7 @@ export function remUri (uri: string) {
   queue.enqueue(jobs.createCheck())
 }
 
-export function enqueueJobWithPosition (request: jobs.Request, uri: string, position?: jobs.Position) {
+export function enqueueJobWithPosition (request: jobs.Request, uri?: string, position?: jobs.Position) {
   const job: jobs.Job = {
     request,
     uri,

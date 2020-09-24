@@ -29,6 +29,12 @@ connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 // A file has been removed
 connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
+connection.onNotification(jobs.Request.cmdRunBenchmarks, handlers.handleRunBenchmarks)
+
+connection.onNotification(jobs.Request.cmdRunMain, handlers.handleRunMain)
+
+connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
+
 // Cleanup after exit
 connection.onExit(handlers.handleExit)
 

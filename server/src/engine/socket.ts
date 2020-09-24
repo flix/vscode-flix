@@ -33,7 +33,7 @@ interface FlixResult {
   }]
 }
 
-interface FlixResponse {
+export interface FlixResponse {
   id: string
   status: string
   result?: FlixResult

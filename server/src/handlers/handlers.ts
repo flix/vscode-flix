@@ -60,26 +60,31 @@ export function handleChangeContent (listener: any) {
   queue.enqueue(jobs.createCheck())
 }
 
-function makeEnqueuePromise (type: jobs.Request, uri?: string, position?: any) {
+function makeDefaultResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+    if (status === 'success') {
+      promiseResolver(result)
+    } else {
+      promiseResolver()
+    }
+  }
+}
+
+function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Function, uri?: string, position?: any) {
   return function enqueuePromise () {
-    return new Promise(function handler (resolve) {
+    return new Promise(function (resolve) {
       const job = engine.enqueueJobWithPosition(type, uri, position)
-      socket.eventEmitter.once(job.id, ({ status, result }) => {
-        if (status === 'success') {
-          resolve(result)
-        } else {
-          resolve()
-        }
-      })
+      const handler = makeResponseHandler || makeDefaultResponseHandler
+      socket.eventEmitter.once(job.id, handler(resolve))
     })
   }
 }
 
-function makePositionalHandler (type: jobs.Request) {
+function makePositionalHandler (type: jobs.Request, makeResponseHandler?: Function) {
   return function positionalHandler (params: any): Thenable<any> {
     const uri = params.textDocument ? params.textDocument.uri : undefined
     const position = params.position
-    return makeEnqueuePromise(type, uri, position)()
+    return makeEnqueuePromise(type, makeResponseHandler, uri, position)()
   }
 }
 
@@ -103,17 +108,47 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  */
 export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 
-/**
- * @function
- */
-export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks)
+function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+    if (status === 'success') {
+      promiseResolver(result)
+    } else {
+      promiseResolver()
+    }
+  }
+}
 
 /**
  * @function
  */
-export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain)
+export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler)
+
+function makeRunMainResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+    if (status === 'success') {
+      promiseResolver(result)
+    } else {
+      promiseResolver()
+    }
+  }
+}
 
 /**
  * @function
  */
-export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests)
+export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain, makeRunMainResponseHandler)
+
+function makeRunTestsResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+    if (status === 'success') {
+      promiseResolver(result)
+    } else {
+      promiseResolver()
+    }
+  }
+}
+
+/**
+ * @function
+ */
+export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeRunTestsResponseHandler)

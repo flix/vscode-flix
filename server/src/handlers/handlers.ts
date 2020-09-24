@@ -49,13 +49,6 @@ export function handleExit () {
   engine.stop()
 }
 
-export function handleLspCheckResponse ({ status, result }: socket.FlixResponse, ) {
-  clearDiagnostics()
-  if (status !== 'success') {
-    _.each(sendDiagnostics, result)
-  }
-}
-
 export function handleChangeContent (params: any) {
   const document: TextDocument = params.document
   const job: jobs.Job = {
@@ -149,3 +142,15 @@ function makeVersionResponseHandler (promiseResolver: Function) {
  * @function
  */
 export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
+
+/**
+ * Handle response from lsp/check
+ * 
+ * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
+ */
+export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse, ) {
+  clearDiagnostics()
+  if (status !== 'success') {
+    _.each(sendDiagnostics, result)
+  }
+}

@@ -2,7 +2,7 @@ import * as jobs from './jobs'
 import * as queue from './queue'
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
-import { handleLspCheckResponse } from '../handlers'
+import { lspCheckResponseHandler } from '../handlers'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -105,7 +105,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
 
 function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   if (job.request === jobs.Request.lspCheck) {
-    handleLspCheckResponse(flixResponse)
+    lspCheckResponseHandler(flixResponse)
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)
   }

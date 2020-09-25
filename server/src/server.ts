@@ -77,6 +77,10 @@ export function sendNotification (notificationType: string, payload?: any) {
 // VS Code remembers files with errors and won't clear them itself.
 let fileUrisWithErrors: Set<string> = new Set()
 
+export function hasErrors () {
+  return fileUrisWithErrors.size > 0
+}
+
 /**
  * Clear `fileUrisWithErrors` after removing error flags for all `uri`s.
  */

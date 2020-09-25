@@ -1,9 +1,10 @@
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
+import { hasErrors } from '../server'
 
 export function makeDefaultResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
       promiseResolver(result)
     } else {
@@ -22,8 +23,11 @@ export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Fu
   }
 }
 
-export function makePositionalHandler (type: jobs.Request, makeResponseHandler?: Function) {
+export function makePositionalHandler (type: jobs.Request, handlerWhenErrorsExist?: Function, makeResponseHandler?: Function) {
   return function positionalHandler (params: any): Thenable<any> {
+    if (hasErrors() && handlerWhenErrorsExist) {
+      return handlerWhenErrorsExist()
+    }
     const uri = params.textDocument ? params.textDocument.uri : undefined
     const position = params.position
     return makeEnqueuePromise(type, makeResponseHandler, uri, position)()

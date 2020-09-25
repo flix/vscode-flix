@@ -11,12 +11,12 @@
 export enum Request {
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
-  apiVersion = 'api/version', // TODO
-  apiShutdown = 'api/shutdown', // TODO
+  apiVersion = 'api/version',
+  apiShutdown = 'api/shutdown',
 
-  cmdRunBenchmarks = 'cmd/runBenchmarks', // TODO
-  cmdRunMain = 'cmd/runMain', // TODO
-  cmdRunTests = 'cmd/runTests', // TODO
+  cmdRunBenchmarks = 'cmd/runBenchmarks',
+  cmdRunMain = 'cmd/runMain',
+  cmdRunTests = 'cmd/runTests',
 
   lspCheck = 'lsp/check',
   lspCodelens = 'lsp/codelens',

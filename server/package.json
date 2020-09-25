@@ -14,6 +14,7 @@
   "dependencies": {
     "follow-redirects": "^1.13.0",
     "lodash": "^4.17.20",
+    "portfinder": "^1.0.28",
     "vscode-languageserver": "^6.1.1",
     "vscode-languageserver-textdocument": "^1.0.1",
     "ws": "^7.3.1"

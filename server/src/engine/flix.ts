@@ -9,9 +9,9 @@ import * as socket from './socket'
 
 const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
+const portfinder = require('portfinder')
 
 let flixInstance: any
-let port = 8888
 
 interface LaunchOptions {
   shouldUpdateFlix: boolean
@@ -40,6 +40,9 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
   const shouldUpdateFlix = launchOptions && launchOptions.shouldUpdateFlix
   const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath, shouldUpdateFlix })
 
+  // get a port starting from 8888
+  const port = await portfinder.getPortPromise({ port: 8888 })
+
   flixInstance = ChildProcess.spawn('java', ['-jar', filename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
@@ -65,6 +68,7 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
 
   flixInstance.stderr.on('data', (data: any) => {
     // Text on missing/inaccessible: 'Error: Unable to access jarfile'
+    // Port in use: 'java.net.BindException: Address already in use: bind'
     const str = data.toString().split(/(\r?\n)/g).join('')
     console.error('[error]', str)
     console.log('[debug] Attempt to restart')

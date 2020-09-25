@@ -62,7 +62,7 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
       })
 
       // now that the connection is established, there's no reason to listen for new messages
-      // flixInstance.stdout.removeAllListeners('data')  -- TODO: Remove comment when LSP has been updated
+      flixInstance.stdout.removeAllListeners('data')
     }
   })
 

@@ -6,25 +6,45 @@ const _ = require('lodash/fp')
 const fs = require('fs')
 
 let jobCounter = 0
+let queueRunning = false
 
 let priorityQueue: jobs.EnqueuedJob[] = []
 let taskQueue: jobs.EnqueuedJob[] = []
 
-let queueRunning = false
+let waitingForPriorityQueue: jobs.JobMap = {
+  // uri -> job
+}
+
+function emptyWaitingForPriorityQueue () {
+  const values = _.values(waitingForPriorityQueue)
+  waitingForPriorityQueue = {}
+  return values
+}
+
+const enqueueDebounced = _.debounce(500, function () {
+  if (_.isEmpty(waitingForPriorityQueue)) {
+    return
+  }
+  priorityQueue.push(...emptyWaitingForPriorityQueue())
+  startQueue()
+})
+
+function enqueueWithPriority (job: jobs.EnqueuedJob) {
+  waitingForPriorityQueue[job.uri!] = job
+  enqueueDebounced()
+  return job
+}
 
 export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   const id = `${jobCounter++}`
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
+
   if (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri) {
-    const index = _.findIndex({ uri: job.uri }, priorityQueue)
-    if (index > -1) {
-      // update file in-place if it's already queued
-      priorityQueue[index] = enqueuedJob
-    } else {
-      priorityQueue.push(enqueuedJob)
-    }
-  } else if (job.request === jobs.Request.lspCheck) {
+    return enqueueWithPriority(enqueuedJob)
+  }
+  
+  if (job.request === jobs.Request.lspCheck) {
     // there's a special rule for lsp/check:
     // there can only be one and it has to be in the beginning
     taskQueue = _.reject({ request: jobs.Request.lspCheck }, taskQueue)
@@ -32,6 +52,7 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   } else {
     taskQueue.push(enqueuedJob)
   }
+
   startQueue()
   return enqueuedJob
 }

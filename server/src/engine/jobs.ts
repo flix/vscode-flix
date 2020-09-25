@@ -55,7 +55,7 @@ export interface EnqueuedJob extends Job {
   id: string
 }
 
-interface JobMap {
+export interface JobMap {
   [id: string]: EnqueuedJob
 }
 

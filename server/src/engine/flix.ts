@@ -90,7 +90,6 @@ export function addUri (uri: string) {
     uri
   }
   queue.enqueue(job)
-  queue.enqueue(jobs.createCheck())
 }
 
 export function remUri (uri: string) {
@@ -99,7 +98,6 @@ export function remUri (uri: string) {
     uri
   }
   queue.enqueue(job)
-  queue.enqueue(jobs.createCheck())
 }
 
 export function enqueueJobWithPosition (request: jobs.Request, uri?: string, position?: jobs.Position) {

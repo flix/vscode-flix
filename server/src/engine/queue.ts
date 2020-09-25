@@ -17,10 +17,20 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
   if (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri) {
-    priorityQueue.push(enqueuedJob)
+    const index = _.findIndex({ uri: job.uri }, priorityQueue)
+    if (index > -1) {
+      // update file in-place if it's already queued
+      priorityQueue[index] = enqueuedJob
+    } else {
+      priorityQueue.push(enqueuedJob)
+    }
+  } else if (job.request === jobs.Request.lspCheck) {
+    // there's a special rule for lsp/check:
+    // there can only be one and it has to be in the beginning
+    taskQueue = _.reject({ request: jobs.Request.lspCheck }, taskQueue)
+    taskQueue.unshift(enqueuedJob)
   } else {
     taskQueue.push(enqueuedJob)
-    console.log(`[add-job]`, enqueuedJob.request)
   }
   startQueue()
   return enqueuedJob
@@ -28,9 +38,13 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
 
 export function enqueueMany (jobArray: [jobs.Job]) {
   _.each(enqueue, jobArray)
-  enqueue(jobs.createCheck())
 }
 
+/**
+ * Takes the first item off priorityQueue if it has items. 
+ * If the last item is taken from priorityQueue, append lsp/check to first position in taskQueue.
+ * Otherwise take the first item off taskQueue.
+ */
 function dequeue () {
   if (_.isEmpty(priorityQueue)) {
     if (_.isEmpty(taskQueue)) {
@@ -43,6 +57,11 @@ function dequeue () {
     // priorityQueue has items
     const first = _.first(priorityQueue)
     priorityQueue.shift()
+    if (_.isEmpty(priorityQueue)) {
+      enqueue({
+        request: jobs.Request.lspCheck
+      })
+    }
     return first
   }
 }
@@ -73,6 +92,7 @@ function emptyQueue () {
 }
 
 export async function processQueue () {
+  // console.warn('[[debug:ProcessQueue]]: ' + _.map('request', priorityQueue).join(', ') + ' || ' + _.map('request', taskQueue).join(', '))
   const job: jobs.EnqueuedJob = dequeue()
   if (job) {
     try {

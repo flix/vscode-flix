@@ -57,7 +57,6 @@ export function handleChangeContent (params: any) {
     src: document.getText()
   }
   queue.enqueue(job)
-  queue.enqueue(jobs.createCheck())
 }
 
 /**

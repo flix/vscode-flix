@@ -63,7 +63,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   webSocket.on('open', () => {
     webSocketOpen = true
     onOpen && setTimeout(onOpen!, 0)
-    queueProcessingTimer = setInterval(queue.processQueue, 2000)
+    queueProcessingTimer = setInterval(queue.kickQueue, 5000)
   })
 
   webSocket.on('close', () => {

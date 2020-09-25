@@ -47,6 +47,17 @@ function dequeue () {
   }
 }
 
+/**
+ * Start the queue if it should be running but isn't.
+ * This is a safety valve and shouldn't have to be triggered.
+ */
+export function kickQueue () {
+  if (!queueRunning && (!_.isEmpty(priorityQueue) || !_.isEmpty(taskQueue))) {
+    console.error('[kickQueue] NOTICE: Queue had to be kicked.')
+    startQueue()
+  }
+}
+
 function startQueue () {
   if (queueRunning) {
     return

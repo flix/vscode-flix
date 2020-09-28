@@ -26,6 +26,7 @@ export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Fu
 export function makePositionalHandler (type: jobs.Request, handlerWhenErrorsExist?: Function, makeResponseHandler?: Function) {
   return function positionalHandler (params: any): Thenable<any> {
     if (hasErrors() && handlerWhenErrorsExist) {
+      // NOTE: At present this isn't used by anyone (neither is makeResponseHandler)
       return handlerWhenErrorsExist()
     }
     const uri = params.textDocument ? params.textDocument.uri : undefined

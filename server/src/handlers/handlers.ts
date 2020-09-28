@@ -77,11 +77,7 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
 /**
  * @function
  */
-export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens, handleCodeLensWhenErrors)
-
-function handleCodeLensWhenErrors () {
-  return []
-}
+export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 
 /**
  * @function

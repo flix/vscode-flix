@@ -19,6 +19,13 @@ function isPriorityJob (job: jobs.Job) {
   return job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri
 }
 
+function jobToEnqueuedJob (job: jobs.Job) {
+  const id = `${jobCounter++}`
+  const enqueuedJob = { ...job, id }
+  jobs.setJob(id, enqueuedJob)
+  return enqueuedJob
+}
+
 function emptyWaitingForPriorityQueue () {
   const values = _.values(waitingForPriorityQueue)
   waitingForPriorityQueue = {}
@@ -40,9 +47,7 @@ function enqueueWithPriority (job: jobs.EnqueuedJob) {
 }
 
 export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
-  const id = `${jobCounter++}`
-  const enqueuedJob = { ...job, id }
-  jobs.setJob(id, enqueuedJob)
+  const enqueuedJob = jobToEnqueuedJob(job)
 
   if (isPriorityJob(enqueuedJob)) {
     return enqueueWithPriority(enqueuedJob)
@@ -67,12 +72,9 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
  * @param jobArray 
  */
 export function initialiseQueues (jobArray: [jobs.Job]) {
-  priorityQueue = []
-  taskQueue = []
+  emptyQueue()
   for (const job of jobArray) {
-    const id = `${jobCounter++}`
-    const enqueuedJob = { ...job, id }
-    jobs.setJob(id, enqueuedJob)
+    const enqueuedJob = jobToEnqueuedJob(job)
     if (isPriorityJob(job)) {
       priorityQueue.push(enqueuedJob)
     } else {

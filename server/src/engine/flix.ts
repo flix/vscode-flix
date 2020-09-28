@@ -71,8 +71,8 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
     // Port in use: 'java.net.BindException: Address already in use: bind'
     const str = data.toString().split(/(\r?\n)/g).join('')
     console.error('[error]', str)
-    console.log('[debug] Attempt to restart')
-    sendNotification(jobs.Request.internalRestart)
+    sendNotification(jobs.Request.internalError, 'Received error from Flix!')
+    sendNotification(jobs.Request.internalError, str)
   })
 }
 

@@ -141,6 +141,9 @@ export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVer
 
 function makeVersionResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: any) {
+    // version is called on startup currently
+    // use this to communicate back to the client that startup is done
+    sendNotification(jobs.Request.internalReady)
     if (status === 'success') {
       const { major, minor, revision } = result
       const message = `Running Flix (${major}.${minor}-rev${revision})`

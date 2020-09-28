@@ -1,6 +1,8 @@
 import * as path from 'path'
 import * as vscode from 'vscode'
 
+import { EventEmitter } from 'events'
+
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -22,6 +24,28 @@ let flixWatcher: vscode.FileSystemWatcher
 
 const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
 const FLIX_GLOB_PATTERN = '**/*.flix'
+
+const readyEventEmitter = new EventEmitter()
+
+function showStartupProgress () {
+  vscode.window.withProgress({
+    location: vscode.ProgressLocation.Notification,
+    title: 'Starting Flix',
+    cancellable: false
+  }, function (_progress) {
+    return new Promise(function resolver (resolve, reject) {
+      const tookTooLong = setTimeout(function tookTooLongHandler () {
+        vscode.window.showErrorMessage('Timed out trying to start.')
+        reject()
+      }, 10 * 1000)
+
+      readyEventEmitter.on(jobs.Request.internalReady, function readyHandler () {
+        clearTimeout(tookTooLong)
+        resolve()
+      })
+    })
+  })
+}
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
@@ -125,6 +149,12 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
     globalStoragePath: context.globalStoragePath,
     workspaceFiles,
     launchOptions
+  })
+
+  showStartupProgress()
+
+  client.onNotification(jobs.Request.internalReady, function handler () {
+    readyEventEmitter.emit(jobs.Request.internalReady)
   })
 
   client.onNotification(jobs.Request.internalRestart, restartClient(context))

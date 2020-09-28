@@ -12,6 +12,7 @@ const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
 
 let flixInstance: any
+let flixFilename: string
 
 interface LaunchOptions {
   shouldUpdateFlix: boolean
@@ -23,6 +24,10 @@ export interface StartEngineInput {
   globalStoragePath: string,
   workspaceFiles: [string],
   launchOptions?: LaunchOptions
+}
+
+export function getFlixFilename () {
+  return flixFilename
 }
 
 export async function start ({ workspaceFolders, extensionPath, globalStoragePath, workspaceFiles, launchOptions }: StartEngineInput) {
@@ -39,6 +44,7 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
 
   const shouldUpdateFlix = launchOptions && launchOptions.shouldUpdateFlix
   const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath, shouldUpdateFlix })
+  flixFilename = filename
 
   // get a port starting from 8888
   const port = await portfinder.getPortPromise({ port: 8888 })

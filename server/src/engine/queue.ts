@@ -15,6 +15,10 @@ let waitingForPriorityQueue: jobs.JobMap = {
   // uri -> job
 }
 
+function isPriorityJob (job: jobs.Job) {
+  return job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri
+}
+
 function emptyWaitingForPriorityQueue () {
   const values = _.values(waitingForPriorityQueue)
   waitingForPriorityQueue = {}
@@ -40,7 +44,7 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
 
-  if (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri) {
+  if (isPriorityJob(enqueuedJob)) {
     return enqueueWithPriority(enqueuedJob)
   }
   
@@ -57,8 +61,25 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   return enqueuedJob
 }
 
-export function enqueueMany (jobArray: [jobs.Job]) {
-  _.each(enqueue, jobArray)
+/**
+ * Initialises the queues.
+ * 
+ * @param jobArray 
+ */
+export function initialiseQueues (jobArray: [jobs.Job]) {
+  priorityQueue = []
+  taskQueue = []
+  for (const job of jobArray) {
+    const id = `${jobCounter++}`
+    const enqueuedJob = { ...job, id }
+    jobs.setJob(id, enqueuedJob)
+    if (isPriorityJob(job)) {
+      priorityQueue.push(enqueuedJob)
+    } else {
+      taskQueue.push(enqueuedJob)
+    }
+  }
+  startQueue()
 }
 
 /**

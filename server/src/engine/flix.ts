@@ -56,7 +56,7 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
       socket.initialiseSocket({ 
         uri: webSocketUrl,
         onOpen: function handleOpen () {
-          queue.enqueueMany(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
+          queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
           handleVersion()
         }
       })

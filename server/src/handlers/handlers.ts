@@ -85,7 +85,7 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler)
 
 function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
       sendNotification(jobs.Request.internalMessage, 'Benchmarks ran successfully')
       promiseResolver(result)
@@ -102,7 +102,7 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
 export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain, makeRunMainResponseHandler)
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
       sendNotification(jobs.Request.internalMessage, `Flix output:\n${result}`)
       promiseResolver(result)
@@ -119,7 +119,7 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeRunTestsResponseHandler)
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse, ) {
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
       sendNotification(jobs.Request.internalMessage, 'All tests ran successfully')
       promiseResolver(result)
@@ -153,7 +153,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
  * 
  * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
  */
-export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse, ) {
+export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   if (status !== 'success') {
     _.each(sendDiagnostics, result)

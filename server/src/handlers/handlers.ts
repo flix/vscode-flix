@@ -7,7 +7,7 @@ import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
-import { makePositionalHandler, makeEnqueuePromise } from './util'
+import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors } from './util'
 
 const _ = require('lodash/fp')
 
@@ -82,7 +82,7 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 /**
  * @function
  */
-export const handleRunBenchmarks = makeEnqueuePromise(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler)
+export const handleRunBenchmarks = enqueueUnlessHasErrors(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -99,7 +99,7 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
 /**
  * @function
  */
-export const handleRunMain = makeEnqueuePromise(jobs.Request.cmdRunMain, makeRunMainResponseHandler)
+export const handleRunMain = enqueueUnlessHasErrors(jobs.Request.cmdRunMain, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -116,7 +116,7 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 /**
  * @function
  */
-export const handleRunTests = makeEnqueuePromise(jobs.Request.cmdRunTests, makeRunTestsResponseHandler)
+export const handleRunTests = enqueueUnlessHasErrors(jobs.Request.cmdRunTests, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -128,6 +128,10 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
       promiseResolver()
     }
   }
+}
+
+function hasErrorsHandlerForCommands () {
+  sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
 }
 
 /**

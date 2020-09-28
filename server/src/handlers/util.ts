@@ -23,6 +23,32 @@ export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Fu
   }
 }
 
+/**
+ * Function to enqueue a job unless errors are present.
+ * If errors are present the hasErrorsHandler is called.
+ * Otherwise a promise is returned that is finally resolved with the result of running the command.
+ * 
+ * @param type 
+ * @param makeResponseHandler 
+ * @param hasErrorsHandler 
+ */
+export function enqueueUnlessHasErrors (type: jobs.Request, makeResponseHandler?: Function, hasErrorsHandler?: Function) {
+  if (typeof hasErrorsHandler !== 'function') {
+    // development check (remove later)
+    throw '`enqueueUnlessHasErrors` must have `hasErrorsHandler` when called with errors'
+  }
+  return function enqueuePromise () {
+    if (hasErrors() && hasErrorsHandler) {
+      return hasErrorsHandler()
+    }
+    return new Promise(function (resolve) {
+      const job = engine.enqueueJobWithPosition(type)
+      const handler = makeResponseHandler || makeDefaultResponseHandler
+      socket.eventEmitter.once(job.id, handler(resolve))
+    })
+  }
+}
+
 export function makePositionalHandler (type: jobs.Request, handlerWhenErrorsExist?: Function, makeResponseHandler?: Function) {
   return function positionalHandler (params: any): Thenable<any> {
     if (hasErrors() && handlerWhenErrorsExist) {

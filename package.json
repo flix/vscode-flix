@@ -41,6 +41,34 @@
       {
         "command": "flix.cmdRunAllTests",
         "title": "Flix: Run All Tests"
+      },
+      {
+        "command": "flix.pkgBenchmark",
+        "title": "Flix: Package Benchmark"
+      },
+      {
+        "command": "flix.pkgBuild",
+        "title": "Flix: Package Build"
+      },
+      {
+        "command": "flix.pkgBuildDoc",
+        "title": "Flix: Package Build Doc"
+      },
+      {
+        "command": "flix.pkgBuildJar",
+        "title": "Flix: Package Build Jar"
+      },
+      {
+        "command": "flix.pkgBuildPkg",
+        "title": "Flix: Package Build Package"
+      },
+      {
+        "command": "flix.pkgInit",
+        "title": "Flix: Package Init"
+      },
+      {
+        "command": "flix.pkgTest",
+        "title": "Flix: Package Test"
       }
     ],
     "languages": [

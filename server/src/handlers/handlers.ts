@@ -146,6 +146,28 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
   }
 }
 
+
+/**
+ * @function
+ */
+export const makeHandleRunPackageCommand = (request: jobs.Request) => (
+  enqueueUnlessHasErrors(request, makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
+)
+
+function makeRunPackageCommandResponseHandler (promiseResolver: Function) {
+  console.warn('123')
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
+    console.warn('456')
+    if (status === 'success') {
+      sendNotification(jobs.Request.internalMessage, `Package command result: \n${result}`)
+      promiseResolver(result)
+    } else {
+      sendNotification(jobs.Request.internalError, 'Package command failed')
+      promiseResolver()
+    }
+  }
+}
+
 function hasErrorsHandlerForCommands () {
   sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
 }

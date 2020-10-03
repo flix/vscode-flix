@@ -128,6 +128,27 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   registerCommand('flix.cmdRunAllTests', () => {
     client.sendNotification(jobs.Request.cmdRunTests)
   })
+  registerCommand('flix.pkgBenchmark', () => {
+    client.sendNotification(jobs.Request.pkgBenchmark)
+  })
+  registerCommand('flix.pkgBuild', () => {
+    client.sendNotification(jobs.Request.pkgBuild)
+  })
+  registerCommand('flix.pkgBuildDoc', () => {
+    client.sendNotification(jobs.Request.pkgBuildDoc)
+  })
+  registerCommand('flix.pkgBuildJar', () => {
+    client.sendNotification(jobs.Request.pkgBuildJar)
+  })
+  registerCommand('flix.pkgBuildPkg', () => {
+    client.sendNotification(jobs.Request.pkgBuildPkg)
+  })
+  registerCommand('flix.pkgInit', () => {
+    client.sendNotification(jobs.Request.pkgInit)
+  })
+  registerCommand('flix.pkgTest', () => {
+    client.sendNotification(jobs.Request.pkgTest)
+  })
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

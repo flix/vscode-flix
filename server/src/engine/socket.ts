@@ -16,7 +16,7 @@
 
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
+import { sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { lspCheckResponseHandler } from '../handlers'
 
@@ -96,10 +96,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     const flixResponse: FlixResponse = JSON.parse(data)
     const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
 
-    clearTimeout(sentMessagesMap[flixResponse.id])
     handleResponse(flixResponse, job)
-
-    setTimeout(queue.processQueue, 0)
   })
 }
 
@@ -121,10 +118,12 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     }, 1000)
     return
   }
+  // register a timer to handle timeouts 
   sentMessagesMap[job.id] = setTimeout(() => {
     sendNotification(jobs.Request.internalError, `Job timed out after ${MESSAGE_TIMEOUT_SECONDS} seconds`)
     setTimeout(queue.processQueue, 0)
   }, (MESSAGE_TIMEOUT_SECONDS * 1000))
+  // send job as string
   webSocket.send(JSON.stringify(job))
 }
 
@@ -134,4 +133,8 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)
   }
+  // clear timer because we received a response
+  clearTimeout(sentMessagesMap[flixResponse.id])
+  // ask queue to process next item
+  setTimeout(queue.processQueue, 0)
 }

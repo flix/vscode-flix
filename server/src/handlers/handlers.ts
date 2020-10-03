@@ -78,7 +78,20 @@ export function handleChangeContent (params: any) {
 /**
  * @function
  */
-export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto)
+export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto, undefined, makeGotoDefinitionResponseHandler)
+
+function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
+  return function responseHandler ({ status, result }: socket.FlixResponse) {
+    if (status === 'success') {
+      if (_.startsWith('file://', _.get('targetUri', result))) {
+        return promiseResolver(result)
+      } else {
+        sendNotification(jobs.Request.internalMessage, 'Cannot go to definition for Flix Standard Library')
+      }
+    }
+    promiseResolver()
+  }
+}
 
 /**
  * @function

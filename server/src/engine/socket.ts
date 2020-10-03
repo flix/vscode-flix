@@ -25,10 +25,16 @@ const WebSocket = require('ws')
 
 let webSocket: any
 let webSocketOpen = false
-let queueProcessingTimer: NodeJS.Timeout
 
 // event emitter to handle communication between socket handlers and connection handlers
 export const eventEmitter = new EventEmitter()
+
+// keep track of messages sent so we can handle response timeouts
+interface sentMessagesMap {
+  [id: string]: NodeJS.Timeout
+}
+const sentMessagesMap: sentMessagesMap = {}
+const MESSAGE_TIMEOUT_SECONDS = 30
 
 interface FlixResult {
   uri: string
@@ -79,19 +85,18 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   webSocket.on('open', () => {
     webSocketOpen = true
     onOpen && setTimeout(onOpen!, 0)
-    queueProcessingTimer = setInterval(queue.kickQueue, 5000)
   })
 
   webSocket.on('close', () => {
     webSocketOpen = false
     onClose && setTimeout(onClose!, 0)
-    clearInterval(queueProcessingTimer)
   })
 
   webSocket.on('message', (data: string) => {
     const flixResponse: FlixResponse = JSON.parse(data)
     const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
 
+    clearTimeout(sentMessagesMap[flixResponse.id])
     handleResponse(flixResponse, job)
 
     setTimeout(queue.processQueue, 0)
@@ -116,6 +121,10 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     }, 1000)
     return
   }
+  sentMessagesMap[job.id] = setTimeout(() => {
+    sendNotification(jobs.Request.internalError, `Job timed out after ${MESSAGE_TIMEOUT_SECONDS} seconds`)
+    setTimeout(queue.processQueue, 0)
+  }, (MESSAGE_TIMEOUT_SECONDS * 1000))
   webSocket.send(JSON.stringify(job))
 }
 

@@ -125,7 +125,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   registerCommand('flix.cmdRunMain', () => {
     client.sendNotification(jobs.Request.cmdRunMain)
   })
-  registerCommand('flix.cmdRunTests', () => {
+  registerCommand('flix.cmdRunAllTests', () => {
     client.sendNotification(jobs.Request.cmdRunTests)
   })
 

@@ -39,7 +39,7 @@
         "title": "Flix: Run Main"
       },
       {
-        "command": "flix.cmdRunTests",
+        "command": "flix.cmdRunAllTests",
         "title": "Flix: Run All Tests"
       }
     ],

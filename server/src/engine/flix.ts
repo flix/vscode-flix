@@ -27,9 +27,6 @@ const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
 
-let flixInstance: any
-let flixFilename: string
-
 interface LaunchOptions {
   shouldUpdateFlix: boolean
 }
@@ -37,19 +34,33 @@ interface LaunchOptions {
 export interface StartEngineInput {
   workspaceFolders: [string],
   extensionPath: string,
+  extensionVersion: string,
   globalStoragePath: string,
   workspaceFiles: [string],
   launchOptions?: LaunchOptions
 }
 
+let flixInstance: any
+let flixFilename: string
+let startEngineInput: StartEngineInput
+
 export function getFlixFilename () {
   return flixFilename
 }
 
-export async function start ({ workspaceFolders, extensionPath, globalStoragePath, workspaceFiles, launchOptions }: StartEngineInput) {
+export function getExtensionVersion () {
+  return _.getOr('(unknown version)', 'extensionVersion', startEngineInput)
+}
+
+export async function start (input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
   }
+
+  // copy input to local var for later use
+  startEngineInput = _.clone(input)
+
+  const { workspaceFolders, extensionPath, globalStoragePath, workspaceFiles, launchOptions } = input
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
@@ -70,8 +81,6 @@ export async function start ({ workspaceFolders, extensionPath, globalStoragePat
 
   flixInstance.stdout.on('data', (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
-
-    console.warn('[debug]', str) // we keep this because some error messages are erroneously sent this way
 
     if(str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not

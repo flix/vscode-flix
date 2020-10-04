@@ -197,7 +197,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     sendNotification(jobs.Request.internalReady)
     if (status === 'success') {
       const { major, minor, revision } = result
-      const message = `Running Flix ${major}.${minor}-rev${revision}\n(${engine.getFlixFilename()})`
+      const message = `Flix Extension ${engine.getExtensionVersion()} ready! Running Flix ${major}.${minor}-rev${revision}\n(${engine.getFlixFilename()})`
       sendNotification(jobs.Request.internalMessage, message)
     } else {
       sendNotification(jobs.Request.internalError, 'Failed starting Flix')

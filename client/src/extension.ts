@@ -22,10 +22,13 @@ let client: LanguageClient
 
 let flixWatcher: vscode.FileSystemWatcher
 
-const EXTENSION_PATH = vscode.extensions.getExtension('flix.flix').extensionPath
+const extensionObject = vscode.extensions.getExtension('flix.flix')
+
 const FLIX_GLOB_PATTERN = '**/*.flix'
 
 const readyEventEmitter = new EventEmitter()
+
+let outputChannel
 
 function showStartupProgress () {
   vscode.window.withProgress({
@@ -84,6 +87,8 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
     }
   }
 
+  outputChannel = vscode.window.createOutputChannel('Flix Extension')
+
   // Options to control the language client
   let clientOptions: LanguageClientOptions = {
     // Register the server for flix documents
@@ -91,7 +96,8 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
-    }
+    },
+    outputChannel
   }
 
   // Create the language client and start the client.
@@ -148,7 +154,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   })
   registerCommand('flix.pkgTest', () => {
     client.sendNotification(jobs.Request.pkgTest)
-  })
+  }) 
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
@@ -166,7 +172,8 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
 
   client.sendNotification(jobs.Request.internalReady, {
     workspaceFolders,
-    extensionPath: EXTENSION_PATH || context.extensionPath,
+    extensionPath: extensionObject.extensionPath || context.extensionPath,
+    extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles,
     launchOptions
@@ -190,5 +197,6 @@ export function deactivate(): Thenable<void> | undefined {
     return undefined
   }
   flixWatcher.dispose()
+  outputChannel.dispose()
   return client.stop()
 }

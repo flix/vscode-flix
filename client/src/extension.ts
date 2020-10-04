@@ -100,6 +100,8 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
     outputChannel
   }
 
+  outputChannel.show()
+
   // Create the language client and start the client.
   client = new LanguageClient(
     'flixLanguageServer',

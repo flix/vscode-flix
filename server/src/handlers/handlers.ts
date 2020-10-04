@@ -133,10 +133,10 @@ export const handleRunMain = enqueueUnlessHasErrors(jobs.Request.cmdRunMain, mak
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
-      sendNotification(jobs.Request.internalMessage, `Flix output:\n${result}`)
+      sendNotification(jobs.Request.internalMessage, `Flix output: \n${result}`)
       promiseResolver(result)
     } else {
-      sendNotification(jobs.Request.internalError, `Flix output:\n${result}`)
+      sendNotification(jobs.Request.internalError, `Flix output: \n${result}`)
       promiseResolver()
     }
   }

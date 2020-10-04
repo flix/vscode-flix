@@ -97,13 +97,8 @@
         "flixLanguageServer.trace.server": {
           "scope": "window",
           "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "default": "verbose",
-          "description": "Traces the communication between VS Code and the language server."
+          "verbosity": "messages",
+          "description": "User-facing messages."
         }
       }
     }

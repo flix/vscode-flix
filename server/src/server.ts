@@ -79,6 +79,16 @@ connection.listen()
  */
 export function sendNotification (notificationType: string, payload?: any) {
   connection.sendNotification(notificationType, payload)
+
+  if (typeof payload === 'string') {
+    switch (notificationType) {
+      case jobs.Request.internalError:
+        console.error(payload)
+      case jobs.Request.internalMessage:
+        console.log(payload)
+      default:
+    }
+  }
 }
 
 // A set of files that previously had errors which should be cleared when a new lsp/check is performed

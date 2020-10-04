@@ -111,7 +111,8 @@ export function closeSocket () {
 export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
-      return console.error('Could not validate - websocket not available')
+      const errorMessage = `Could not send message after ${retries} retries. Websocket not available.`
+      return sendNotification(jobs.Request.internalError, errorMessage)
     }
     setTimeout(() => {
       sendMessage(job, retries + 1)

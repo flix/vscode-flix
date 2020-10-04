@@ -17,6 +17,7 @@
 import * as jobs from './jobs'
 import * as socket from './socket'
 import { fileURLToPath } from 'url'
+import { sendNotification } from '../server'
 
 const _ = require('lodash/fp')
 const fs = require('fs')
@@ -152,7 +153,8 @@ export async function processQueue () {
         socket.sendMessage(job)
       }
     } catch (err) {
-      console.error('Could not read file in queue', job)
+      const errorMessage = `Could not read file (${job.uri}) in queue. \nError: ${err}`
+      sendNotification(jobs.Request.internalError, errorMessage)
     }
   } else {
     queueRunning = false

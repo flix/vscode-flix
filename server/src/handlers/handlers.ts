@@ -168,9 +168,7 @@ export const makeHandleRunPackageCommand = (request: jobs.Request) => (
 )
 
 function makeRunPackageCommandResponseHandler (promiseResolver: Function) {
-  console.warn('123')
   return function responseHandler ({ status, result }: socket.FlixResponse) {
-    console.warn('456')
     if (status === 'success') {
       sendNotification(jobs.Request.internalMessage, `Package command result: \n${result}`)
       promiseResolver(result)

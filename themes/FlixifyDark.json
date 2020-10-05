@@ -3,6 +3,12 @@
 	"type": "dark",
 
     "tokenColors": [
+        {
+			"scope": "annotation",
+			"settings": {
+				"foreground": "#FF0000"
+			}
+		},
 		{
 			"scope": "comment",
 			"settings": {
@@ -14,13 +20,11 @@
 			"settings": {
 				"foreground": "#569cd6"
 			}
-		},
-		{
-			"scope": [
-				"string"
-			],
+        },
+        {
+			"scope": "constant.language.effect.flix",
 			"settings": {
-				"foreground": "#ce9178"
+				"foreground": "#bf8c00"
 			}
 		},
 		{
@@ -39,6 +43,20 @@
 			"scope": "keyword.operator",
 			"settings": {
 				"foreground": "#d4d4d4"
+			}
+        },
+		{
+			"scope": "keyword.expression.cast",
+			"settings": {
+				"foreground": "#4EC9B0"
+			}
+        },
+        {
+			"scope": [
+				"string"
+			],
+			"settings": {
+				"foreground": "#ce9178"
 			}
 		}
     ]

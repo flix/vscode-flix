@@ -133,13 +133,13 @@
         "annotations": {
             "patterns": [
                 {
-                    "name": "annotation.test.flix",
-                    "match": "\\b(@test)\\b"
-                },
-                {
                     "name": "annotation.benchmark.flix",
                     "match": "\\b(@benchmark)\\b"
-                }         
+                },
+                {
+                    "name": "annotation.test.flix",
+                    "match": "\\b(@test)\\b"
+                }    
             ]
         },
         "comments": {

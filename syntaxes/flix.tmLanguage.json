@@ -52,6 +52,10 @@
                     "match": "\\b(if|else)\\b"
                 },
                 {
+                    "name": "keyword.control.choose.flix",
+                    "match": "\\b(choose)\\b"
+                },
+                {
                     "name": "keyword.control.match.flix",
                     "match": "\\b(case|match)\\b"
                 },
@@ -113,7 +117,7 @@
                 },
                 {
                     "name": "keyword.type.builtin.flix",
-                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Result|Array|List)\\b"
+                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Result|Choice|Array|List)\\b"
                 },
                 
                 {
@@ -122,7 +126,7 @@
                 },
                 {
                     "name": "keyword.operators.flix",
-                    "match": "(==|\\|>|\\+|\\-|\\*|>>|<<|::)"
+                    "match": "(==|\\|>|\\+|\\-|\\*|>>|<<|::|:::)"
                 }
             ]
         },

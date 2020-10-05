@@ -3,12 +3,6 @@
 	"type": "dark",
 
     "tokenColors": [
-        {
-			"scope": "annotation",
-			"settings": {
-				"foreground": "#FF0000"
-			}
-		},
 		{
 			"scope": "comment",
 			"settings": {

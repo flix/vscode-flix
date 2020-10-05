@@ -101,7 +101,14 @@
           "description": "User-facing messages."
         }
       }
-    }
+    },
+    "themes": [
+        {
+            "label": "Flixify Dark",
+            "uiTheme": "vs-dark",
+            "path": "./themes/FlixifyDark.json"
+        }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

@@ -52,6 +52,10 @@ export function getExtensionVersion () {
   return _.getOr('(unknown version)', 'extensionVersion', startEngineInput)
 }
 
+export function getProjectRootUri () {
+  return _.first(startEngineInput.workspaceFolders)
+}
+
 export async function start (input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()

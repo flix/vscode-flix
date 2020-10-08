@@ -32,7 +32,7 @@ export function makeDefaultResponseHandler (promiseResolver: Function) {
 export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Function, uri?: string, position?: any) {
   return function enqueuePromise () {
     return new Promise(function (resolve) {
-      const job = engine.enqueueJobWithPosition(type, uri, position)
+      const job = engine.enqueueJobWithPosition(type, { uri, position })
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))
     })

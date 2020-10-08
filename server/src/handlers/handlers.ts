@@ -24,6 +24,7 @@ import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors } from './util'
+import { getProjectRootUri } from '../engine'
 
 const _ = require('lodash/fp')
 
@@ -164,7 +165,7 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
  * @function
  */
 export const makeHandleRunPackageCommand = (request: jobs.Request) => (
-  enqueueUnlessHasErrors(request, makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
+  enqueueUnlessHasErrors(() => ({ request, projectRootUri: getProjectRootUri() }), makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
 )
 
 function makeRunPackageCommandResponseHandler (promiseResolver: Function) {

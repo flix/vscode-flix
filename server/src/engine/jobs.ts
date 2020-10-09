@@ -64,6 +64,7 @@ export interface Job {
   uri?: string
   src?: string
   position?: Position
+  projectRootUri?: string
 }
 
 export interface EnqueuedJob extends Job {

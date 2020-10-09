@@ -52,6 +52,10 @@ export function getExtensionVersion () {
   return _.getOr('(unknown version)', 'extensionVersion', startEngineInput)
 }
 
+export function getProjectRootUri () {
+  return _.first(startEngineInput.workspaceFolders)
+}
+
 export async function start (input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
@@ -130,11 +134,10 @@ export function remUri (uri: string) {
   queue.enqueue(job)
 }
 
-export function enqueueJobWithPosition (request: jobs.Request, uri?: string, position?: jobs.Position) {
+export function enqueueJobWithPosition (request: jobs.Request, params?: any) {
   const job: jobs.Job = {
     request,
-    uri,
-    position
+    ...(params || {})
   }
   return queue.enqueue(job)
 }

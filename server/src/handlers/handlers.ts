@@ -24,6 +24,7 @@ import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors } from './util'
+import { getProjectRootUri } from '../engine'
 
 const _ = require('lodash/fp')
 
@@ -111,7 +112,7 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 /**
  * @function
  */
-export const handleRunBenchmarks = enqueueUnlessHasErrors(jobs.Request.cmdRunBenchmarks, makeRunBenchmarksResponseHandler, hasErrorsHandlerForCommands)
+export const handleRunBenchmarks = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunBenchmarks }, makeRunBenchmarksResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -128,7 +129,7 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
 /**
  * @function
  */
-export const handleRunMain = enqueueUnlessHasErrors(jobs.Request.cmdRunMain, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
+export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunMain }, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -145,7 +146,7 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 /**
  * @function
  */
-export const handleRunTests = enqueueUnlessHasErrors(jobs.Request.cmdRunTests, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
+export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
@@ -164,7 +165,7 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
  * @function
  */
 export const makeHandleRunPackageCommand = (request: jobs.Request) => (
-  enqueueUnlessHasErrors(request, makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
+  enqueueUnlessHasErrors(() => ({ request, projectRootUri: getProjectRootUri() }), makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
 )
 
 function makeRunPackageCommandResponseHandler (promiseResolver: Function) {

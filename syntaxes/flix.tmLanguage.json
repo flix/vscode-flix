@@ -99,6 +99,10 @@
                     "match": "\\b(force)\\b"
                 },
                 {
+                    "name": "keyword.expression.hole.flix",
+                    "match": "(\\?\\?\\?|\\?[a-z0-9]+)"
+                },
+                {
                     "name": "keyword.expression.import.flix",
                     "match": "\\b(import)\\b"
                 },

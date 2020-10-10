@@ -45,6 +45,12 @@
 				"foreground": "#B33A3A"
 			}
         },
+                {
+			"scope": "keyword.expression.hole",
+			"settings": {
+				"foreground": "#c26242"
+			}
+        },
         {
 			"scope": "type",
 			"settings": {

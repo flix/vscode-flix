@@ -51,12 +51,16 @@
         "keywords": {
             "patterns": [
                 {
-                    "name": "keyword.control.if.flix",
-                    "match": "\\b(if|else)\\b"
+                    "name": "keyword.control.arrow.flix",
+                    "match": "(=>)"
                 },
                 {
                     "name": "keyword.control.choose.flix",
                     "match": "\\b(choose)\\b"
+                },
+                {
+                    "name": "keyword.control.if.flix",
+                    "match": "\\b(if|else)\\b"
                 },
                 {
                     "name": "keyword.control.match.flix",
@@ -95,8 +99,8 @@
                     "match": "\\b(force)\\b"
                 },
                 {
-                    "name": "keyword.expression.jvm.flix",
-                    "match": "\\b(import|new|get|set)\\b"
+                    "name": "keyword.expression.import.flix",
+                    "match": "\\b(import)\\b"
                 },
                 {
                     "name": "keyword.expression.let.flix",
@@ -120,10 +124,10 @@
                 },
                 {
                     "name": "keyword.symbols.flix",
-                    "match": "(\\->|=>|<\\-)"
+                    "match": "(\\->|<\\-)"
                 },
                 {
-                    "name": "keyword.operators.flix",
+                    "name": "keyword.operator.flix",
                     "match": "(==|\\|>|\\+|\\-|\\*|>>|<<|::|:::)"
                 }
             ]

@@ -42,13 +42,17 @@
 		{
 			"scope": "keyword.expression.cast",
 			"settings": {
-				"foreground": "#4EC9B0"
+				"foreground": "#B33A3A"
 			}
         },
         {
-			"scope": [
-				"string"
-			],
+			"scope": "type",
+			"settings": {
+				"foreground": "#75BEFF"
+			}
+        },
+        {
+			"scope": "string",
 			"settings": {
 				"foreground": "#ce9178"
 			}

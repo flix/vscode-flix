@@ -12,16 +12,19 @@
             "include": "#keywords"
         },
         {
-            "include": "#annotations"
-        },
-        {
-            "include": "#comments"
+            "include": "#types"
         },
         {
             "include": "#literal_char"
         },
         {
             "include": "#literal_string"
+        },
+        {
+            "include": "#annotations"
+        },
+        {
+            "include": "#comments"
         }
     ],
     "repository": {
@@ -70,7 +73,7 @@
                 {
                     "name": "keyword.operator.bool.flix",
                     "match": "\\b(not|and|or)\\b"
-                }, 
+                },
                 {
                     "name": "keyword.declaration.flix",
                     "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias)\\b"
@@ -78,7 +81,7 @@
                 {
                     "name": "keyword.expression.cast.flix",
                     "match": "\\b(as)\\b"
-                }, 
+                },
                 {
                     "name": "keyword.expression.default.flix",
                     "match": "\\b(default)\\b"
@@ -86,7 +89,7 @@
                 {
                     "name": "keyword.expression.fixpoint.flix",
                     "match": "\\b(solve|project)\\b"
-                },                
+                },
                 {
                     "name": "keyword.expression.force.flix",
                     "match": "\\b(force)\\b"
@@ -116,11 +119,6 @@
                     "match": "\\b(opaque|pub|inline|mut)\\b"
                 },
                 {
-                    "name": "keyword.type.builtin.flix",
-                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Result|Choice|Array|List)\\b"
-                },
-                
-                {
                     "name": "keyword.symbols.flix",
                     "match": "(\\->|=>|<\\-)"
                 },
@@ -130,28 +128,11 @@
                 }
             ]
         },
-        "annotations": {
+        "types": {
             "patterns": [
                 {
-                    "name": "annotation.benchmark.flix",
-                    "match": "\\b(@benchmark)\\b"
-                },
-                {
-                    "name": "annotation.test.flix",
-                    "match": "\\b(@test)\\b"
-                }    
-            ]
-        },
-        "comments": {
-            "patterns": [
-                {
-                    "name": "comment.line.double-slash.flix",
-                    "match": "//.*$"
-                },
-                {
-                    "name": "comment.block.flix",
-                    "begin": "/\\*",
-                    "end": "\\*/"
+                    "name": "type.flix",
+                    "match": "\\b(Array|BigInt|Bool|Channel|Char|Choice|Float32|Float64|Int|Int8|Int16|Int32|Int64|Option|List|Result|String|Unit)\\b"
                 }
             ]
         },
@@ -174,6 +155,31 @@
                 {
                     "name": "constant.character.escape.flix",
                     "match": "\\\\."
+                }
+            ]
+        },
+        "annotations": {
+            "patterns": [
+                {
+                    "name": "annotation.benchmark.flix",
+                    "match": "\\b(@benchmark)\\b"
+                },
+                {
+                    "name": "annotation.test.flix",
+                    "match": "\\b(@test)\\b"
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.flix",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.flix",
+                    "begin": "/\\*",
+                    "end": "\\*/"
                 }
             ]
         }

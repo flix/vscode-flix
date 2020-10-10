@@ -18,10 +18,10 @@
             "include": "#comments"
         },
         {
-            "include": "#string_literals"
+            "include": "#literal_char"
         },
         {
-            "include": "#char_literals"
+            "include": "#literal_string"
         }
     ],
     "repository": {
@@ -155,22 +155,18 @@
                 }
             ]
         },
-        "char_literals": {
-            "name": "String.quoted.single.flix",
+        "literal_char": {
+            "name": "string.quoted.single.flix",
             "begin": "'",
             "end": "'",
             "patterns": [
                 {
-                    "name": "constant.character.doublequote",
-                    "match": "\""
-                },
-                {
                     "name": "constant.character.escape",
-                    "match": "\\"
+                    "match": "\\\\."
                 }
             ]
         },
-        "string_literals": {
+        "literal_string": {
             "name": "string.quoted.double.flix",
             "begin": "\"",
             "end": "\"",

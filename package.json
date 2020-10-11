@@ -1,129 +1,128 @@
 {
-    "name": "flix",
-    "description": "Flix Language Server Extension",
-    "author": "Flix",
-    "license": "Apache-2.0",
-    "version": "0.8.0",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/flix/vscode-flix"
-    },
-    "publisher": "flix",
-    "categories": [],
-    "keywords": [
-      "flix"
-    ],
-    "engines": {
-      "vscode": "^1.43.0"
-    },
-    "activationEvents": [
-      "onLanguage:flix"
-    ],
-    "main": "./client/out/extension",
-    "contributes": {
-      "commands": [
-        {
-          "command": "flix.internalRestart",
-          "title": "Flix: Restart"
-        },
-        {
-          "command": "flix.internalDownloadLatest",
-          "title": "Flix: Download latest compiler"
-        },
-        {
-          "command": "flix.cmdRunBenchmarks",
-          "title": "Flix: Run Benchmarks"
-        },
-        {
-          "command": "flix.cmdRunMain",
-          "title": "Flix: Run Main"
-        },
-        {
-          "command": "flix.cmdRunAllTests",
-          "title": "Flix: Run All Tests"
-        },
-        {
-          "command": "flix.pkgBenchmark",
-          "title": "Flix: Package Benchmark"
-        },
-        {
-          "command": "flix.pkgBuild",
-          "title": "Flix: Package Build"
-        },
-        {
-          "command": "flix.pkgBuildDoc",
-          "title": "Flix: Package Build Doc"
-        },
-        {
-          "command": "flix.pkgBuildJar",
-          "title": "Flix: Package Build Jar"
-        },
-        {
-          "command": "flix.pkgBuildPkg",
-          "title": "Flix: Package Build Package"
-        },
-        {
-          "command": "flix.pkgInit",
-          "title": "Flix: Package Init"
-        },
-        {
-          "command": "flix.pkgTest",
-          "title": "Flix: Package Test"
-        }
-      ],
-      "languages": [
-        {
-          "id": "flix",
-          "extensions": [
-            ".flix"
-          ],
-          "aliases": [
-            "Flix"
-          ],
-          "configuration": "./language-configuration.json"
-        }
-      ],
-      "grammars": [
-        {
-          "language": "flix",
-          "scopeName": "source.flix",
-          "path": "./syntaxes/flix.tmLanguage.json"
-        }
-      ],
-      "configuration": {
-        "type": "object",
-        "title": "Flix",
-        "properties": {
-          "flixLanguageServer.trace.server": {
-            "scope": "window",
-            "type": "string",
-            "verbosity": "messages",
-            "description": "User-facing messages."
-          }
-        }
+  "name": "flix",
+  "description": "Flix Language Server Extension",
+  "author": "Flix",
+  "license": "Apache-2.0",
+  "version": "0.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flix/vscode-flix"
+  },
+  "publisher": "flix",
+  "categories": [],
+  "keywords": [
+    "flix"
+  ],
+  "engines": {
+    "vscode": "^1.43.0"
+  },
+  "activationEvents": [
+    "onLanguage:flix"
+  ],
+  "main": "./client/out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "flix.internalRestart",
+        "title": "Flix: Restart"
       },
-      "themes": [
-          {
-              "label": "Flixify Dark",
-              "uiTheme": "vs-dark",
-              "path": "./themes/FlixifyDark.json"
-          }
-      ]
+      {
+        "command": "flix.internalDownloadLatest",
+        "title": "Flix: Download latest compiler"
+      },
+      {
+        "command": "flix.cmdRunBenchmarks",
+        "title": "Flix: Run Benchmarks"
+      },
+      {
+        "command": "flix.cmdRunMain",
+        "title": "Flix: Run Main"
+      },
+      {
+        "command": "flix.cmdRunAllTests",
+        "title": "Flix: Run All Tests"
+      },
+      {
+        "command": "flix.pkgBenchmark",
+        "title": "Flix: Package Benchmark"
+      },
+      {
+        "command": "flix.pkgBuild",
+        "title": "Flix: Package Build"
+      },
+      {
+        "command": "flix.pkgBuildDoc",
+        "title": "Flix: Package Build Doc"
+      },
+      {
+        "command": "flix.pkgBuildJar",
+        "title": "Flix: Package Build Jar"
+      },
+      {
+        "command": "flix.pkgBuildPkg",
+        "title": "Flix: Package Build Package"
+      },
+      {
+        "command": "flix.pkgInit",
+        "title": "Flix: Package Init"
+      },
+      {
+        "command": "flix.pkgTest",
+        "title": "Flix: Package Test"
+      }
+    ],
+    "languages": [
+      {
+        "id": "flix",
+        "extensions": [
+          ".flix"
+        ],
+        "aliases": [
+          "Flix"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "flix",
+        "scopeName": "source.flix",
+        "path": "./syntaxes/flix.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Flix",
+      "properties": {
+        "flixLanguageServer.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "verbosity": "messages",
+          "description": "User-facing messages."
+        }
+      }
     },
-    "scripts": {
-      "vscode:prepublish": "npm run compile",
-      "compile": "tsc -b",
-      "watch": "tsc -b -w",
-      "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-      "test": "sh ./scripts/e2e.sh"
-    },
-    "devDependencies": {
-      "@types/mocha": "^7.0.2",
-      "@types/node": "^12.12.0",
-      "@typescript-eslint/parser": "^2.3.0",
-      "eslint": "^6.4.0",
-      "mocha": "^8.1.3",
-      "typescript": "^3.9.4"
-    }
+    "themes": [
+      {
+        "label": "Flixify Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/FlixifyDark.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "test": "sh ./scripts/e2e.sh"
+  },
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^12.12.0",
+    "@typescript-eslint/parser": "^2.3.0",
+    "eslint": "^6.4.0",
+    "mocha": "^8.1.3",
+    "typescript": "^3.9.4"
   }
-  
+}

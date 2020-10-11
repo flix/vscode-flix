@@ -12,16 +12,19 @@
             "include": "#keywords"
         },
         {
+            "include": "#types"
+        },
+        {
+            "include": "#literal_char"
+        },
+        {
+            "include": "#literal_string"
+        },
+        {
             "include": "#annotations"
         },
         {
             "include": "#comments"
-        },
-        {
-            "include": "#string_literals"
-        },
-        {
-            "include": "#char_literals"
         }
     ],
     "repository": {
@@ -48,12 +51,12 @@
         "keywords": {
             "patterns": [
                 {
-                    "name": "keyword.control.if.flix",
-                    "match": "\\b(if|else)\\b"
-                },
-                {
                     "name": "keyword.control.choose.flix",
                     "match": "\\b(choose)\\b"
+                },
+                {
+                    "name": "keyword.control.if.flix",
+                    "match": "\\b(if|else)\\b"
                 },
                 {
                     "name": "keyword.control.match.flix",
@@ -70,7 +73,7 @@
                 {
                     "name": "keyword.operator.bool.flix",
                     "match": "\\b(not|and|or)\\b"
-                }, 
+                },
                 {
                     "name": "keyword.declaration.flix",
                     "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias)\\b"
@@ -78,7 +81,7 @@
                 {
                     "name": "keyword.expression.cast.flix",
                     "match": "\\b(as)\\b"
-                }, 
+                },
                 {
                     "name": "keyword.expression.default.flix",
                     "match": "\\b(default)\\b"
@@ -86,14 +89,18 @@
                 {
                     "name": "keyword.expression.fixpoint.flix",
                     "match": "\\b(solve|project)\\b"
-                },                
+                },
                 {
                     "name": "keyword.expression.force.flix",
                     "match": "\\b(force)\\b"
                 },
                 {
-                    "name": "keyword.expression.jvm.flix",
-                    "match": "\\b(import|new|get|set)\\b"
+                    "name": "keyword.expression.hole.flix",
+                    "match": "(\\?\\?\\?|\\?[a-z0-9]+)"
+                },
+                {
+                    "name": "keyword.expression.import.flix",
+                    "match": "\\b(import)\\b"
                 },
                 {
                     "name": "keyword.expression.let.flix",
@@ -108,7 +115,7 @@
                     "match": "\\b(ref|deref)\\b"
                 },
                 {
-                    "name": "keyword.expression.use.flix",
+                    "name": "keyword.use.flix",
                     "match": "\\b(use)\\b"
                 },
                 {
@@ -116,30 +123,67 @@
                     "match": "\\b(opaque|pub|inline|mut)\\b"
                 },
                 {
-                    "name": "keyword.type.builtin.flix",
-                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int|Int8|Int16|Int32|Int64|String|BigInt|Option|Result|Choice|Array|List)\\b"
-                },
-                
-                {
                     "name": "keyword.symbols.flix",
-                    "match": "(\\->|=>|<\\-)"
+                    "match": "(\\->|~>|<\\-|=>)"
                 },
                 {
-                    "name": "keyword.operators.flix",
-                    "match": "(==|\\|>|\\+|\\-|\\*|>>|<<|::|:::)"
+                    "name": "keyword.operator.flix",
+                    "match": "(==|!=|>=|<=|>|<|\\+|\\-|\\*|%|>>>|<<<|::|:::|:\\-|:=)"
+                },
+                {
+                    "name": "keyword.operator.semicolon.flix",
+                    "match": ";"
+                }
+            ]
+        },
+        "types": {
+            "patterns": [
+                {
+                    "name": "type.flix",
+                    "match": "\\b(Array|BigInt|Bool|Channel|Char|Choice|Float32|Float64|Int|Int8|Int16|Int32|Int64|Option|List|Result|String|Unit)\\b"
+                }
+            ]
+        },
+        "literal_char": {
+            "name": "string.quoted.single.flix",
+            "begin": "'",
+            "end": "'",
+            "patterns": [
+                {
+                    "name": "constant.character.escape",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "literal_string": {
+            "name": "string.quoted.double.flix",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.flix",
+                    "match": "\\\\."
                 }
             ]
         },
         "annotations": {
             "patterns": [
                 {
-                    "name": "annotation.test.flix",
-                    "match": "\\b(@test)\\b"
+                    "name": "annotation.benchmark.flix",
+                    "match": "@benchmark"
                 },
                 {
-                    "name": "annotation.benchmark.flix",
-                    "match": "\\b(@benchmark)\\b"
-                }         
+                    "name": "annotation.test.flix",
+                    "match": "@test"
+                },
+                {
+                    "name": "annotation.test.flix",
+                    "match": "@Space"
+                },
+                {
+                    "name": "annotation.test.flix",
+                    "match": "@Time"
+                }
             ]
         },
         "comments": {
@@ -152,32 +196,6 @@
                     "name": "comment.block.flix",
                     "begin": "/\\*",
                     "end": "\\*/"
-                }
-            ]
-        },
-        "char_literals": {
-            "name": "String.quoted.single.flix",
-            "begin": "'",
-            "end": "'",
-            "patterns": [
-                {
-                    "name": "constant.character.doublequote",
-                    "match": "\""
-                },
-                {
-                    "name": "constant.character.escape",
-                    "match": "\\"
-                }
-            ]
-        },
-        "string_literals": {
-            "name": "string.quoted.double.flix",
-            "begin": "\"",
-            "end": "\"",
-            "patterns": [
-                {
-                    "name": "constant.character.escape.flix",
-                    "match": "\\\\."
                 }
             ]
         }

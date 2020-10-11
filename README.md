@@ -36,12 +36,22 @@ programming language.
     - Find all references to a local variable or formal parameter.
     - Find all references to an enum case.
 
+* __Rename__
+    - Rename local variables or formal parameters.
+    - Rename functions.
+
 * __Code Lenses__
     - Run `main` from within the editor.
     - Run benchmarks and unit tests from within the editor.
 
 * __Highlight__
     - Highlights semantically related symbols.
+
+## Color Theme
+
+* __Flixify Dark__
+    - The extension comes with a dark color theme specifically designed for Flix named 'Flixify Dark'.
+    - The color theme can be enabled in `File -> Preferences -> Color Theme`.
 
 ## Installation
 

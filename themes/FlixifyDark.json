@@ -45,7 +45,7 @@
 				"foreground": "#B33A3A"
 			}
         },
-                {
+        {
 			"scope": "keyword.expression.hole",
 			"settings": {
 				"foreground": "#c26242"
@@ -55,6 +55,12 @@
 			"scope": "type",
 			"settings": {
 				"foreground": "#8fcaff"
+			}
+        },
+        {
+			"scope": "annotation",
+			"settings": {
+				"foreground": "#8fffdd"
 			}
         },
         {

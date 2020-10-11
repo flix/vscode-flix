@@ -51,10 +51,6 @@
         "keywords": {
             "patterns": [
                 {
-                    "name": "keyword.control.arrow.flix",
-                    "match": "(=>)"
-                },
-                {
                     "name": "keyword.control.choose.flix",
                     "match": "\\b(choose)\\b"
                 },
@@ -128,11 +124,11 @@
                 },
                 {
                     "name": "keyword.symbols.flix",
-                    "match": "(\\->|<\\-)"
+                    "match": "(\\->|~>|<\\-|=>)"
                 },
                 {
                     "name": "keyword.operator.flix",
-                    "match": "(==|!=|>=|<=|\\+|\\-|\\*|>>>|<<<|::|:::|:\\-|:=)"
+                    "match": "(==|!=|>=|<=|>|<|\\+|\\-|\\*|%|>>>|<<<|::|:::|:\\-|:=)"
                 },
                 {
                     "name": "keyword.operator.semicolon.flix",

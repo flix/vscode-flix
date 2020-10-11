@@ -132,7 +132,11 @@
                 },
                 {
                     "name": "keyword.operator.flix",
-                    "match": "(==|!=|>=|<=|\\+|\\-|\\*|>>>|<<<|::|:::|:\\-)"
+                    "match": "(==|!=|>=|<=|\\+|\\-|\\*|>>>|<<<|::|:::|:\\-|:=)"
+                },
+                {
+                    "name": "keyword.operator.semicolon.flix",
+                    "match": ";"
                 }
             ]
         },

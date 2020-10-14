@@ -12,10 +12,16 @@ import {
 
 import * as jobs from './engine/jobs'
 
+import ensureFlixExists from './util/ensureFlixExists'
+
 const _ = require('lodash/fp')
 
 interface LaunchOptions {
   shouldUpdateFlix: boolean
+}
+
+const defaultLaunchOptions: LaunchOptions = {
+  shouldUpdateFlix: false
 }
 
 let client: LanguageClient
@@ -66,7 +72,7 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
   }
 }
 
-export async function activate (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
@@ -169,16 +175,20 @@ export async function activate (context: vscode.ExtensionContext, launchOptions?
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
+  const globalStoragePath = context.globalStoragePath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
 
+  // Wait until we're sure flix exists
+  const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  
   client.sendNotification(jobs.Request.internalReady, {
+    flixFilename,
     workspaceFolders,
     extensionPath: extensionObject.extensionPath || context.extensionPath,
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
-    workspaceFiles,
-    launchOptions
+    workspaceFiles
   })
 
   showStartupProgress()

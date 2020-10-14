@@ -15,6 +15,8 @@ import { strict as nativeAssert } from 'assert'
 
 const fetch = require('node-fetch') as typeof import('node-fetch')['default']
 
+const _ = require('lodash/fp')
+
 const pipeline = util.promisify(stream.pipeline)
 
 const GITHUB_API_ENDPOINT_URL = 'https://api.github.com'
@@ -28,6 +30,14 @@ export function assert (condition: boolean, explanation: string): asserts condit
     console.error('Assertion failed:', explanation)
     throw err
   }
+}
+
+export async function getDownloadUrl () {
+  const dummyRelease = {
+    assets: [{ browser_download_url: 'https://github.com/flix/flix/releases/download/v0.14.0/flix.jar' }]
+  }
+  const release = dummyRelease || (await fetchRelease('latest'))
+  return _.get('assets.0.browser_download_url', release)
 }
 
 export async function fetchRelease (

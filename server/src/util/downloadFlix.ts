@@ -50,17 +50,17 @@ const downloadFile = ({ url, targetFile }: DownloadFileInput) => new Promise((re
 
 /**
  * Download Flix compiler when necessary.
- * 
+ *
  * 1. If `flix.jar` exists in any workspace folder, use that (skipped if shouldUpdateFlix)
  * 2. If `flix.jar` exists in `globalStoragePath`, use that (skipped if shouldUpdateFlix)
  * 3. Otherwise download `FLIX_URL` into `globalStoragePath`
- * 
+ *
  * @throws iff file download goes wrong
  */
 export default async function downloadFlix ({ workspaceFolders, globalStoragePath, shouldUpdateFlix }: DownloadFlixInput): Promise<DownloadFlixResult> {
   if (!shouldUpdateFlix) {
     // 1. If `flix.jar` exists in any workspace folder, use that
-    for (let folder of workspaceFolders) {
+    for (const folder of workspaceFolders) {
       const filename = path.join(folder, FLIX_JAR)
       if (fs.existsSync(filename)) {
         return { filename }

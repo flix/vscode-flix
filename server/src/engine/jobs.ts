@@ -16,11 +16,11 @@
 
 /**
  * @enum
- * 
+ *
  * Request types matching that of the LSP implementation.
- * 
- * NOTE: This is mirrored ("shared") between client and server by way of carbon copy. 
- * 
+ *
+ * NOTE: This is mirrored ("shared") between client and server by way of carbon copy.
+ *
  * @see https://github.com/flix/flix/blob/b4b9041cc89b8be04c173ce0b0f58a69e6993739/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L163
  */
 export enum Request {
@@ -75,9 +75,9 @@ export interface JobMap {
   [id: string]: EnqueuedJob
 }
 
-let jobs: JobMap = {}
+const jobs: JobMap = {}
 
-export function setJob(id: string, job: EnqueuedJob) {
+export function setJob (id: string, job: EnqueuedJob) {
   jobs[id] = job
 }
 

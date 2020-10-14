@@ -52,7 +52,7 @@ function showStartupProgress () {
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
- * 
+ *
  * @param uri {vscode.Uri}
  */
 function vsCodeUriToUriString (uri: vscode.Uri) {
@@ -66,17 +66,17 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
   }
 }
 
-export async function activate(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+export async function activate (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   // The server is implemented in node
-  let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
+  const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-  let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] }
+  const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] }
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
-  let serverOptions: ServerOptions = {
-    run: { 
+  const serverOptions: ServerOptions = {
+    run: {
       module: serverModule,
       transport: TransportKind.ipc
     },
@@ -90,7 +90,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
 
   // Options to control the language client
-  let clientOptions: LanguageClientOptions = {
+  const clientOptions: LanguageClientOptions = {
     // Register the server for flix documents
     documentSelector: [{ scheme: 'file', language: 'flix' }],
     synchronize: {
@@ -156,7 +156,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   })
   registerCommand('flix.pkgTest', () => {
     client.sendNotification(jobs.Request.pkgTest)
-  }) 
+  })
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
@@ -194,7 +194,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
 }
 
-export function deactivate(): Thenable<void> | undefined {
+export function deactivate (): Thenable<void> | undefined {
   if (!client) {
     return undefined
   }

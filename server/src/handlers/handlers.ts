@@ -160,7 +160,6 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
   }
 }
 
-
 /**
  * @function
  */
@@ -207,7 +206,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
 
 /**
  * Handle response from lsp/check
- * 
+ *
  * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
  */
 export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {

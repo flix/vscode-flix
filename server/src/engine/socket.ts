@@ -119,7 +119,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
     }, 1000)
     return
   }
-  // register a timer to handle timeouts 
+  // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
     sendNotification(jobs.Request.internalError, `Job timed out after ${MESSAGE_TIMEOUT_SECONDS} seconds`)
     setTimeout(queue.processQueue, 0)

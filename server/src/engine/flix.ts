@@ -86,9 +86,9 @@ export async function start (input: StartEngineInput) {
   flixInstance.stdout.on('data', (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
 
-    if(str.includes(`:${port}`)) {
+    if (str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
-      socket.initialiseSocket({ 
+      socket.initialiseSocket({
         uri: webSocketUrl,
         onOpen: function handleOpen () {
           queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))

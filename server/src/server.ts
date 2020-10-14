@@ -12,10 +12,10 @@ import * as jobs from './engine/jobs'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all)
+const connection = createConnection(ProposedFeatures.all)
 
 // Create a simple text document manager.
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 
 // Initialise tells the client which capabilities we support
 connection.onInitialize(handlers.handleInitialize)
@@ -73,7 +73,7 @@ connection.listen()
 
 /**
  * Send arbitrary notifications back to the client.
- * 
+ *
  * @param notificationType {String} - Notification key, has to match a listener in the client
  * @param payload {*} - Anything (can be empty)
  */
@@ -93,7 +93,7 @@ export function sendNotification (notificationType: string, payload?: any) {
 
 // A set of files that previously had errors which should be cleared when a new lsp/check is performed
 // VS Code remembers files with errors and won't clear them itself.
-let fileUrisWithErrors: Set<string> = new Set()
+const fileUrisWithErrors: Set<string> = new Set()
 
 export function hasErrors () {
   return fileUrisWithErrors.size > 0

@@ -16,7 +16,6 @@
 
 import { handleVersion } from '../handlers'
 import { sendNotification } from '../server'
-import downloadFlix from '../util/downloadFlix'
 import javaVersion from '../util/javaVersion'
 
 import * as jobs from './jobs'
@@ -27,25 +26,20 @@ const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
 
-interface LaunchOptions {
-  shouldUpdateFlix: boolean
-}
-
 export interface StartEngineInput {
+  flixFilename: string,
   workspaceFolders: [string],
   extensionPath: string,
   extensionVersion: string,
   globalStoragePath: string,
-  workspaceFiles: [string],
-  launchOptions?: LaunchOptions
+  workspaceFiles: [string]
 }
 
 let flixInstance: any
-let flixFilename: string
 let startEngineInput: StartEngineInput
 
 export function getFlixFilename () {
-  return flixFilename
+  return startEngineInput.flixFilename
 }
 
 export function getExtensionVersion () {
@@ -64,7 +58,7 @@ export async function start (input: StartEngineInput) {
   // copy input to local var for later use
   startEngineInput = _.clone(input)
 
-  const { workspaceFolders, extensionPath, globalStoragePath, workspaceFiles, launchOptions } = input
+  const { flixFilename, extensionPath, workspaceFiles } = input
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
@@ -73,14 +67,10 @@ export async function start (input: StartEngineInput) {
     return
   }
 
-  const shouldUpdateFlix = launchOptions && launchOptions.shouldUpdateFlix
-  const { filename } = await downloadFlix({ workspaceFolders, globalStoragePath, shouldUpdateFlix })
-  flixFilename = filename
-
   // get a port starting from 8888
   const port = await portfinder.getPortPromise({ port: 8888 })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', filename, '--lsp', port])
+  flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   flixInstance.stdout.on('data', (data: any) => {

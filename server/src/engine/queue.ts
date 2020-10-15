@@ -69,7 +69,7 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
   if (isPriorityJob(enqueuedJob)) {
     return enqueueWithPriority(enqueuedJob)
   }
-  
+
   if (job.request === jobs.Request.lspCheck) {
     // there's a special rule for lsp/check:
     // there can only be one and it has to be in the beginning
@@ -85,8 +85,8 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
 
 /**
  * Initialises the queues.
- * 
- * @param jobArray 
+ *
+ * @param jobArray
  */
 export function initialiseQueues (jobArray: [jobs.Job]) {
   emptyQueue()
@@ -102,7 +102,7 @@ export function initialiseQueues (jobArray: [jobs.Job]) {
 }
 
 /**
- * Takes the first item off priorityQueue if it has items. 
+ * Takes the first item off priorityQueue if it has items.
  * If the last item is taken from priorityQueue, append lsp/check to first position in taskQueue.
  * Otherwise take the first item off taskQueue.
  */

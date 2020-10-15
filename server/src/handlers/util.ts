@@ -43,10 +43,10 @@ export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Fu
  * Function to enqueue a job unless errors are present.
  * If errors are present the hasErrorsHandler is called.
  * Otherwise a promise is returned that is finally resolved with the result of running the command.
- * 
+ *
  * @param jobOrGetJob - Either a Job with request and optional params or a function that returns a Job
- * @param makeResponseHandler 
- * @param hasErrorsHandler 
+ * @param makeResponseHandler
+ * @param hasErrorsHandler
  */
 export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeResponseHandler?: Function, hasErrorsHandler?: Function) {
   if (typeof hasErrorsHandler !== 'function') {
@@ -58,7 +58,7 @@ export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeRe
       return hasErrorsHandler()
     }
     return new Promise(function (resolve) {
-      const { request, ...jobData } = typeof jobOrGetJob == 'function' ? jobOrGetJob() : jobOrGetJob
+      const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob() : jobOrGetJob
       const job = engine.enqueueJobWithPosition(request, jobData)
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))

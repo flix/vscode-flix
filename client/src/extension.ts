@@ -12,10 +12,16 @@ import {
 
 import * as jobs from './engine/jobs'
 
+import ensureFlixExists from './util/ensureFlixExists'
+
 const _ = require('lodash/fp')
 
 interface LaunchOptions {
   shouldUpdateFlix: boolean
+}
+
+const defaultLaunchOptions: LaunchOptions = {
+  shouldUpdateFlix: false
 }
 
 let client: LanguageClient
@@ -52,7 +58,7 @@ function showStartupProgress () {
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
- * 
+ *
  * @param uri {vscode.Uri}
  */
 function vsCodeUriToUriString (uri: vscode.Uri) {
@@ -66,17 +72,17 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
   }
 }
 
-export async function activate(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   // The server is implemented in node
-  let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
+  const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-  let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] }
+  const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] }
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
-  let serverOptions: ServerOptions = {
-    run: { 
+  const serverOptions: ServerOptions = {
+    run: {
       module: serverModule,
       transport: TransportKind.ipc
     },
@@ -90,7 +96,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
 
   // Options to control the language client
-  let clientOptions: LanguageClientOptions = {
+  const clientOptions: LanguageClientOptions = {
     // Register the server for flix documents
     documentSelector: [{ scheme: 'file', language: 'flix' }],
     synchronize: {
@@ -156,7 +162,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   })
   registerCommand('flix.pkgTest', () => {
     client.sendNotification(jobs.Request.pkgTest)
-  }) 
+  })
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
@@ -169,16 +175,20 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
+  const globalStoragePath = context.globalStoragePath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
 
+  // Wait until we're sure flix exists
+  const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  
   client.sendNotification(jobs.Request.internalReady, {
+    flixFilename,
     workspaceFolders,
     extensionPath: extensionObject.extensionPath || context.extensionPath,
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
-    workspaceFiles,
-    launchOptions
+    workspaceFiles
   })
 
   showStartupProgress()
@@ -194,7 +204,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions?:
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
 }
 
-export function deactivate(): Thenable<void> | undefined {
+export function deactivate (): Thenable<void> | undefined {
   if (!client) {
     return undefined
   }

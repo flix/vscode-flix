@@ -82,6 +82,7 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
   
         readyEventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
           clearTimeout(tookTooLong)
+          outputChannel.show()
           resolve()
         })
 

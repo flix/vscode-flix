@@ -131,18 +131,21 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
  */
 export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunMain }, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
 
+function prettyPrintMainResult (result: any) {
+  console.log(result)
+}
+
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler (flixResponse: socket.FlixResponse) {
     const { status, result } = flixResponse
     sendNotification(jobs.Request.internalFinishedJob, flixResponse)
     if (status === 'success') {
-      // instead of showing the result as a notification, print it
-      console.log(result)
       promiseResolver(result)
     } else {
       sendNotification(jobs.Request.internalError, 'Could not run main')
       promiseResolver()
     }
+    prettyPrintMainResult(result)
   }
 }
 
@@ -151,18 +154,29 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
  */
 export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
+function prettyPrintTestResults (result: any) {
+  for (const test of result) {
+    console.log(
+      test.outcome === 'success' ? '✅' : '❌',
+      test.name
+    )
+    if (test.outcome !== 'success') {
+      console.log(`See ${test.location.uri} (${test.location.range.start.line}:${test.location.range.start.character})`)
+    }
+  }
+}
+
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler (flixResponse: socket.FlixResponse) {
     const { status, result } = flixResponse
     sendNotification(jobs.Request.internalFinishedJob, flixResponse)
     if (status === 'success') {
-      sendNotification(jobs.Request.internalMessage, 'All tests ran successfully')
-      console.log(result)
       promiseResolver(result)
     } else {
       sendNotification(jobs.Request.internalError, 'Test(s) failed')
       promiseResolver()
     }
+    prettyPrintTestResults(result)
   }
 }
 

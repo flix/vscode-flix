@@ -118,7 +118,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   
   client = createLanguageClient({ context, outputChannel })
 
-  outputChannel.show()
+  outputChannel.show(true)
 
   // Start the client. This will also launch the server
   client.start()

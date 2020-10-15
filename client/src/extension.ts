@@ -65,6 +65,37 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
   }
 }
 
+function makeHandleRunCommand (request: jobs.Request, title: string, timeout: number = 180) {
+  return function handler () {
+    vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title,
+      cancellable: false
+    }, function (_progress) {
+      return new Promise(function resolver (resolve, reject) {
+        client.sendNotification(request)
+  
+        const tookTooLong = setTimeout(function tookTooLongHandler () {
+          vscode.window.showErrorMessage(`Command timed out after ${timeout} seconds`)
+          reject()
+        }, timeout * 1000)
+  
+        readyEventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
+          clearTimeout(tookTooLong)
+          outputChannel.show()
+          resolve()
+        })
+
+        readyEventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
+          // stop the run command if we restart for some reason
+          clearTimeout(tookTooLong)
+          resolve()
+        })
+      })
+    })
+  }
+}
+
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
   
@@ -92,12 +123,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdRunBenchmarks', () => {
     client.sendNotification(jobs.Request.cmdRunBenchmarks)
   })
-  registerCommand('flix.cmdRunMain', () => {
-    client.sendNotification(jobs.Request.cmdRunMain)
-  })
-  registerCommand('flix.cmdRunAllTests', () => {
-    client.sendNotification(jobs.Request.cmdRunTests)
-  })
+
+  registerCommand('flix.cmdRunMain', makeHandleRunCommand(jobs.Request.cmdRunMain, 'Running..'))
+
+  registerCommand('flix.cmdRunAllTests', makeHandleRunCommand(jobs.Request.cmdRunTests, 'Running tests..'))
+
   registerCommand('flix.pkgBenchmark', () => {
     client.sendNotification(jobs.Request.pkgBenchmark)
   })
@@ -150,7 +180,13 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   showStartupProgress()
 
   client.onNotification(jobs.Request.internalReady, function handler () {
+    // waits for server to answer back after having started successfully 
     readyEventEmitter.emit(jobs.Request.internalReady)
+  })
+
+  client.onNotification(jobs.Request.internalFinishedJob, function handler () {
+    // only one job runs at once, so currently not trying to distinguish
+    readyEventEmitter.emit(jobs.Request.internalFinishedJob)
   })
 
   client.onNotification(jobs.Request.internalRestart, restartClient(context))

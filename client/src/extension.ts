@@ -29,6 +29,8 @@ const readyEventEmitter = new EventEmitter()
 
 let outputChannel: vscode.OutputChannel
 
+let diagnosticsOutputChannel: vscode.OutputChannel
+
 function showStartupProgress () {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
@@ -98,6 +100,7 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
 
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
+  diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
   
   client = createLanguageClient({ context, outputChannel })
 
@@ -202,5 +205,6 @@ export function deactivate (): Thenable<void> | undefined {
   }
   flixWatcher.dispose()
   outputChannel.dispose()
+  diagnosticsOutputChannel.dispose()
   return client.stop()
 }

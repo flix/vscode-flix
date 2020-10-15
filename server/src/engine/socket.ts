@@ -34,7 +34,7 @@ interface sentMessagesMap {
   [id: string]: NodeJS.Timeout
 }
 const sentMessagesMap: sentMessagesMap = {}
-const MESSAGE_TIMEOUT_SECONDS = 5
+const MESSAGE_TIMEOUT_SECONDS = 30
 
 interface FlixResult {
   uri: string

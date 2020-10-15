@@ -132,12 +132,15 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
 export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunMain }, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
+  return function responseHandler (flixResponse: socket.FlixResponse) {
+    const { status, result } = flixResponse
+    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
     if (status === 'success') {
-      sendNotification(jobs.Request.internalMessage, `Flix output: \n${result}`)
+      // instead of showing the result as a notification, print it
+      console.log(result)
       promiseResolver(result)
     } else {
-      sendNotification(jobs.Request.internalError, `Flix output: \n${result}`)
+      sendNotification(jobs.Request.internalError, 'Could not run main')
       promiseResolver()
     }
   }
@@ -149,9 +152,12 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
+  return function responseHandler (flixResponse: socket.FlixResponse) {
+    const { status, result } = flixResponse
+    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
     if (status === 'success') {
       sendNotification(jobs.Request.internalMessage, 'All tests ran successfully')
+      console.log(result)
       promiseResolver(result)
     } else {
       sendNotification(jobs.Request.internalError, 'Test(s) failed')

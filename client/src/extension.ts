@@ -65,6 +65,30 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
   }
 }
 
+function makeHandleRunCommand (request: jobs.Request, title: string, timeout: number = 180) {
+  return function handler () {
+    vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title,
+      cancellable: false
+    }, function (_progress) {
+      return new Promise(function resolver (resolve, reject) {
+        client.sendNotification(request)
+  
+        const tookTooLong = setTimeout(function tookTooLongHandler () {
+          vscode.window.showErrorMessage(`Command timed out after ${timeout} seconds`)
+          reject()
+        }, timeout * 1000)
+  
+        readyEventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
+          clearTimeout(tookTooLong)
+          resolve()
+        })
+      })
+    })
+  }
+}
+
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
   

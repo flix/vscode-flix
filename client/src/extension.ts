@@ -150,7 +150,13 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   showStartupProgress()
 
   client.onNotification(jobs.Request.internalReady, function handler () {
+    // waits for server to answer back after having started successfully 
     readyEventEmitter.emit(jobs.Request.internalReady)
+  })
+
+  client.onNotification(jobs.Request.internalFinishedJob, function handler () {
+    // only one job runs at once, so currently not trying to distinguish
+    readyEventEmitter.emit(jobs.Request.internalFinishedJob)
   })
 
   client.onNotification(jobs.Request.internalRestart, restartClient(context))

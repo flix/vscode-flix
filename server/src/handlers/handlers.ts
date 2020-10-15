@@ -172,6 +172,9 @@ function prettyPrintTestResults (result: any) {
     }
   }
   printHorizontalRuler()
+  const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
+  console.log(`${successfulTests}/${_.size(result)} tests passed`)
+  printHorizontalRuler()
 }
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {

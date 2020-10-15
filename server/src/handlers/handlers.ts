@@ -32,6 +32,10 @@ interface UriInput {
   uri: string
 }
 
+function printHorizontalRuler () {
+  console.log(_.repeat(48, '⏤'))
+}
+
 export function handleInitialize (_params: InitializeParams) {
   const result: InitializeResult = {
     capabilities: {
@@ -132,7 +136,9 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
 export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunMain }, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
 
 function prettyPrintMainResult (result: any) {
+  printHorizontalRuler()
   console.log(result)
+  printHorizontalRuler()
 }
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
@@ -155,6 +161,7 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function prettyPrintTestResults (result: any) {
+  printHorizontalRuler()
   for (const test of result) {
     console.log(
       test.outcome === 'success' ? '✅' : '❌',
@@ -164,6 +171,7 @@ function prettyPrintTestResults (result: any) {
       console.log(`See ${test.location.uri} (${test.location.range.start.line}:${test.location.range.start.character})`)
     }
   }
+  printHorizontalRuler()
 }
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {

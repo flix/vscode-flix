@@ -1,18 +1,11 @@
-import * as path from 'path'
 import * as vscode from 'vscode'
-
+import { LanguageClient } from 'vscode-languageclient'
 import { EventEmitter } from 'events'
-
-import {
-  LanguageClient,
-  LanguageClientOptions,
-  ServerOptions,
-  TransportKind
-} from 'vscode-languageclient'
 
 import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
+import createLanguageClient from './util/createLanguageClient'
 
 const _ = require('lodash/fp')
 
@@ -34,7 +27,7 @@ const FLIX_GLOB_PATTERN = '**/*.flix'
 
 const readyEventEmitter = new EventEmitter()
 
-let outputChannel
+let outputChannel: vscode.OutputChannel
 
 function showStartupProgress () {
   vscode.window.withProgress({
@@ -73,48 +66,11 @@ function restartClient (context: vscode.ExtensionContext, launchOptions?: Launch
 }
 
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
-  // The debug options for the server
-  // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-  const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] }
-
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
-  const serverOptions: ServerOptions = {
-    run: {
-      module: serverModule,
-      transport: TransportKind.ipc
-    },
-    debug: {
-      module: serverModule,
-      transport: TransportKind.ipc,
-      options: debugOptions
-    }
-  }
-
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
-
-  // Options to control the language client
-  const clientOptions: LanguageClientOptions = {
-    // Register the server for flix documents
-    documentSelector: [{ scheme: 'file', language: 'flix' }],
-    synchronize: {
-      // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
-    },
-    outputChannel
-  }
+  
+  client = createLanguageClient({ context, outputChannel })
 
   outputChannel.show()
-
-  // Create the language client and start the client.
-  client = new LanguageClient(
-    'flixLanguageServer',
-    'Flix Language Server',
-    serverOptions,
-    clientOptions
-  )
 
   // Start the client. This will also launch the server
   client.start()

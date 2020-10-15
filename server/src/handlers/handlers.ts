@@ -33,7 +33,7 @@ interface UriInput {
 }
 
 function printHorizontalRuler () {
-  console.log(_.repeat(48, '⏤'))
+  console.log(_.repeat(48, String.fromCodePoint(0x23E4)))
 }
 
 export function handleInitialize (_params: InitializeParams) {
@@ -164,7 +164,7 @@ function prettyPrintTestResults (result: any) {
   printHorizontalRuler()
   for (const test of result) {
     console.log(
-      test.outcome === 'success' ? '✅' : '❌',
+      test.outcome === 'success' ? String.fromCodePoint(0x2705) : String.fromCodePoint(0x274C),
       test.name
     )
     if (test.outcome !== 'success') {

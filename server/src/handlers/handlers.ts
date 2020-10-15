@@ -144,14 +144,14 @@ function prettyPrintMainResult (result: any) {
 function makeRunMainResponseHandler (promiseResolver: Function) {
   return function responseHandler (flixResponse: socket.FlixResponse) {
     const { status, result } = flixResponse
-    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
+    prettyPrintMainResult(result)
     if (status === 'success') {
       promiseResolver(result)
     } else {
       sendNotification(jobs.Request.internalError, 'Could not run main')
       promiseResolver()
     }
-    prettyPrintMainResult(result)
+    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
   }
 }
 
@@ -180,14 +180,14 @@ function prettyPrintTestResults (result: any) {
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler (flixResponse: socket.FlixResponse) {
     const { status, result } = flixResponse
-    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
+    prettyPrintTestResults(result)
     if (status === 'success') {
       promiseResolver(result)
     } else {
       sendNotification(jobs.Request.internalError, 'Test(s) failed')
       promiseResolver()
     }
-    prettyPrintTestResults(result)
+    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
   }
 }
 

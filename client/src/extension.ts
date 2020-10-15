@@ -116,12 +116,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdRunBenchmarks', () => {
     client.sendNotification(jobs.Request.cmdRunBenchmarks)
   })
-  registerCommand('flix.cmdRunMain', () => {
-    client.sendNotification(jobs.Request.cmdRunMain)
-  })
-  registerCommand('flix.cmdRunAllTests', () => {
-    client.sendNotification(jobs.Request.cmdRunTests)
-  })
+
+  registerCommand('flix.cmdRunMain', makeHandleRunCommand(jobs.Request.cmdRunMain, 'Running..'))
+
+  registerCommand('flix.cmdRunAllTests', makeHandleRunCommand(jobs.Request.cmdRunTests, 'Running tests..'))
+
   registerCommand('flix.pkgBenchmark', () => {
     client.sendNotification(jobs.Request.pkgBenchmark)
   })

@@ -84,6 +84,12 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
           clearTimeout(tookTooLong)
           resolve()
         })
+
+        readyEventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
+          // stop the run command if we restart for some reason
+          clearTimeout(tookTooLong)
+          resolve()
+        })
       })
     })
   }

@@ -39,18 +39,19 @@ export enum Request {
   lspGoto = 'lsp/goto',
   lspUses = 'lsp/uses',
 
-  pkgBenchmark = 'pkg/benchmark', // TODO
-  pkgBuild = 'pkg/build', // TODO
-  pkgBuildDoc = 'pkg/buildDoc', // TODO
-  pkgBuildJar = 'pkg/buildJar', // TODO
-  pkgBuildPkg = 'pkg/buildPkg', // TODO
-  pkgInit = 'pkg/init', // TODO
-  pkgTest = 'pkg/test', // TODO
+  pkgBenchmark = 'pkg/benchmark',
+  pkgBuild = 'pkg/build',
+  pkgBuildDoc = 'pkg/buildDoc',
+  pkgBuildJar = 'pkg/buildJar',
+  pkgBuildPkg = 'pkg/buildPkg',
+  pkgInit = 'pkg/init',
+  pkgTest = 'pkg/test',
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request
   internalError = 'ext/error', // Internal Extension Request
-  internalFinishedJob = 'ext/finished' // Internal Extension Request
+  internalFinishedJob = 'ext/finished', // Internal Extension Request
+  internalDiagnostics = 'ext/diagnostics' // Internal Extension Request
 }

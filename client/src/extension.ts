@@ -29,6 +29,8 @@ const readyEventEmitter = new EventEmitter()
 
 let outputChannel: vscode.OutputChannel
 
+let diagnosticsOutputChannel: vscode.OutputChannel
+
 function showStartupProgress () {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
@@ -96,12 +98,27 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
   }
 }
 
+function handlePrintDiagnostics ({ status, result }) {
+  diagnosticsOutputChannel.clear()
+  if (status === 'success') {
+    diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x2705)} No errors ${String.fromCodePoint(0x2705)}`)
+  } else {
+    for (const res of result) {
+      for (const diag of res.diagnostics) {
+        diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+      }
+    }
+  }
+  diagnosticsOutputChannel.show(true)
+}
+
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
+  diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
   
   client = createLanguageClient({ context, outputChannel })
 
-  outputChannel.show()
+  outputChannel.show(true)
 
   // Start the client. This will also launch the server
   client.start()
@@ -189,6 +206,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     readyEventEmitter.emit(jobs.Request.internalFinishedJob)
   })
 
+  client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
+
   client.onNotification(jobs.Request.internalRestart, restartClient(context))
 
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
@@ -202,5 +221,6 @@ export function deactivate (): Thenable<void> | undefined {
   }
   flixWatcher.dispose()
   outputChannel.dispose()
+  diagnosticsOutputChannel.dispose()
   return client.stop()
 }

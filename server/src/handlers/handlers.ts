@@ -242,6 +242,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
  */
 export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
+  sendNotification(jobs.Request.internalDiagnostics, { status, result })
   if (status !== 'success') {
     _.each(sendDiagnostics, result)
   }

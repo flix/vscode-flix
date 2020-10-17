@@ -38,6 +38,7 @@ export enum Request {
   lspHover = 'lsp/hover',
   lspGoto = 'lsp/goto',
   lspUses = 'lsp/uses',
+  lspRename = 'lsp/rename',
 
   pkgBenchmark = 'pkg/benchmark',
   pkgBuild = 'pkg/build',
@@ -67,6 +68,7 @@ export interface Job {
   src?: string
   position?: Position
   projectRootUri?: string
+  newName?: string
 }
 
 export interface EnqueuedJob extends Job {

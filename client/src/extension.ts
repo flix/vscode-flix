@@ -31,6 +31,9 @@ let outputChannel: vscode.OutputChannel
 
 let diagnosticsOutputChannel: vscode.OutputChannel
 
+// flag to keep track of whether errors were present last time we ran diagnostics
+let diagnosticsErrors = false
+
 function showStartupProgress () {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
@@ -99,10 +102,15 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
 }
 
 function handlePrintDiagnostics ({ status, result }) {
-  diagnosticsOutputChannel.clear()
   if (status === 'success') {
-    diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x2705)} No errors ${String.fromCodePoint(0x2705)}`)
+    if (diagnosticsErrors) {
+      diagnosticsOutputChannel.clear()
+      diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x2705)} No errors ${String.fromCodePoint(0x2705)}`)
+      diagnosticsErrors = false
+    }
   } else {
+    diagnosticsOutputChannel.clear()
+    diagnosticsErrors = true
     for (const res of result) {
       for (const diag of res.diagnostics) {
         diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)

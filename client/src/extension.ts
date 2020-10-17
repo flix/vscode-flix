@@ -117,7 +117,6 @@ function handlePrintDiagnostics ({ status, result }) {
       }
     }
   }
-  diagnosticsOutputChannel.show(true)
 }
 
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {

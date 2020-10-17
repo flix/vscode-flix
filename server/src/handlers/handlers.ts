@@ -40,6 +40,7 @@ export function handleInitialize (_params: InitializeParams) {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
+      documentHighlightProvider: true,
       hoverProvider: true,
       definitionProvider: true,
       referencesProvider: true,
@@ -97,6 +98,11 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
     promiseResolver()
   }
 }
+
+/**
+ * @function
+ */
+export const handleHighlight = makePositionalHandler(jobs.Request.lspHighlight)
 
 /**
  * @function

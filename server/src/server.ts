@@ -56,6 +56,8 @@ documents.onDidSave(handlers.handleChangeContent)
 // Go to definition (from context menu or F12 usually)
 connection.onDefinition(handlers.handleGotoDefinition)
 
+connection.onDocumentHighlight(handlers.handleHighlight)
+
 // Hover over [line, character]
 connection.onHover(handlers.handleHover)
 

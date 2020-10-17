@@ -35,6 +35,7 @@ export enum Request {
 
   lspCheck = 'lsp/check',
   lspCodelens = 'lsp/codelens',
+  lspHighlight = 'lsp/highlight',
   lspHover = 'lsp/hover',
   lspGoto = 'lsp/goto',
   lspUses = 'lsp/uses',

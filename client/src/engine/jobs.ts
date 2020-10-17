@@ -39,6 +39,7 @@ export enum Request {
   lspHover = 'lsp/hover',
   lspGoto = 'lsp/goto',
   lspUses = 'lsp/uses',
+  lspRename = 'lsp/rename',
 
   pkgBenchmark = 'pkg/benchmark',
   pkgBuild = 'pkg/build',

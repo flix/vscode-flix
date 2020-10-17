@@ -23,7 +23,7 @@ import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
-import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors } from './util'
+import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
 import { getProjectRootUri } from '../engine'
 
 const _ = require('lodash/fp')
@@ -45,7 +45,8 @@ export function handleInitialize (_params: InitializeParams) {
       referencesProvider: true,
       codeLensProvider: {
         resolveProvider: true
-      }
+      },
+      renameProvider: true
     }
   }
   return result
@@ -112,6 +113,20 @@ export const handleReferences = makePositionalHandler(jobs.Request.lspUses)
  * @function
  */
 export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
+
+/**
+ * @function
+ */
+export const handleRename = enqueueUnlessHasErrors(makeRenameJob, makeDefaultResponseHandler, hasErrorsHandlerForCommands)
+
+function makeRenameJob (params: any) {
+  return {
+    request: jobs.Request.lspRename,
+    uri: params.textDocument.uri,
+    position: params.position,
+    newName: params.newName
+  }
+}
 
 /**
  * @function

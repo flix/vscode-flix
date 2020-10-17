@@ -53,12 +53,12 @@ export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeRe
     // development check (remove later)
     throw '`enqueueUnlessHasErrors` must have `hasErrorsHandler` when called with errors'
   }
-  return function enqueuePromise () {
+  return function enqueuePromise (params: any) {
     if (hasErrors() && hasErrorsHandler) {
       return hasErrorsHandler()
     }
     return new Promise(function (resolve) {
-      const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob() : jobOrGetJob
+      const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob(params) : jobOrGetJob
       const job = engine.enqueueJobWithPosition(request, jobData)
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))

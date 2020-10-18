@@ -5,8 +5,8 @@ import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
-import eventEmitter from './util/eventEmitter'
 
+import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
 
 const _ = require('lodash/fp')

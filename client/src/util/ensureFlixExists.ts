@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 
-import { download, fetchReleaseWithFallback, firstNewerThanSecond, FlixRelease } from '../services/releases'
+import { download, fetchRelease, firstNewerThanSecond, FlixRelease } from '../services/releases'
 import { getInstalledFlixVersion, setInstalledFlixVersion } from '../services/state'
 
 const FLIX_JAR = 'flix.jar'
@@ -40,7 +40,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     const filename = path.join(globalStoragePath, FLIX_JAR)
     if (fs.existsSync(filename)) {
       // Check if a newer version is available
-      const flixRelease = await fetchReleaseWithFallback()
+      const flixRelease = await fetchRelease()
       const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
       // Give the user the option to update if there's a newer version available
       if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
@@ -82,7 +82,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
   }
 
   await downloadWithRetryDialog(async () => {
-    const flixRelease = await fetchReleaseWithFallback()
+    const flixRelease = await fetchRelease()
     await download({
       url: flixRelease.downloadUrl,
       dest: filename,

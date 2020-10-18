@@ -32,38 +32,8 @@ export function assert (condition: boolean, explanation: string): asserts condit
   }
 }
 
-export async function getDownloadUrl () {
-  const dummyRelease = {
-    assets: [{ browser_download_url: 'https://github.com/flix/flix/releases/download/v0.14.0/flix.jar' }]
-  }
-  const release = dummyRelease || (await fetchRelease('latest'))
-  return _.get('assets.0.browser_download_url', release)
-}
-
-export async function fetchReleaseWithFallback (
+export async function fetchRelease (
   releaseTag: string = 'latest',
-  githubToken?: string | null | undefined
-): Promise<FlixRelease> {
-  try {
-    return fetchRelease(releaseTag, githubToken)
-  } catch (_err) {
-    // failed fetching release for some reason, so return our fallback
-    return {
-      url: 'https://api.github.com/repos/flix/flix/releases/32408169',
-      id: 32408169,
-      name: 'Version 0.14.0',
-      version:  {
-        major: 0,
-        minor: 14,
-        patch: 0
-      },
-      downloadUrl: 'https://github.com/flix/flix/releases/download/v0.14.0/flix.jar'
-    }
-  }
-}
-
-async function fetchRelease (
-  releaseTag: string,
   githubToken?: string | null | undefined
 ): Promise<FlixRelease> {
   const apiEndpointPath = `/repos/${OWNER}/${REPO}/releases/${releaseTag}`

@@ -124,12 +124,15 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // activate state
   initialiseState(context)
 
+  // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
   diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
-  
-  client = createLanguageClient({ context, outputChannel })
 
+  // show default output channel without changing focus
   outputChannel.show(true)
+  
+  // create language client
+  client = createLanguageClient({ context, outputChannel }) 
 
   // Start the client. This will also launch the server
   client.start()

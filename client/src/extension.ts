@@ -64,8 +64,8 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
-function restartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
-  return async function () {
+function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+  return async function handleRestartClient () {
     await deactivate()
     await activate(context, launchOptions)
   }
@@ -146,8 +146,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   }
 
   // Register available commands
-  registerCommand('flix.internalRestart', restartClient(context, { shouldUpdateFlix: false }))
-  registerCommand('flix.internalDownloadLatest', restartClient(context, { shouldUpdateFlix: true }))
+  registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
+  registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
   registerCommand('flix.cmdRunBenchmarks', () => {
     client.sendNotification(jobs.Request.cmdRunBenchmarks)
   })
@@ -219,7 +219,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
 
-  client.onNotification(jobs.Request.internalRestart, restartClient(context))
+  client.onNotification(jobs.Request.internalRestart, makeHandleRestartClient(context))
 
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 

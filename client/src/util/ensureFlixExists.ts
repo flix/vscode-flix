@@ -39,9 +39,16 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     // 2. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)
     if (fs.existsSync(filename)) {
+      const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
+      const thirtyMinutesInMilliseconds = 1000 * 60 * 30
+
+      // skip if we checked under 30 minutes ago
+      if (Date.now() < ((installedFlixRelease.downloadedAt || 0) + thirtyMinutesInMilliseconds)) {
+        return filename
+      }
+
       // Check if a newer version is available
       const flixRelease = await fetchRelease()
-      const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
       // Give the user the option to update if there's a newer version available
       if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
         const updateResponse = await vscode.window.showInformationMessage(

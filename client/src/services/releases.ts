@@ -73,7 +73,8 @@ export async function fetchRelease (
     id: _.get('id', release),
     name: _.get('name', release),
     version: tagToVersion(_.get('tag_name', release)),
-    downloadUrl: _.get('assets.0.browser_download_url', release)
+    downloadUrl: _.get('assets.0.browser_download_url', release),
+    downloadedAt: Date.now()
   }
   return flixRelease
 }
@@ -107,6 +108,7 @@ export interface FlixRelease {
   name: string
   version: FlixVersion
   downloadUrl: string
+  downloadedAt: number
 }
 
 // We omit declaration of tremendous amount of fields that we are not using here

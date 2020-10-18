@@ -40,10 +40,32 @@ export async function getDownloadUrl () {
   return _.get('assets.0.browser_download_url', release)
 }
 
-export async function fetchRelease (
+export async function fetchReleaseWithFallback (
+  releaseTag: string = 'latest',
+  githubToken?: string | null | undefined
+): Promise<FlixRelease> {
+  try {
+    return fetchRelease(releaseTag, githubToken)
+  } catch (_err) {
+    // failed fetching release for some reason, so return our fallback
+    return {
+      url: 'https://api.github.com/repos/flix/flix/releases/32408169',
+      id: 32408169,
+      name: 'Version 0.14.0',
+      version:  {
+        major: 0,
+        minor: 14,
+        patch: 0
+      },
+      downloadUrl: 'https://github.com/flix/flix/releases/download/v0.14.0/flix.jar'
+    }
+  }
+}
+
+async function fetchRelease (
   releaseTag: string,
   githubToken?: string | null | undefined
-): Promise<GithubRelease> {
+): Promise<FlixRelease> {
   const apiEndpointPath = `/repos/${OWNER}/${REPO}/releases/${releaseTag}`
 
   const requestUrl = GITHUB_API_ENDPOINT_URL + apiEndpointPath
@@ -76,11 +98,49 @@ export async function fetchRelease (
 
   // We skip runtime type checks for simplicity (here we cast from `any` to `GithubRelease`)
   const release: GithubRelease = await response.json()
-  return release
+  const flixRelease: FlixRelease = {
+    url: _.get('url', release),
+    id: _.get('id', release),
+    name: _.get('name', release),
+    version: tagToVersion(_.get('tag_name', release)),
+    downloadUrl: _.get('assets.0.browser_download_url', release)
+  }
+  return flixRelease
+}
+
+function tagToVersion (tagName: string = ''): FlixVersion {
+  const versionString = tagName[0] === 'v' ? tagName.substr(1) : tagName
+  const [major, minor, patch] = _.map(_.parseInt(10), _.split('.', versionString))
+  return {
+    major,
+    minor,
+    patch
+  }
+}
+
+export function firstNewerThanSecond (first: FlixRelease, second: FlixRelease): boolean {
+  if (!second || !second.version || second.version.major === undefined || second.version.minor === undefined || second.version.patch === undefined) {
+    return true
+  }
+  return (first.version.major > second.version.major) || (first.version.minor > second.version.minor) || (first.version.patch > second.version.patch)
+}
+
+export interface FlixVersion {
+  major: number
+  minor: number
+  patch: number
+}
+
+export interface FlixRelease {
+  url: string
+  id: number
+  name: string
+  version: FlixVersion
+  downloadUrl: string
 }
 
 // We omit declaration of tremendous amount of fields that we are not using here
-export interface GithubRelease {
+interface GithubRelease {
     name: string
     id: number
     // eslint-disable-next-line camelcase

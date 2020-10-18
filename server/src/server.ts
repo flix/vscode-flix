@@ -66,6 +66,8 @@ connection.onReferences(handlers.handleReferences)
 
 connection.onCodeLens(handlers.handleCodelens)
 
+connection.onPrepareRename(handlers.handlePrepareRename)
+
 connection.onRenameRequest(handlers.handleRename)
 
 // Make the text document manager listen on the connection

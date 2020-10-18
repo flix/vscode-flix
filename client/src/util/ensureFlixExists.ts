@@ -43,7 +43,6 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
       const flixRelease = await fetchReleaseWithFallback()
       const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
       // Give the user the option to update if there's a newer version available
-      console.log({flixRelease, installedFlixRelease})
       if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
         const updateResponse = await vscode.window.showInformationMessage(
           `A new version of the Flix compiler (${flixRelease.name}) is available. Download?`,

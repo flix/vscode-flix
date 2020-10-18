@@ -1,11 +1,12 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient'
-import { EventEmitter } from 'events'
 
 import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
+import eventEmitter from './util/eventEmitter'
+
 import initialiseState from './services/state'
 
 const _ = require('lodash/fp')
@@ -25,8 +26,6 @@ let flixWatcher: vscode.FileSystemWatcher
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 const FLIX_GLOB_PATTERN = '**/*.flix'
-
-const eventEmitter = new EventEmitter()
 
 let outputChannel: vscode.OutputChannel
 

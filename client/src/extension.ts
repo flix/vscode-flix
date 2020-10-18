@@ -26,7 +26,7 @@ const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 const FLIX_GLOB_PATTERN = '**/*.flix'
 
-const readyEventEmitter = new EventEmitter()
+const eventEmitter = new EventEmitter()
 
 let outputChannel: vscode.OutputChannel
 
@@ -47,7 +47,7 @@ function showStartupProgress () {
         reject()
       }, 10 * 1000)
 
-      readyEventEmitter.on(jobs.Request.internalReady, function readyHandler () {
+      eventEmitter.on(jobs.Request.internalReady, function readyHandler () {
         clearTimeout(tookTooLong)
         resolve()
       })
@@ -86,13 +86,13 @@ function makeHandleRunCommand (request: jobs.Request, title: string, timeout: nu
           reject()
         }, timeout * 1000)
   
-        readyEventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
+        eventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
           clearTimeout(tookTooLong)
           outputChannel.show()
           resolve()
         })
 
-        readyEventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
+        eventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
           // stop the run command if we restart for some reason
           clearTimeout(tookTooLong)
           resolve()
@@ -212,12 +212,12 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully 
-    readyEventEmitter.emit(jobs.Request.internalReady)
+    eventEmitter.emit(jobs.Request.internalReady)
   })
 
   client.onNotification(jobs.Request.internalFinishedJob, function handler () {
     // only one job runs at once, so currently not trying to distinguish
-    readyEventEmitter.emit(jobs.Request.internalFinishedJob)
+    eventEmitter.emit(jobs.Request.internalFinishedJob)
   })
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)

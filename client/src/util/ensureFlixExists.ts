@@ -2,7 +2,8 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 
-import { download, getDownloadUrl } from '../services/releases'
+import { download, fetchRelease, firstNewerThanSecond, FlixRelease } from '../services/releases'
+import { getInstalledFlixVersion, setInstalledFlixVersion } from '../services/state'
 
 const FLIX_JAR = 'flix.jar'
 
@@ -38,19 +39,41 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     // 2. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)
     if (fs.existsSync(filename)) {
+      // Check if a newer version is available
+      const flixRelease = await fetchRelease()
+      const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
+      // Give the user the option to update if there's a newer version available
+      if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
+        const updateResponse = await vscode.window.showInformationMessage(
+          `A new version of the Flix compiler (${flixRelease.name}) is available. Download?`,
+          'Download',
+          'Skip'
+        )
+        if (updateResponse === 'Download') {
+          await downloadWithRetryDialog(async () => {
+            await download({
+              url: flixRelease.downloadUrl,
+              dest: filename,
+              progressTitle: 'Downloading Flix Compiler',
+              overwrite: true
+            })
+            await setInstalledFlixVersion(flixRelease)
+          })
+        }
+      }
+      
       return filename
     }
   }
   // 3. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
   const filename = path.join(globalStoragePath, FLIX_JAR)
-  const downloadUrl = await getDownloadUrl()
-  
+    
   if (!fs.existsSync(globalStoragePath)) {
     fs.mkdirSync(globalStoragePath)
   }
 
   const userResponse = await vscode.window.showInformationMessage(
-    'Flix needs to be downloaded. Proceed?',
+    'This plugin requires the Flix compiler. Do you want to download it now?',
     'Download'
   )
 
@@ -59,12 +82,14 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
   }
 
   await downloadWithRetryDialog(async () => {
+    const flixRelease = await fetchRelease()
     await download({
-      url: downloadUrl,
+      url: flixRelease.downloadUrl,
       dest: filename,
-      progressTitle: "Downloading Flix Compiler",
-      overwrite: true,
+      progressTitle: 'Downloading Flix Compiler',
+      overwrite: true
     })
+    await setInstalledFlixVersion(flixRelease)
   })
 
   return filename

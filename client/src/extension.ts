@@ -6,6 +6,7 @@ import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
+import initialiseState from './services/state'
 
 const _ = require('lodash/fp')
 
@@ -120,6 +121,9 @@ function handlePrintDiagnostics ({ status, result }) {
 }
 
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+  // activate state
+  initialiseState(context)
+
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
   diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
   

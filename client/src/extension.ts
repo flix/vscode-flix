@@ -1,12 +1,16 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient'
-import { EventEmitter } from 'events'
 
 import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
+import showStartupProgress from './util/showStartupProgress'
+
+import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
+
+import * as handlers from './handlers'
 
 const _ = require('lodash/fp')
 
@@ -26,34 +30,12 @@ const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 const FLIX_GLOB_PATTERN = '**/*.flix'
 
-const readyEventEmitter = new EventEmitter()
-
 let outputChannel: vscode.OutputChannel
 
 let diagnosticsOutputChannel: vscode.OutputChannel
 
 // flag to keep track of whether errors were present last time we ran diagnostics
 let diagnosticsErrors = false
-
-function showStartupProgress () {
-  vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: 'Starting Flix',
-    cancellable: false
-  }, function (_progress) {
-    return new Promise(function resolver (resolve, reject) {
-      const tookTooLong = setTimeout(function tookTooLongHandler () {
-        vscode.window.showErrorMessage('Timed out trying to start.')
-        reject()
-      }, 10 * 1000)
-
-      readyEventEmitter.on(jobs.Request.internalReady, function readyHandler () {
-        clearTimeout(tookTooLong)
-        resolve()
-      })
-    })
-  })
-}
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
@@ -64,41 +46,10 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
-function restartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
-  return async function () {
+function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+  return async function handleRestartClient () {
     await deactivate()
     await activate(context, launchOptions)
-  }
-}
-
-function makeHandleRunCommand (request: jobs.Request, title: string, timeout: number = 180) {
-  return function handler () {
-    vscode.window.withProgress({
-      location: vscode.ProgressLocation.Notification,
-      title,
-      cancellable: false
-    }, function (_progress) {
-      return new Promise(function resolver (resolve, reject) {
-        client.sendNotification(request)
-  
-        const tookTooLong = setTimeout(function tookTooLongHandler () {
-          vscode.window.showErrorMessage(`Command timed out after ${timeout} seconds`)
-          reject()
-        }, timeout * 1000)
-  
-        readyEventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
-          clearTimeout(tookTooLong)
-          outputChannel.show()
-          resolve()
-        })
-
-        readyEventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
-          // stop the run command if we restart for some reason
-          clearTimeout(tookTooLong)
-          resolve()
-        })
-      })
-    })
   }
 }
 
@@ -124,12 +75,15 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // activate state
   initialiseState(context)
 
+  // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix Extension')
   diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
-  
-  client = createLanguageClient({ context, outputChannel })
 
+  // show default output channel without changing focus
   outputChannel.show(true)
+  
+  // create language client
+  client = createLanguageClient({ context, outputChannel }) 
 
   // Start the client. This will also launch the server
   client.start()
@@ -145,38 +99,54 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     }
   }
 
-  // Register available commands
-  registerCommand('flix.internalRestart', restartClient(context, { shouldUpdateFlix: false }))
-  registerCommand('flix.internalDownloadLatest', restartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.cmdRunBenchmarks', () => {
-    client.sendNotification(jobs.Request.cmdRunBenchmarks)
-  })
+  // Register commands for command palette
+  registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
+  registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
 
-  registerCommand('flix.cmdRunMain', makeHandleRunCommand(jobs.Request.cmdRunMain, 'Running..'))
+  registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))
+  registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
+  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
 
-  registerCommand('flix.cmdRunAllTests', makeHandleRunCommand(jobs.Request.cmdRunTests, 'Running tests..'))
+  // Register packager commands for commands palette
+  // NOTE: Currently commented out as they are being worked on.
+  // NOTE: To get it back, add these to root package.json under `contributes.commands`
 
-  registerCommand('flix.pkgBenchmark', () => {
-    client.sendNotification(jobs.Request.pkgBenchmark)
-  })
-  registerCommand('flix.pkgBuild', () => {
-    client.sendNotification(jobs.Request.pkgBuild)
-  })
-  registerCommand('flix.pkgBuildDoc', () => {
-    client.sendNotification(jobs.Request.pkgBuildDoc)
-  })
-  registerCommand('flix.pkgBuildJar', () => {
-    client.sendNotification(jobs.Request.pkgBuildJar)
-  })
-  registerCommand('flix.pkgBuildPkg', () => {
-    client.sendNotification(jobs.Request.pkgBuildPkg)
-  })
-  registerCommand('flix.pkgInit', () => {
-    client.sendNotification(jobs.Request.pkgInit)
-  })
-  registerCommand('flix.pkgTest', () => {
-    client.sendNotification(jobs.Request.pkgTest)
-  })
+  // {
+  //   "command": "flix.pkgBenchmark",
+  //   "title": "Flix: Package Benchmark"
+  // },
+  // {
+  //   "command": "flix.pkgBuild",
+  //   "title": "Flix: Package Build"
+  // },
+  // {
+  //   "command": "flix.pkgBuildDoc",
+  //   "title": "Flix: Package Build Doc"
+  // },
+  // {
+  //   "command": "flix.pkgBuildJar",
+  //   "title": "Flix: Package Build Jar"
+  // },
+  // {
+  //   "command": "flix.pkgBuildPkg",
+  //   "title": "Flix: Package Build Package"
+  // },
+  // {
+  //   "command": "flix.pkgInit",
+  //   "title": "Flix: Package Init"
+  // },
+  // {
+  //   "command": "flix.pkgTest",
+  //   "title": "Flix: Package Test"
+  // }
+
+  // registerCommand('flix.pkgBenchmark', handlers.makeHandleRunJob(client, jobs.Request.pkgBenchmark))
+  // registerCommand('flix.pkgBuild', handlers.makeHandleRunJob(client, jobs.Request.pkgBuild))
+  // registerCommand('flix.pkgBuildDoc', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildDoc))
+  // registerCommand('flix.pkgBuildJar', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildJar))
+  // registerCommand('flix.pkgBuildPkg', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildPkg))
+  // registerCommand('flix.pkgInit', handlers.makeHandleRunJob(client, jobs.Request.pkgInit))
+  // registerCommand('flix.pkgTest', handlers.makeHandleRunJob(client, jobs.Request.pkgTest))
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
@@ -195,7 +165,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+
+  // Show a startup progress that times out after 10 (default) seconds
+  showStartupProgress()
   
+  // Send start notification to the server which actually starts the Flix compiler
   client.sendNotification(jobs.Request.internalReady, {
     flixFilename,
     workspaceFolders,
@@ -203,23 +177,22 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles
-  })
+  }) 
 
-  showStartupProgress()
-
+  // Handle when server has answered back after getting the notification above
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully 
-    readyEventEmitter.emit(jobs.Request.internalReady)
+    eventEmitter.emit(jobs.Request.internalReady)
   })
 
   client.onNotification(jobs.Request.internalFinishedJob, function handler () {
     // only one job runs at once, so currently not trying to distinguish
-    readyEventEmitter.emit(jobs.Request.internalFinishedJob)
+    eventEmitter.emit(jobs.Request.internalFinishedJob)
   })
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
 
-  client.onNotification(jobs.Request.internalRestart, restartClient(context))
+  client.onNotification(jobs.Request.internalRestart, makeHandleRestartClient(context))
 
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 

@@ -120,9 +120,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // Register available commands
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.cmdRunBenchmarks', () => {
-    client.sendNotification(jobs.Request.cmdRunBenchmarks)
-  })
+  registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunBenchmarks(client))
 
   registerCommand('flix.cmdRunMain', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
 

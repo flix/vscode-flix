@@ -4,6 +4,14 @@ import { LanguageClient } from 'vscode-languageclient'
 import * as jobs from '../engine/jobs'
 import eventEmitter from '../services/eventEmitter'
 
+export function makeHandleRunBenchmarks (
+  client: LanguageClient
+) {
+  return function handler () {
+    client.sendNotification(jobs.Request.cmdRunBenchmarks)
+  }
+}
+
 export function makeHandleRunCommand (
   client: LanguageClient, 
   outputChannel: vscode.OutputChannel, 

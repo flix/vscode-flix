@@ -5,9 +5,11 @@ import * as jobs from './engine/jobs'
 
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
+import showStartupProgress from './util/showStartupProgress'
 
 import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
+
 import * as handlers from './handlers'
 
 const _ = require('lodash/fp')
@@ -34,26 +36,6 @@ let diagnosticsOutputChannel: vscode.OutputChannel
 
 // flag to keep track of whether errors were present last time we ran diagnostics
 let diagnosticsErrors = false
-
-function showStartupProgress () {
-  vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: 'Starting Flix',
-    cancellable: false
-  }, function (_progress) {
-    return new Promise(function resolver (resolve, reject) {
-      const tookTooLong = setTimeout(function tookTooLongHandler () {
-        vscode.window.showErrorMessage('Timed out trying to start.')
-        reject()
-      }, 10 * 1000)
-
-      eventEmitter.on(jobs.Request.internalReady, function readyHandler () {
-        clearTimeout(tookTooLong)
-        resolve()
-      })
-    })
-  })
-}
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.

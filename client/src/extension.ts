@@ -110,7 +110,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // Register packager commands for commands palette
   // NOTE: Currently commented out as they are being worked on.
   // NOTE: To get it back, add these to root package.json under `contributes.commands`
-  
+
   // {
   //   "command": "flix.pkgBenchmark",
   //   "title": "Flix: Package Benchmark"
@@ -165,7 +165,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+
+  // Show a startup progress that times out after 10 (default) seconds
+  showStartupProgress()
   
+  // Send start notification to the server which actually starts the Flix compiler
   client.sendNotification(jobs.Request.internalReady, {
     flixFilename,
     workspaceFolders,
@@ -173,10 +177,9 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles
-  })
+  }) 
 
-  showStartupProgress()
-
+  // Handle when server has answered back after getting the notification above
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully 
     eventEmitter.emit(jobs.Request.internalReady)

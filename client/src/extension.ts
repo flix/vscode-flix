@@ -122,8 +122,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
 
   registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))
-  registerCommand('flix.cmdRunMain', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
-  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
+  registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
+  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
 
   registerCommand('flix.pkgBenchmark', handlers.makeHandleRunJob(client, jobs.Request.pkgBenchmark))
   registerCommand('flix.pkgBuild', handlers.makeHandleRunJob(client, jobs.Request.pkgBuild))

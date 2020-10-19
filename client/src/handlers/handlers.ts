@@ -13,7 +13,7 @@ export function makeHandleRunJob (
   }
 }
 
-export function makeHandleRunCommand (
+export function makeHandleRunJobWithProgress (
   client: LanguageClient, 
   outputChannel: vscode.OutputChannel, 
   request: jobs.Request, 

@@ -107,13 +107,46 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
 
-  registerCommand('flix.pkgBenchmark', handlers.makeHandleRunJob(client, jobs.Request.pkgBenchmark))
-  registerCommand('flix.pkgBuild', handlers.makeHandleRunJob(client, jobs.Request.pkgBuild))
-  registerCommand('flix.pkgBuildDoc', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildDoc))
-  registerCommand('flix.pkgBuildJar', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildJar))
-  registerCommand('flix.pkgBuildPkg', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildPkg))
-  registerCommand('flix.pkgInit', handlers.makeHandleRunJob(client, jobs.Request.pkgInit))
-  registerCommand('flix.pkgTest', handlers.makeHandleRunJob(client, jobs.Request.pkgTest))
+  // Register packager commands for commands palette
+  // NOTE: Currently commented out as they are being worked on.
+  // NOTE: To get it back, add these to root package.json under `contributes.commands`
+  
+  // {
+  //   "command": "flix.pkgBenchmark",
+  //   "title": "Flix: Package Benchmark"
+  // },
+  // {
+  //   "command": "flix.pkgBuild",
+  //   "title": "Flix: Package Build"
+  // },
+  // {
+  //   "command": "flix.pkgBuildDoc",
+  //   "title": "Flix: Package Build Doc"
+  // },
+  // {
+  //   "command": "flix.pkgBuildJar",
+  //   "title": "Flix: Package Build Jar"
+  // },
+  // {
+  //   "command": "flix.pkgBuildPkg",
+  //   "title": "Flix: Package Build Package"
+  // },
+  // {
+  //   "command": "flix.pkgInit",
+  //   "title": "Flix: Package Init"
+  // },
+  // {
+  //   "command": "flix.pkgTest",
+  //   "title": "Flix: Package Test"
+  // }
+
+  // registerCommand('flix.pkgBenchmark', handlers.makeHandleRunJob(client, jobs.Request.pkgBenchmark))
+  // registerCommand('flix.pkgBuild', handlers.makeHandleRunJob(client, jobs.Request.pkgBuild))
+  // registerCommand('flix.pkgBuildDoc', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildDoc))
+  // registerCommand('flix.pkgBuildJar', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildJar))
+  // registerCommand('flix.pkgBuildPkg', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildPkg))
+  // registerCommand('flix.pkgInit', handlers.makeHandleRunJob(client, jobs.Request.pkgInit))
+  // registerCommand('flix.pkgTest', handlers.makeHandleRunJob(client, jobs.Request.pkgTest))
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

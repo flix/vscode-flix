@@ -117,36 +117,21 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     }
   }
 
-  // Register available commands
+  // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunBenchmarks(client))
 
+  registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))
   registerCommand('flix.cmdRunMain', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
-
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
 
-  registerCommand('flix.pkgBenchmark', () => {
-    client.sendNotification(jobs.Request.pkgBenchmark)
-  })
-  registerCommand('flix.pkgBuild', () => {
-    client.sendNotification(jobs.Request.pkgBuild)
-  })
-  registerCommand('flix.pkgBuildDoc', () => {
-    client.sendNotification(jobs.Request.pkgBuildDoc)
-  })
-  registerCommand('flix.pkgBuildJar', () => {
-    client.sendNotification(jobs.Request.pkgBuildJar)
-  })
-  registerCommand('flix.pkgBuildPkg', () => {
-    client.sendNotification(jobs.Request.pkgBuildPkg)
-  })
-  registerCommand('flix.pkgInit', () => {
-    client.sendNotification(jobs.Request.pkgInit)
-  })
-  registerCommand('flix.pkgTest', () => {
-    client.sendNotification(jobs.Request.pkgTest)
-  })
+  registerCommand('flix.pkgBenchmark', handlers.makeHandleRunJob(client, jobs.Request.pkgBenchmark))
+  registerCommand('flix.pkgBuild', handlers.makeHandleRunJob(client, jobs.Request.pkgBuild))
+  registerCommand('flix.pkgBuildDoc', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildDoc))
+  registerCommand('flix.pkgBuildJar', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildJar))
+  registerCommand('flix.pkgBuildPkg', handlers.makeHandleRunJob(client, jobs.Request.pkgBuildPkg))
+  registerCommand('flix.pkgInit', handlers.makeHandleRunJob(client, jobs.Request.pkgInit))
+  registerCommand('flix.pkgTest', handlers.makeHandleRunJob(client, jobs.Request.pkgTest))
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

@@ -209,12 +209,14 @@ function prettyPrintTestResults (result: any) {
   printHorizontalRuler()
   for (const test of result) {
     console.log(
-      test.outcome === 'success' ? String.fromCodePoint(0x2705) : String.fromCodePoint(0x274C),
-      test.name
+      test.outcome === 'success' 
+        ? String.fromCodePoint(0x2705) 
+        : String.fromCodePoint(0x274C),
+      test.name,
+      test.outcome === 'success' 
+        ? '' 
+        : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`
     )
-    if (test.outcome !== 'success') {
-      console.log(`See ${test.location.uri} (${test.location.range.start.line}:${test.location.range.start.character})`)
-    }
   }
   printHorizontalRuler()
   const successfulTests = _.size(_.filter({ outcome: 'success' }, result))

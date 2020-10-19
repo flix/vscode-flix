@@ -8,6 +8,7 @@ import createLanguageClient from './util/createLanguageClient'
 
 import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
+import * as handlers from './handlers'
 
 const _ = require('lodash/fp')
 
@@ -70,37 +71,6 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
   }
 }
 
-function makeHandleRunCommand (request: jobs.Request, title: string, timeout: number = 180) {
-  return function handler () {
-    vscode.window.withProgress({
-      location: vscode.ProgressLocation.Notification,
-      title,
-      cancellable: false
-    }, function (_progress) {
-      return new Promise(function resolver (resolve, reject) {
-        client.sendNotification(request)
-  
-        const tookTooLong = setTimeout(function tookTooLongHandler () {
-          vscode.window.showErrorMessage(`Command timed out after ${timeout} seconds`)
-          reject()
-        }, timeout * 1000)
-  
-        eventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
-          clearTimeout(tookTooLong)
-          outputChannel.show()
-          resolve()
-        })
-
-        eventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
-          // stop the run command if we restart for some reason
-          clearTimeout(tookTooLong)
-          resolve()
-        })
-      })
-    })
-  }
-}
-
 function handlePrintDiagnostics ({ status, result }) {
   if (status === 'success') {
     if (diagnosticsErrors) {
@@ -154,9 +124,9 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.cmdRunBenchmarks)
   })
 
-  registerCommand('flix.cmdRunMain', makeHandleRunCommand(jobs.Request.cmdRunMain, 'Running..'))
+  registerCommand('flix.cmdRunMain', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
 
-  registerCommand('flix.cmdRunAllTests', makeHandleRunCommand(jobs.Request.cmdRunTests, 'Running tests..'))
+  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunCommand(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
 
   registerCommand('flix.pkgBenchmark', () => {
     client.sendNotification(jobs.Request.pkgBenchmark)

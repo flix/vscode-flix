@@ -81,9 +81,9 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   // show default output channel without changing focus
   outputChannel.show(true)
-  
+
   // create language client
-  client = createLanguageClient({ context, outputChannel }) 
+  client = createLanguageClient({ context, outputChannel })
 
   // Start the client. This will also launch the server
   client.start()
@@ -103,9 +103,18 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
 
-  registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))
   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
+
+  // NOTE: Currently commented out as it is being worked on.
+  // registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))
+
+  // NOTE: Add this to the root package.json under `contributes.commands`
+
+  // {
+  //   "command": "flix.cmdRunBenchmarks",
+  //   "title": "Flix: Run Benchmarks"
+  // },
 
   // Register packager commands for commands palette
   // NOTE: Currently commented out as they are being worked on.
@@ -168,7 +177,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()
-  
+
   // Send start notification to the server which actually starts the Flix compiler
   client.sendNotification(jobs.Request.internalReady, {
     flixFilename,
@@ -177,11 +186,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles
-  }) 
+  })
 
   // Handle when server has answered back after getting the notification above
   client.onNotification(jobs.Request.internalReady, function handler () {
-    // waits for server to answer back after having started successfully 
+    // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
   })
 

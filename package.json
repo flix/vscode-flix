@@ -32,10 +32,6 @@
         "title": "Flix: Download latest compiler"
       },
       {
-        "command": "flix.cmdRunBenchmarks",
-        "title": "Flix: Run Benchmarks"
-      },
-      {
         "command": "flix.cmdRunMain",
         "title": "Flix: Run Main"
       },

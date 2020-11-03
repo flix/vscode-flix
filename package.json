@@ -25,11 +25,11 @@
     "commands": [
       {
         "command": "flix.internalRestart",
-        "title": "Flix: Restart"
+        "title": "Flix: Restart Compiler"
       },
       {
         "command": "flix.internalDownloadLatest",
-        "title": "Flix: Download latest compiler"
+        "title": "Flix: Download Latest Version"
       },
       {
         "command": "flix.cmdRunMain",
@@ -37,7 +37,7 @@
       },
       {
         "command": "flix.cmdRunAllTests",
-        "title": "Flix: Run All Tests"
+        "title": "Flix: Run Tests"
       }
     ],
     "languages": [

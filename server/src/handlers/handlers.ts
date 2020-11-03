@@ -91,11 +91,12 @@ export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto, 
 
 function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
+    const targetUri = _.get('targetUri', result)
     if (status === 'success') {
-      if (_.startsWith('file://', _.get('targetUri', result))) {
+      if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
-        sendNotification(jobs.Request.internalMessage, 'Cannot go to definition for Flix Standard Library')
+        sendNotification(jobs.Request.internalMessage, `Source for: '${targetUri}' is unavailable.`)
       }
     }
     promiseResolver()
@@ -273,7 +274,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     sendNotification(jobs.Request.internalReady)
     if (status === 'success') {
       const { major, minor, revision } = result
-      const message = `Flix Extension ${engine.getExtensionVersion()} ready! Running Flix ${major}.${minor}-rev${revision}\n(${engine.getFlixFilename()})`
+      const message = `Flix ${major}.${minor}.${revision} Ready! (Extension: ${engine.getExtensionVersion()}) (Using ${engine.getFlixFilename()})`
       sendNotification(jobs.Request.internalMessage, message)
     } else {
       sendNotification(jobs.Request.internalError, 'Failed starting Flix')

@@ -57,7 +57,6 @@ function handlePrintDiagnostics ({ status, result }) {
   if (status === 'success') {
     if (diagnosticsErrors) {
       diagnosticsOutputChannel.clear()
-      diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x2705)} No errors ${String.fromCodePoint(0x2705)}`)
       diagnosticsErrors = false
     }
   } else {
@@ -76,8 +75,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   initialiseState(context)
 
   // create output channels
-  outputChannel = vscode.window.createOutputChannel('Flix Extension')
-  diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Errors')
+  outputChannel = vscode.window.createOutputChannel('Flix')
+  diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Compiler')
 
   // show default output channel without changing focus
   outputChannel.show(true)
@@ -103,8 +102,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
 
-  registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running..'))
-  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running tests..'))
+  registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
+  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
 
   // NOTE: Currently commented out as it is being worked on.
   // registerCommand('flix.cmdRunBenchmarks', handlers.makeHandleRunJob(client, jobs.Request.cmdRunBenchmarks))

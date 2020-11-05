@@ -34,12 +34,10 @@ const getMajorVersion = _.flow(
   _.parseInt(10)
 )
 
-export default async function javaMajorVersion (rootPath: string): Promise<JavaVersion> {
+export default async function javaMajorVersion (rootPath: string, javaPath: string): Promise<JavaVersion> {
   return new Promise((resolve) => {
-    ChildProcess.exec('java CheckJavaVersion', { cwd: path.join(rootPath, 'java') }, (error: any, stdout: any, stderror: any) => {
-      if (error) {
-        return resolve(unknownJavaVersion)
-      }
+    ChildProcess.exec(`${javaPath} CheckJavaVersion`, { cwd: path.join(rootPath, 'java') }, (error: any, stdout: any, stderror: any) => {
+      if (error) throw error
       if (typeof stdout !== 'string') {
         return resolve(unknownJavaVersion)
       }

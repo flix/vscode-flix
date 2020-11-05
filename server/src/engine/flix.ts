@@ -22,6 +22,7 @@ import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
 
+const path = require('path')
 const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
@@ -60,8 +61,18 @@ export async function start (input: StartEngineInput) {
 
   const { flixFilename, extensionPath, workspaceFiles } = input
 
+  // Get JAVA_HOME enviroment variable
+  const javaHome = process.env.JAVA_HOME
+  if (!javaHome) {
+    sendNotification(jobs.Request.internalError, "$JAVA_HOME is not set")
+    return
+  }
+
+  // Get Java path
+  const javaPath = path.join(javaHome, 'bin', 'java')
+  
   // Check for valid Java version
-  const { majorVersion, versionString } = await javaVersion(extensionPath)
+  const { majorVersion, versionString } = await javaVersion(extensionPath, javaPath)
   if (majorVersion < 11) {
     sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found "${versionString}".`)
     return
@@ -70,7 +81,7 @@ export async function start (input: StartEngineInput) {
   // get a port starting from 8888
   const port = await portfinder.getPortPromise({ port: 8888 })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
+  flixInstance = ChildProcess.spawn(javaPath, ['-jar', flixFilename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   flixInstance.stdout.on('data', (data: any) => {

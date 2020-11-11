@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient'
 
 import * as jobs from '../engine/jobs'
+import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 
 export function makeHandleRunJob (
@@ -28,21 +29,12 @@ export function makeHandleRunJobWithProgress (
     }, function (_progress) {
       return new Promise(function resolver (resolve, reject) {
         client.sendNotification(request)
-  
-        const tookTooLong = setTimeout(function tookTooLongHandler () {
-          vscode.window.showErrorMessage(`Command timed out after ${timeout} seconds`)
-          reject()
-        }, timeout * 1000)
+
+        const cancelCleanup = timers.ensureCleanupEventually(reject, timeout)
   
         eventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
-          clearTimeout(tookTooLong)
+          cancelCleanup()
           outputChannel.show()
-          resolve()
-        })
-
-        eventEmitter.on(jobs.Request.internalRestart, function readyHandler () {
-          // stop the run command if we restart for some reason
-          clearTimeout(tookTooLong)
           resolve()
         })
       })

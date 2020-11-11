@@ -11,6 +11,7 @@ import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
 
 import * as handlers from './handlers'
+import { callResolversAndEmptyList } from './services/timers'
 
 const _ = require('lodash/fp')
 
@@ -48,6 +49,7 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
 
 function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient () {
+    callResolversAndEmptyList()
     await deactivate()
     await activate(context, launchOptions)
   }

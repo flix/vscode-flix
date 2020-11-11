@@ -79,18 +79,6 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     fs.mkdirSync(globalStoragePath)
   }
 
-  if (!shouldUpdateFlix) {
-    // only ask the user if the user didn't explicitly ask to update via the update command
-    const userResponse = await vscode.window.showInformationMessage(
-      'This plugin requires the Flix compiler. Do you want to download it now?',
-      'Download'
-    )
-  
-    if (userResponse !== 'Download') {
-      throw new Error('User refused download. Cannot continue.')
-    }
-  }
-
   await downloadWithRetryDialog(async () => {
     const flixRelease = await fetchRelease()
     await download({

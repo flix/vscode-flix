@@ -209,11 +209,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 }
 
 export function deactivate (): Thenable<void> | undefined {
-  if (!client) {
-    return undefined
-  }
-  flixWatcher.dispose()
-  outputChannel.dispose()
-  diagnosticsOutputChannel.dispose()
-  return client.stop()
+  flixWatcher && flixWatcher.dispose()
+  outputChannel && outputChannel.dispose()
+  diagnosticsOutputChannel && diagnosticsOutputChannel.dispose()
+  return client ? client.stop() : undefined
 }

@@ -50,6 +50,27 @@ export function getProjectRootUri () {
   return _.first(startEngineInput.workspaceFolders)
 }
 
+function initialiseSocket (uri: string, workspaceFiles: [string]) {
+  socket.initialiseSocket({
+    uri,
+    onOpen: makeHandleSocketOpen(workspaceFiles),
+    onClose: makeHandleSocketClose(uri, workspaceFiles)
+  })
+}
+
+function makeHandleSocketOpen (workspaceFiles: [string]) {
+  return function handler () {
+    queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
+    handleVersion()
+  }
+}
+
+function makeHandleSocketClose (uri: string, workspaceFiles: [string]) {
+  return function handler () {
+    initialiseSocket(uri, workspaceFiles)
+  }
+}
+
 export async function start (input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     stop()
@@ -78,13 +99,7 @@ export async function start (input: StartEngineInput) {
 
     if (str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
-      socket.initialiseSocket({
-        uri: webSocketUrl,
-        onOpen: function handleOpen () {
-          queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
-          handleVersion()
-        }
-      })
+      initialiseSocket(webSocketUrl, workspaceFiles)
 
       // now that the connection is established, there's no reason to listen for new messages
       flixInstance.stdout.removeAllListeners('data')

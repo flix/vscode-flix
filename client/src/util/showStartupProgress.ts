@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
-import eventEmitter from '../services/eventEmitter'
 import * as jobs from '../engine/jobs'
+import eventEmitter from '../services/eventEmitter'
+import * as timers from '../services/timers'
 
 export default function showStartupProgress (timeout: number = 15) {
   vscode.window.withProgress({
@@ -9,15 +10,12 @@ export default function showStartupProgress (timeout: number = 15) {
     cancellable: false
   }, function (_progress) {
     return new Promise(function resolver (resolve, reject) {
-      const tookTooLong = setTimeout(function tookTooLongHandler () {
-        vscode.window.showErrorMessage('Timed out trying to start.')
-        reject()
-      }, timeout * 1000)
+      const cancelCleanup = timers.ensureCleanupEventually(reject, timeout)
 
       eventEmitter.on(jobs.Request.internalReady, function readyHandler () {
-        clearTimeout(tookTooLong)
+        cancelCleanup()
         resolve()
-      })
+      })     
     })
   })
 }

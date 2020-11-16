@@ -37,6 +37,11 @@ export interface StartEngineInput {
 
 let flixInstance: any
 let startEngineInput: StartEngineInput
+let flixRunning: boolean = false
+
+export function isRunning () {
+  return flixRunning
+}
 
 export function getFlixFilename () {
   return startEngineInput.flixFilename
@@ -81,8 +86,12 @@ export async function start (input: StartEngineInput) {
       socket.initialiseSocket({
         uri: webSocketUrl,
         onOpen: function handleOpen () {
+          flixRunning = true
           queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
           handleVersion()
+        },
+        onClose: function handleClose () {
+          flixRunning = false
         }
       })
 

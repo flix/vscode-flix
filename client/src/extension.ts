@@ -69,7 +69,7 @@ function handlePrintDiagnostics ({ status, result }) {
         diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
       }
     }
-    diagnosticsOutputChannel.show()
+    diagnosticsOutputChannel.show(true)
   }
 }
 

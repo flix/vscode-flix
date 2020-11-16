@@ -260,6 +260,7 @@ function makeRunPackageCommandResponseHandler (promiseResolver: Function) {
 
 function hasErrorsHandlerForCommands () {
   sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
+  sendNotification(jobs.Request.internalFinishedJob)
 }
 
 /**

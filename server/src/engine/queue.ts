@@ -90,7 +90,7 @@ export function enqueue (job: jobs.Job): jobs.EnqueuedJob {
  * @param jobArray
  */
 export function initialiseQueues (jobArray: [jobs.Job]) {
-  emptyQueue()
+  queueRunning = false // make sure `startQueue` actually starts it
   for (const job of jobArray) {
     const enqueuedJob = jobToEnqueuedJob(job)
     if (isPriorityJob(job)) {

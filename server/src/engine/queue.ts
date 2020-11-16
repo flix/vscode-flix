@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as engine from './flix'
 import * as jobs from './jobs'
 import * as socket from './socket'
 import { fileURLToPath } from 'url'
@@ -143,6 +144,10 @@ function emptyQueue () {
 
 export async function processQueue () {
   // console.warn('[[debug:ProcessQueue]]: ' + _.map('request', priorityQueue).join(', ') + ' || ' + _.map('request', taskQueue).join(', '))
+  if (!engine.isRunning()) {
+    // VSCode might ask us to do things before we're up and running - wait for next processQueue call
+    return
+  }
   const job: jobs.EnqueuedJob = dequeue()
   if (job) {
     try {

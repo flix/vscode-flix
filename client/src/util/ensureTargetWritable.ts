@@ -18,15 +18,15 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 export default function ensureTargetWritable (workspaceFolder: string): boolean {
-  const targetPath = path.join(workspaceFolder, 'target')
-  if (!fs.existsSync(targetPath)) {
-    fs.mkdirSync(targetPath)
-  }
   try {
+    const targetPath = path.join(workspaceFolder, 'target')
+    if (!fs.existsSync(targetPath)) {
+      fs.mkdirSync(targetPath)
+    }
     fs.accessSync(targetPath, fs.constants.W_OK)
+    return true
   } catch (err) {
-    console.log('not access', err)
+    console.warn('Target is not writable.', err)
     return false
   }
-  return true
 }

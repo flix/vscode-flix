@@ -1,0 +1,3 @@
+/// The following program can be used to trigger a crash.
+def main(): Unit & Impure =
+    ?hole

@@ -208,6 +208,7 @@ export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmd
 function prettyPrintTestResults (result: any) {
   if (_.isEmpty(result)) {
     // nothing to print
+    sendNotification(jobs.Request.internalMessage, 'No tests to run')
     return
   }
   printHorizontalRuler()
@@ -223,20 +224,22 @@ function prettyPrintTestResults (result: any) {
     )
   }
   printHorizontalRuler()
+  const totalTests = _.size(result)
   const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
-  console.log(`${successfulTests}/${_.size(result)} tests passed`)
+  const failingTests = totalTests - successfulTests
+  if (failingTests > 0) {
+    sendNotification(jobs.Request.internalError, `Tests Failed (${failingTests}/${totalTests})`)
+  } else {
+    sendNotification(jobs.Request.internalMessage, `Tests Passed (${successfulTests}/${totalTests})`)
+  }
 }
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {
   return function responseHandler (flixResponse: socket.FlixResponse) {
-    const { status, result } = flixResponse
+    // the status is always 'success' when with failing tests
+    const { result } = flixResponse
     prettyPrintTestResults(result)
-    if (status === 'success') {
-      promiseResolver(result)
-    } else {
-      sendNotification(jobs.Request.internalError, 'Test(s) failed')
-      promiseResolver()
-    }
+    promiseResolver(result)
     sendNotification(jobs.Request.internalFinishedJob, flixResponse)
   }
 }

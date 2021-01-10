@@ -51,8 +51,7 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
 function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient () {
     callResolversAndEmptyList()
-    await deactivate()
-    await activate(context, launchOptions)
+    await startSession(context, launchOptions, client)
   }
 }
 
@@ -81,9 +80,6 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix')
   diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Compiler')
-
-  // show default output channel without changing focus
-  outputChannel.show(true)
 
   // create language client
   client = createLanguageClient({ context, outputChannel })
@@ -170,6 +166,17 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
+
+  await startSession(context, launchOptions, client)
+}
+
+async function startSession (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions, client: LanguageClient) {
+  // clear outputs
+  outputChannel.clear()
+  diagnosticsOutputChannel.clear()
+  
+  // show default output channel without changing focus
+  outputChannel.show(true)
 
   const globalStoragePath = context.globalStoragePath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)

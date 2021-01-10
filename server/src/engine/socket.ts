@@ -100,8 +100,18 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   })
 }
 
+function clearTimer (id: string) {
+  clearTimeout(sentMessagesMap[id])
+  delete sentMessagesMap[id]
+}
+
+function clearAllTimers () {
+  _.each(clearTimer, _.keys(sentMessagesMap))
+}
+
 export function closeSocket () {
   if (webSocket) {
+    clearAllTimers()
     webSocket.close()
   } else {
     webSocketOpen = false
@@ -121,6 +131,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   }
   // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
+    delete sentMessagesMap[job.id]
     sendNotification(jobs.Request.internalError, `Job timed out after ${MESSAGE_TIMEOUT_SECONDS} seconds`)
     setTimeout(queue.processQueue, 0)
   }, (MESSAGE_TIMEOUT_SECONDS * 1000))
@@ -135,7 +146,7 @@ function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
     eventEmitter.emit(flixResponse.id, flixResponse)
   }
   // clear timer because we received a response
-  clearTimeout(sentMessagesMap[flixResponse.id])
+  clearTimer(flixResponse.id)
   // ask queue to process next item
   setTimeout(queue.processQueue, 0)
 }

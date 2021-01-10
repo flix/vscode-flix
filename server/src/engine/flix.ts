@@ -82,7 +82,7 @@ export async function start (input: StartEngineInput) {
   flixInstance.stdout.pipe(process.stdout)
   flixInstance.stderr.pipe(process.stderr)
 
-  flixInstance.stdout.on('data', (data: any) => {
+  const connectToSocket = (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
     if (str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
@@ -99,9 +99,11 @@ export async function start (input: StartEngineInput) {
       })
 
       // now that the connection is established, there's no reason to listen for new messages
-      flixInstance.stdout.removeAllListeners('data')
+      flixInstance.stdout.removeListener('data', connectToSocket)
     }
-  })
+  }
+
+  flixInstance.stdout.on('data', connectToSocket)
 }
 
 export function stop () {

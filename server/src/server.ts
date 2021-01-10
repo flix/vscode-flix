@@ -89,9 +89,9 @@ export function sendNotification (notificationType: string, payload?: any) {
   if (typeof payload === 'string') {
     switch (notificationType) {
       case jobs.Request.internalError:
-        console.error(payload)
+        return console.error(payload)
       case jobs.Request.internalMessage:
-        console.log(payload)
+        return console.log(payload)
       default:
     }
   }

@@ -78,9 +78,12 @@ export async function start (input: StartEngineInput) {
   flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
+  // forward flix to own stdout & stderr
+  flixInstance.stdout.pipe(process.stdout)
+  flixInstance.stderr.pipe(process.stderr)
+
   flixInstance.stdout.on('data', (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
-
     if (str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
       socket.initialiseSocket({
@@ -98,14 +101,6 @@ export async function start (input: StartEngineInput) {
       // now that the connection is established, there's no reason to listen for new messages
       flixInstance.stdout.removeAllListeners('data')
     }
-  })
-
-  flixInstance.stderr.on('data', (data: any) => {
-    // Text on missing/inaccessible: 'Error: Unable to access jarfile'
-    // Port in use: 'java.net.BindException: Address already in use: bind'
-    const errorAsString = data.toString().split(/(\r?\n)/g).join('')
-    const errorMessage = `Flix LSP responded with an error. \n${errorAsString}`
-    sendNotification(jobs.Request.internalError, errorMessage)
   })
 }
 

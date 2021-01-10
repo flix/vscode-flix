@@ -184,7 +184,6 @@ export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdR
 function prettyPrintMainResult (result: any) {
   printHorizontalRuler()
   console.log(result)
-  printHorizontalRuler()
 }
 
 function makeRunMainResponseHandler (promiseResolver: Function) {
@@ -207,6 +206,10 @@ function makeRunMainResponseHandler (promiseResolver: Function) {
 export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function prettyPrintTestResults (result: any) {
+  if (_.isEmpty(result)) {
+    // nothing to print
+    return
+  }
   printHorizontalRuler()
   for (const test of result) {
     console.log(
@@ -222,7 +225,6 @@ function prettyPrintTestResults (result: any) {
   printHorizontalRuler()
   const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
   console.log(`${successfulTests}/${_.size(result)} tests passed`)
-  printHorizontalRuler()
 }
 
 function makeRunTestsResponseHandler (promiseResolver: Function) {

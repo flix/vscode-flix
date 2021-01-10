@@ -171,6 +171,9 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
 }
 
 async function startSession (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions, client: LanguageClient) {
+  // clear listeners from previous sessions
+  eventEmitter.removeAllListeners()
+
   // clear outputs
   outputChannel.clear()
   diagnosticsOutputChannel.clear()

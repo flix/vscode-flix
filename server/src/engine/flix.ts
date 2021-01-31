@@ -26,13 +26,28 @@ const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
 
+export interface CompileOnSave {
+  enabled: boolean
+}
+
+export interface CompileOnChange {
+  enabled: boolean,
+  delay: number
+}
+
+export interface UserConfiguration {
+  compileOnSave: CompileOnSave,
+  compileOnChange: CompileOnChange
+}
+
 export interface StartEngineInput {
   flixFilename: string,
   workspaceFolders: [string],
   extensionPath: string,
   extensionVersion: string,
   globalStoragePath: string,
-  workspaceFiles: [string]
+  workspaceFiles: [string],
+  userConfiguration: UserConfiguration
 }
 
 let flixInstance: any
@@ -53,6 +68,23 @@ export function getExtensionVersion () {
 
 export function getProjectRootUri () {
   return _.first(startEngineInput.workspaceFolders)
+}
+
+export function updateUserConfiguration (userConfiguration: UserConfiguration) {
+  startEngineInput = _.set('userConfiguration', userConfiguration, startEngineInput)
+  queue.resetEnqueueDebounced()
+}
+
+export function compileOnSaveEnabled () {
+  return startEngineInput?.userConfiguration.compileOnSave.enabled ?? true
+}
+
+export function compileOnChangeEnabled () {
+  return startEngineInput?.userConfiguration.compileOnChange.enabled ?? true
+}
+
+export function compileOnChangeDelay () {
+  return startEngineInput?.userConfiguration.compileOnChange.delay ?? 300
 }
 
 export async function start (input: StartEngineInput) {

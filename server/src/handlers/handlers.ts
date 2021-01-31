@@ -55,6 +55,10 @@ export function handleInitialize (_params: InitializeParams) {
   return result
 }
 
+export function handleReplaceConfiguration (userConfiguration: engine.UserConfiguration) {
+  engine.updateUserConfiguration(userConfiguration)
+}
+
 /**
  * Runs when both client and server are ready.
  */
@@ -74,14 +78,25 @@ export function handleExit () {
   engine.stop()
 }
 
+export function handleSave (params: any) {
+  if (engine.compileOnSaveEnabled()) {
+    addUriToCompiler(params.document, true)
+  }
+}
+
 export function handleChangeContent (params: any) {
-  const document: TextDocument = params.document
+  if (engine.compileOnChangeEnabled()) {
+    addUriToCompiler(params.document)
+  }
+}
+
+function addUriToCompiler (document: TextDocument, skipDelay?: boolean) {
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
     src: document.getText()
   }
-  queue.enqueue(job)
+  queue.enqueue(job, skipDelay)
 }
 
 /**

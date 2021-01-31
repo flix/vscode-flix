@@ -63,11 +63,20 @@
       "type": "object",
       "title": "Flix",
       "properties": {
-        "flixLanguageServer.trace.server": {
-          "scope": "window",
-          "type": "string",
-          "verbosity": "messages",
-          "description": "User-facing messages."
+        "flix.compileOnSave.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run the compiler on save"
+        },
+        "flix.compileOnChange.delay": {
+          "type": "number",
+          "default": 300,
+          "description": "Specify delay in ms"
+        },
+        "flix.compileOnChange.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run the compiler on every change"
         }
       }
     },

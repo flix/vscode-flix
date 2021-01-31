@@ -20,6 +20,9 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 // Initialise tells the client which capabilities we support
 connection.onInitialize(handlers.handleInitialize)
 
+// The user has changed something in the configuration
+connection.onNotification(jobs.Request.internalReplaceConfiguration, handlers.handleReplaceConfiguration)
+
 // Event happens once after either startup or a restart - starts the engine
 connection.onNotification(jobs.Request.internalReady, handlers.handleReady)
 
@@ -51,7 +54,7 @@ connection.onExit(handlers.handleExit)
 documents.onDidChangeContent(handlers.handleChangeContent)
 
 // Document has been saved
-documents.onDidSave(handlers.handleChangeContent)
+documents.onDidSave(handlers.handleSave)
 
 // Go to definition (from context menu or F12 usually)
 connection.onDefinition(handlers.handleGotoDefinition)

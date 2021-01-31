@@ -55,6 +55,10 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
   }
 }
 
+function getUserConfiguration () {
+  return vscode.workspace.getConfiguration('flix')
+}
+
 function handlePrintDiagnostics ({ status, result }) {
   if (status === 'success') {
     if (diagnosticsErrors) {
@@ -167,6 +171,10 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
+  vscode.workspace.onDidChangeConfiguration(() => {
+    client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
+  })
+
   await startSession(context, launchOptions, client)
 }
 
@@ -203,7 +211,8 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     extensionPath: extensionObject.extensionPath || context.extensionPath,
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
-    workspaceFiles
+    workspaceFiles,
+    userConfiguration: getUserConfiguration()
   })
 
   // Handle when server has answered back after getting the notification above

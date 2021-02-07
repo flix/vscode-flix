@@ -76,6 +76,8 @@ export function isClosed () {
   return !isOpen()
 }
 
+let lastAutomaticRestartTimestamp: number = 0
+
 export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
   if (!uri) {
     throw 'Must be called with an uri'
@@ -86,8 +88,17 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     webSocketOpen = true
     onOpen && setTimeout(onOpen!, 0)
   })
-
-  webSocket.on('close', () => {
+  
+  webSocket.on('close', (isException: boolean) => {
+    if (isException) {
+      // this happens when connection is lost due to standby or similar
+      const currentTimestamp = Date.now()
+      if (lastAutomaticRestartTimestamp + 15000 < currentTimestamp) {
+        lastAutomaticRestartTimestamp = currentTimestamp;
+        sendNotification(jobs.Request.internalRestart)
+      }
+      return
+    }
     webSocketOpen = false
     onClose && setTimeout(onClose!, 0)
   })
@@ -109,10 +120,21 @@ function clearAllTimers () {
   _.each(clearTimer, _.keys(sentMessagesMap))
 }
 
-export function closeSocket () {
+const sleep = (ms:number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export async function closeSocket () {
+  let retries = 0
   if (webSocket) {
     clearAllTimers()
     webSocket.close()
+
+    while (retries++ < 50) {
+      if (webSocket.readyState === 3) {
+        webSocketOpen = false
+        return
+      }
+      await sleep(100)
+    }
   } else {
     webSocketOpen = false
   }

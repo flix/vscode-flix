@@ -36,7 +36,8 @@ const getMajorVersion = _.flow(
 
 export default async function javaMajorVersion (rootPath: string): Promise<JavaVersion> {
   return new Promise((resolve) => {
-    ChildProcess.exec('java CheckJavaVersion', { cwd: path.join(rootPath, 'java') }, (error: any, stdout: any, stderror: any) => {
+    let cwd = path.join(rootPath, 'java');
+    ChildProcess.exec(`java -cp ${cwd} CheckJavaVersion`, { cwd:  cwd}, (error: any, stdout: any, stderror: any) => {
       if (error) {
         return resolve(unknownJavaVersion)
       }

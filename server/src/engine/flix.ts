@@ -25,6 +25,7 @@ import * as socket from './socket'
 const _ = require('lodash/fp')
 const ChildProcess = require('child_process')
 const portfinder = require('portfinder')
+const path = require('path')
 
 export interface CompileOnSave {
   enabled: boolean
@@ -107,7 +108,8 @@ export async function start (input: StartEngineInput) {
   // get a port starting from 8888
   const port = await portfinder.getPortPromise({ port: 8888 })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
+  let classpath = (process.env.CLASSPATH || "") + path.delimiter + flixFilename
+  flixInstance = ChildProcess.spawn('java', ['-cp', classpath, 'ca.uwaterloo.flix.Main', '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   // forward flix to own stdout & stderr

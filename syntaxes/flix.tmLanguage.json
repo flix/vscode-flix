@@ -120,7 +120,7 @@
                 },
                 {
                     "name": "keyword.modifier.flix",
-                    "match": "\\b(opaque|pub|inline|mut|sealed)\\b"
+                    "match": "\\b(opaque|pub|inline|mut|sealed|override)\\b"
                 },
                 {
                     "name": "keyword.symbols.flix",

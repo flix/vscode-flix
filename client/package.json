@@ -13,7 +13,7 @@
     "vscode": "^1.43.0"
   },
   "dependencies": {
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
     "vscode-languageclient": "^6.1.3"
   },

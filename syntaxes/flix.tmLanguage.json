@@ -76,7 +76,7 @@
                 },
                 {
                     "name": "keyword.declaration.flix",
-                    "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias|class|instance|with)\\b"
+                    "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias|class|instance|with|pub)\\b"
                 },
                 {
                     "name": "keyword.expression.cast.flix",
@@ -119,10 +119,6 @@
                     "match": "\\b(use)\\b"
                 },
                 {
-                    "name": "keyword.modifier.flix",
-                    "match": "\\b(opaque|pub|inline|mut|sealed|override)\\b"
-                },
-                {
                     "name": "keyword.symbols.flix",
                     "match": "(\\->|~>|<\\-|=>)"
                 },
@@ -133,6 +129,10 @@
                 {
                     "name": "keyword.operator.semicolon.flix",
                     "match": ";"
+                },
+                {
+                    "name": "storage.type.modifier.flix",
+                    "match": "\\b(inline|opaque|override|mut|sealed)\\b"
                 }
             ]
         },

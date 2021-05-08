@@ -58,6 +58,12 @@
 			}
         },
         {
+			"scope": "storage.type.modifier",
+			"settings": {
+				"foreground": "#569cd6"
+			}
+        },
+        {
 			"scope": "annotation",
 			"settings": {
 				"foreground": "#8fffdd"

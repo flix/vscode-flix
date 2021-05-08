@@ -88,7 +88,7 @@
                 },
                 {
                     "name": "keyword.expression.fixpoint.flix",
-                    "match": "\\b(from|into|project|solve|query)\\b"
+                    "match": "\\b(from|into|project|solve|query|where)\\b"
                 },
                 {
                     "name": "keyword.expression.force.flix",

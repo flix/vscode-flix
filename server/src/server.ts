@@ -61,6 +61,9 @@ connection.onDefinition(handlers.handleGotoDefinition)
 
 connection.onDocumentHighlight(handlers.handleHighlight)
 
+//Auto completion
+connection.onCompletion(handlers.handleComplete)
+
 // Hover over [line, character]
 connection.onHover(handlers.handleHover)
 

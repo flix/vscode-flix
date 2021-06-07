@@ -41,6 +41,9 @@ export function handleInitialize (_params: InitializeParams) {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentHighlightProvider: true,
+      completionProvider: {
+          
+      }, 
       hoverProvider: true,
       definitionProvider: true,
       referencesProvider: true,
@@ -122,6 +125,12 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
  * @function
  */
 export const handleHighlight = makePositionalHandler(jobs.Request.lspHighlight)
+
+/**
+ * @function
+ */
+ export const handleComplete = makePositionalHandler(jobs.Request.lspComplete)
+
 
 /**
  * @function

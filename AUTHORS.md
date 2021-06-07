@@ -4,3 +4,4 @@ By adding your name to this document, you agree to release all your contribution
 
 - [Magnus Madsen](https://github.com/magnus-madsen)
 - [Thomas Søe Plougsgaard](https://github.com/plougsgaard)
+- [Manoj Kumar](https://github.com/manoj2601)

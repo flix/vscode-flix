@@ -89,7 +89,8 @@ export function handleSave (params: any) {
 
 export function handleChangeContent (params: any) {
   if (engine.compileOnChangeEnabled()) {
-    addUriToCompiler(params.document)
+    // We send the document immediately to ensure better auto-complete.
+    addUriToCompiler(params.document, true)
   }
 }
 

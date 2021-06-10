@@ -20,6 +20,9 @@ programming language.
 * __Diagnostics__
   - Compiler error messages. 
 
+* __Auto-complete__
+  - Auto-complete as you type.
+
 * __Type and Effect Hovers__
   - Hover over any expression to see its type and effect.
   - Hover over any local variable or formal parameter to see its type.

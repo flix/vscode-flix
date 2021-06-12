@@ -23,7 +23,7 @@ import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
-import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
+import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler, makePositionalHandlerWithLine } from './util'
 import { getProjectRootUri } from '../engine'
 
 const _ = require('lodash/fp')
@@ -130,7 +130,7 @@ export const handleHighlight = makePositionalHandler(jobs.Request.lspHighlight)
 /**
  * @function
  */
- export const handleComplete = makePositionalHandler(jobs.Request.lspComplete)
+ export const handleComplete = makePositionalHandlerWithLine(jobs.Request.lspComplete)
 
 
 /**

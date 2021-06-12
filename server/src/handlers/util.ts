@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as fs from 'fs'
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
@@ -77,3 +78,33 @@ export function makePositionalHandler (type: jobs.Request, handlerWhenErrorsExis
     return makeEnqueuePromise(type, makeResponseHandler, uri, position)()
   }
 }
+
+export function makePositionalHandlerWithLine (type: jobs.Request, handlerWhenErrorsExist?: Function, makeResponseHandler?: Function) {
+    return function positionalHandler (params: any): Thenable<any> {
+      if (hasErrors() && handlerWhenErrorsExist) {
+        // NOTE: At present this isn't used by anyone (neither is makeResponseHandler)
+        return handlerWhenErrorsExist()
+      }
+      const uri = params.textDocument ? params.textDocument.uri : undefined
+      const position = params.position
+
+      const readFile = fs.readFileSync(uri.substring(7), 'utf8') //remove first 7 chars of uri
+      let cnt = 0;
+      let i = 0; //start position of current line
+      let j = 0; //end position of current line
+      for (i = 0; i < readFile.length; i++) {
+          if(readFile.charAt(i) == '\n')
+                if(++cnt == position.line)
+                    break
+      }
+
+      for(j=i+1; j<readFile.length; j++) {
+          if(readFile.charAt(j) == '\n')
+              break
+      }
+      const line = readFile.substring(i+1, j)
+      console.log(line)
+
+      return makeEnqueuePromise(type, makeResponseHandler, uri, position)()
+    }
+  }

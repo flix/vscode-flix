@@ -14,7 +14,7 @@ export default function showStartupProgress (timeout: number = 15) {
 
       eventEmitter.on(jobs.Request.internalReady, function readyHandler () {
         cancelCleanup()
-        resolve()
+        resolve(undefined)
       })     
     })
   })

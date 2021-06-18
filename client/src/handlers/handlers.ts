@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { LanguageClient } from 'vscode-languageclient'
+import { LanguageClient } from 'vscode-languageclient/node'
 
 import * as jobs from '../engine/jobs'
 import * as timers from '../services/timers'
@@ -35,7 +35,7 @@ export function makeHandleRunJobWithProgress (
         eventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
           cancelCleanup()
           outputChannel.show()
-          resolve()
+          resolve(undefined)
         })
       })
     })

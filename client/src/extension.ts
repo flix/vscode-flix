@@ -105,8 +105,9 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-
-  registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
+  registerCommand('flix.cmdRunMain', handlers.compileInTerminal)
+  
+//   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
 
   // NOTE: Currently commented out as it is being worked on.
@@ -200,6 +201,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  handlers.setFlixFileName(flixFilename) 
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()

@@ -17,10 +17,22 @@ export function makeHandleRunJob (
 let flixFileLocation
 const FLIX_GLOB_PATTERN = '**/*.flix'
 
+/**
+ * It sets the path of flix.jar to a local variable `flixFileLocation` in file `handlers.ts`.
+ * 
+ * @param Filename String (path of the flix.jar)
+ * 
+ * @return void
+*/
 export function setFlixFileName(Filename:String) {
     flixFileLocation = Filename
 }
 
+/**
+ * returns a count of total active terminals with prefix name `flix`.
+ * 
+ * @return number
+*/
 function countFlixTerminals() {
     const activeTerminals = vscode.window.terminals
     let count = 0
@@ -32,6 +44,13 @@ function countFlixTerminals() {
     return count
 }
 
+/**
+ * returns an active terminal with prefix name `flix`.
+ * 
+ * If not any active terminal with prefix name `flix`, it creates a new terminal with name `flix`.
+ *
+ * @return vscode.Terminal
+*/
 function ensureFlixTerminal() {
     const activeTerminals = vscode.window.terminals
     for (let i = 0; i < activeTerminals.length; i++) {
@@ -42,6 +61,16 @@ function ensureFlixTerminal() {
     return vscode.window.createTerminal(`flix`);
 }
 
+
+/**
+ * returns an new active terminal with prefix name `flix`.
+ * 
+ * If not any active terminal with prefix name `flix`, it creates a new terminal with name `flix` and returns it.
+ *
+ * If there are already `n` active terminals exist with prefix name `flix`, it creates a new terminal with name `flix n+1`
+ *
+ * @return vscode.Terminal
+*/
 function ensureNewFlixTerminal() {
     const count = countFlixTerminals()
     if(count == 0)
@@ -49,11 +78,27 @@ function ensureNewFlixTerminal() {
     else return vscode.window.createTerminal(`flix `+(count+1).toString())
 }
 
+/**
+ * takes a string and a terminal and passes that string to the terminal.
+ *
+ * @param cmd string (a terminal command) to pass to the terminal.
+ *
+ * @param terminal vscode.Terminal 
+ *
+ * @return void
+*/
 function passCommandToTerminal(cmd:string, terminal: vscode.Terminal) {
     terminal.show();
     terminal.sendText(cmd);
 }
 
+/**
+ * Opens an input box to ask the user for input.
+ * uses the `vscode.window.showInputBox` function with custom `prompt` and `placeHolder` and value of `ignoreFocusOut` to be `true`.
+ *
+ *
+ * @return A promise that resolves to a string the user provided or to `undefined` in case of dismissal.
+*/
 async function takeInputFromUser() {
     const input = await vscode.window.showInputBox({
         prompt: "Enter the space separated arguments",
@@ -63,6 +108,13 @@ async function takeInputFromUser() {
     return input
 }
 
+/**
+ * combines the paths of all flix files present in the current directory of vscode window.
+ * 
+ * gets an array of vscode.Uri for all flix files using `vscode.workspace.findFiles` function
+ *
+ * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
+*/
 async function getFiles() {
     const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
     let cmd = ""
@@ -71,6 +123,13 @@ async function getFiles() {
     return cmd
 }
 
+/**
+ * sends a java command to compile and run flix program of vscode window to the terminal.
+ *
+ * @param terminal vscode.Terminal to receive the command. 
+ *
+ * @return void
+*/
 async function passArgs(terminal:vscode.Terminal) {
     let cmd = "java -jar "+flixFileLocation
     cmd += await getFiles()
@@ -86,6 +145,13 @@ async function passArgs(terminal:vscode.Terminal) {
     }
 }
 
+/**
+ * Run main without any custom arguments
+ * 
+ * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to an existing (if already exists else new) terminal.
+ * 
+ * @return void
+*/
 export async function RunInExistingTerminalWithoutArg() {
     let terminal = ensureFlixTerminal()
     let cmd = "java -jar "+flixFileLocation
@@ -93,6 +159,13 @@ export async function RunInExistingTerminalWithoutArg() {
     passCommandToTerminal(cmd, terminal)  
 }
 
+/**
+ * Run main without any custom arguments in a new terminal
+ * 
+ * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to a new terminal.
+ * 
+ * @return void
+*/
 export async function RunInNewTerminalWithoutArg() {
     let terminal = ensureNewFlixTerminal()
     let cmd = "java -jar "+flixFileLocation
@@ -100,11 +173,25 @@ export async function RunInNewTerminalWithoutArg() {
     passCommandToTerminal(cmd, terminal)
 }
 
+/**
+ * Run main with user provided arguments
+ * 
+ * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files> --args <arguments>` to an existing (if already exists else new) terminal.
+ * 
+ * @return void
+*/
 export async function RunInExistingTerminalWithArg() {
     let terminal = ensureFlixTerminal()
     await passArgs(terminal)
 }
 
+/**
+ * Run main with user provided arguments in a new terminal
+ * 
+ * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files> --args <arguments>` to a new terminal.
+ * 
+ * @return void
+*/
 export async function RunInNewTerminalWithArg() {
     let terminal = ensureNewFlixTerminal()
     await passArgs(terminal)

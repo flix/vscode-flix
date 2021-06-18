@@ -105,7 +105,10 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.cmdRunMain', handlers.compileInTerminal)
+  registerCommand('flix.cmdRunMain', handlers.RunInExistingTerminalWithoutArg)
+  registerCommand('flix.runMainWithArgs', handlers.RunInExistingTerminalWithArg)
+  registerCommand('flix.runMainNewTerminal', handlers.RunInNewTerminalWithoutArg)
+  registerCommand('flix.runMainNewTerminalWithArgs', handlers.RunInNewTerminalWithArg)
   
 //   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))

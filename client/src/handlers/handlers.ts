@@ -21,77 +21,93 @@ export function setFlixFileName(Filename:String) {
     flixFileLocation = Filename
 }
 
-function selectTerminal(): Thenable<vscode.Terminal | undefined> {
-	interface TerminalQuickPickItem extends vscode.QuickPickItem {
-		terminal: vscode.Terminal;
-	}
-	const terminals = <vscode.Terminal[]>(<any>vscode.window).terminals;
-	let items: TerminalQuickPickItem[] = terminals.map(t => {
-		return {
-			label: `name: ${t.name}`,
-			terminal: t
-		};
-	});
-    items.push({label:`create a new terminal`, terminal: undefined})
-	return vscode.window.showQuickPick(items).then(item => {
-		return item ? item.terminal : undefined;
-	});
+function countFlixTerminals() {
+    const activeTerminals = vscode.window.terminals
+    let count = 0
+    for (let i = 0; i < activeTerminals.length; i++) {
+        const element = activeTerminals[i];
+        if(element.name.substring(0, 4) == `flix`)
+            count+=1
+    }
+    return count
 }
 
-function findFlixTerminal() {
+function ensureFlixTerminal() {
     const activeTerminals = vscode.window.terminals
     for (let i = 0; i < activeTerminals.length; i++) {
         const element = activeTerminals[i];
-        if(element.name == `flix`)
+        if(element.name.substring(0, 4) == `flix`)
             return element
     }
-    return undefined
+    return vscode.window.createTerminal(`flix`);
 }
 
-function showActiveTerminals() {
-    const activeTerminals = vscode.window.terminals
-    for (let i = 0; i < activeTerminals.length; i++) {
-        const element = activeTerminals[i];
-        console.log(element)
-    }
+function ensureNewFlixTerminal() {
+    const count = countFlixTerminals()
+    if(count == 0)
+        return vscode.window.createTerminal(`flix`);
+    else return vscode.window.createTerminal(`flix `+(count+1).toString())
 }
 
-export async function compileInTerminal() {
-    
+function passCommandToTerminal(cmd:string, terminal: vscode.Terminal) {
+    terminal.show();
+    terminal.sendText(cmd);
+}
+
+async function takeInputFromUser() {
+    const input = await vscode.window.showInputBox({
+        prompt: "Enter the space separated arguments",
+        placeHolder: "Foo bar",
+		ignoreFocusOut: true
+    })
+    return input
+}
+
+async function getFiles() {
     const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
-    let cmd = "java -jar "+flixFileLocation;
+    let cmd = ""
     for (let index = 0; index < files.length ; index++)
-        cmd += " "+files[index].path;
+        cmd += " \""+files[index].path+"\"";
+    return cmd
+}
 
-    // method 1
-    // let ter = findFlixTerminal()
-    // if(!ter)
-    // {
-    //     ter = vscode.window.createTerminal({name: 'flix'});   
-    // }
-    // ter.show()
-    // ter.sendText(cmd)
+async function passArgs(terminal:vscode.Terminal) {
+    let cmd = "java -jar "+flixFileLocation
+    cmd += await getFiles()
+    let input = await takeInputFromUser()
+    if(input != undefined) {
+        cmd += " --args \"";
+        cmd += input;
+        cmd += "\""
+        passCommandToTerminal(cmd, terminal)  
+    }
+    else {
+        vscode.window.showErrorMessage("Process cancelled")
+    }
+}
 
-    // method 2
-    if(vscode.window.terminals.length == 0) //no terminals active
-    {
-        let newterminal = vscode.window.createTerminal({name:`flix`, hideFromUser: false})
-        newterminal.show()
-        newterminal.sendText(cmd)
-    }
-    else { //select one terminal from drop down window
-        selectTerminal().then(terminal => {
-            if(terminal) {
-                terminal.show()
-                terminal.sendText(cmd)
-            }
-            else { //if user choose `create a new terminal`
-                let newterminal = vscode.window.createTerminal({name:`flix`, hideFromUser: false})
-                newterminal.show()
-                newterminal.sendText(cmd)
-            }
-        })
-    }
+export async function RunInExistingTerminalWithoutArg() {
+    let terminal = ensureFlixTerminal()
+    let cmd = "java -jar "+flixFileLocation
+    cmd += await getFiles()
+    passCommandToTerminal(cmd, terminal)  
+}
+
+export async function RunInNewTerminalWithoutArg() {
+    let terminal = ensureNewFlixTerminal()
+    let cmd = "java -jar "+flixFileLocation
+    cmd += await getFiles()
+    passCommandToTerminal(cmd, terminal)
+}
+
+export async function RunInExistingTerminalWithArg() {
+    let terminal = ensureFlixTerminal()
+    await passArgs(terminal)
+}
+
+export async function RunInNewTerminalWithArg() {
+    let terminal = ensureNewFlixTerminal()
+    await passArgs(terminal)
 }
 
 export function makeHandleRunJobWithProgress (

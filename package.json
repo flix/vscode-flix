@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.20.0",
+  "version": "0.22.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -18,7 +18,8 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix"
+    "onLanguage:flix",
+    "workspaceContains:**/*.flix"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -110,9 +111,9 @@
   "devDependencies": {
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.2",
-    "@typescript-eslint/parser": "^4.26.1",
+    "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
     "mocha": "^9.0.0",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.4"
   }
 }

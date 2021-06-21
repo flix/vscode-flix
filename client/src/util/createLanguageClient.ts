@@ -6,7 +6,7 @@ import {
   LanguageClientOptions,
   ServerOptions,
   TransportKind
-} from 'vscode-languageclient'
+} from 'vscode-languageclient/node'
 
 export default function createLanguageClient ({ context, outputChannel }) {
   // The server is implemented in node

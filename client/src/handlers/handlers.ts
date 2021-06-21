@@ -7,6 +7,8 @@ import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
 import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, _ } from './../extension'
 
+let countTerminals:number = 0
+
 export function makeHandleRunJob (
   client: LanguageClient,
   request: jobs.Request
@@ -14,21 +16,6 @@ export function makeHandleRunJob (
   return function handler () {
     client.sendNotification(request)
   }
-}
-
-/**
- * returns a count of total active terminals with prefix name `flix`.
- * 
- * @return number
-*/
-function countFlixTerminals() {
-    const activeTerminals = vscode.window.terminals
-    let count = 0
-    for (const element of activeTerminals) {
-        if(element.name.substring(0, 4) == `flix`)
-            count+=1
-    }
-    return count
 }
 
 /**
@@ -44,7 +31,9 @@ function ensureFlixTerminal() {
         if(element.name.substring(0, 4) == `flix`)
             return element
     }
-    return vscode.window.createTerminal(`flix-0`);
+    const terminal = vscode.window.createTerminal(`flix-`+countTerminals.toString());
+    countTerminals+=1 //creating a new terminal since no active flix terminals available.
+    return terminal
 }
 
 
@@ -58,8 +47,9 @@ function ensureFlixTerminal() {
  * @return vscode.Terminal
 */
 function ensureNewFlixTerminal() {
-    const count = countFlixTerminals()
-    return vscode.window.createTerminal(`flix-`+count.toString())
+    const terminal = vscode.window.createTerminal(`flix-`+countTerminals.toString())
+    countTerminals+=1
+    return terminal
 }
 
 /**

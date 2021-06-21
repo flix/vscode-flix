@@ -14,13 +14,13 @@ import initialiseState from './services/state'
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 
-const _ = require('lodash/fp')
+export const _ = require('lodash/fp')
 
-interface LaunchOptions {
+export interface LaunchOptions {
   shouldUpdateFlix: boolean
 }
 
-const defaultLaunchOptions: LaunchOptions = {
+export const defaultLaunchOptions: LaunchOptions = {
   shouldUpdateFlix: false
 }
 
@@ -30,7 +30,7 @@ let flixWatcher: vscode.FileSystemWatcher
 
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
-const FLIX_GLOB_PATTERN = '**/*.flix'
+export const FLIX_GLOB_PATTERN = '**/*.flix'
 
 let outputChannel: vscode.OutputChannel
 
@@ -105,10 +105,10 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.cmdRunMain', handlers.RunInExistingTerminalWithoutArg)
-  registerCommand('flix.runMainWithArgs', handlers.RunInExistingTerminalWithArg)
-  registerCommand('flix.runMainNewTerminal', handlers.RunInNewTerminalWithoutArg)
-  registerCommand('flix.runMainNewTerminalWithArgs', handlers.RunInNewTerminalWithArg)
+  registerCommand('flix.cmdRunMain', handlers.cmdRunMain(context, launchOptions))
+  registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
+  registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
+  registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
   
 //   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
@@ -204,7 +204,6 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-  handlers.setFlixFileName(flixFilename) 
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()

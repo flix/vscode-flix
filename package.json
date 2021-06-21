@@ -36,6 +36,18 @@
         "title": "Flix: Run Main"
       },
       {
+        "command": "flix.runMainWithArgs",
+        "title": "Flix: Run Main with args"
+      },
+      {
+        "command": "flix.runMainNewTerminal",
+        "title": "Flix: Run Main (New Terminal) "
+      },
+      {
+        "command": "flix.runMainNewTerminalWithArgs",
+        "title": "Flix: Run Main with args (New Terminal)"
+      },
+      {
         "command": "flix.cmdRunAllTests",
         "title": "Flix: Run Tests"
       }

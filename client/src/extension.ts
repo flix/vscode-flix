@@ -109,8 +109,6 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  
-//   registerCommand('flix.cmdRunMain', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunMain, 'Running Main'))
   registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
 
   // NOTE: Currently commented out as it is being worked on.

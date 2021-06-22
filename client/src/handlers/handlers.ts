@@ -109,11 +109,11 @@ async function passArgs(terminal:vscode.Terminal, flixFilename: string) {
     let cmd = "java -jar "+ flixFilename + " "
     cmd += await getFiles()
     let input = await takeInputFromUser()
-    if(input != undefined) {
+    if(!(input == undefined || input.trim().length == 0)) {
         cmd += " --args ";
         cmd += quote([input]);
-        passCommandToTerminal(cmd, terminal)  
     }
+    passCommandToTerminal(cmd, terminal)  
 }
 
 /**

@@ -116,6 +116,22 @@ async function passArgs(terminal:vscode.Terminal, flixFilename: string) {
 }
 
 /**
+ * It takes context and launchOptions as arguments and finds the path of `flix.jar`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LauchOptions
+ * 
+ * @returns string (path of `flix.jar`)
+ */
+async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: LaunchOptions) {
+    const globalStoragePath = context.globalStoragePath
+    const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
+    return await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+}
+
+
+/**
  * Run main without any custom arguments
  * 
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to an existing (if already exists else new) terminal.
@@ -131,10 +147,7 @@ export function cmdRunMain(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const globalStoragePath = context.globalStoragePath
-            const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-
+            const flixFilename = await getFlixFilename(context, launchOptions)
             let cmd = ['java', '-jar', flixFilename]
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
@@ -158,10 +171,7 @@ export function runMainWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const globalStoragePath = context.globalStoragePath
-            const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            
+            const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = getFlixTerminal()
             await passArgs(terminal, flixFilename)
         }
@@ -183,10 +193,7 @@ export function runMainNewTerminal(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const globalStoragePath = context.globalStoragePath
-            const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            
+            const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = newFlixTerminal()
             let cmd = ['java', '-jar', flixFilename]
             cmd.push(...await getFiles())
@@ -211,10 +218,7 @@ export function runMainNewTerminalWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const globalStoragePath = context.globalStoragePath
-            const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-
+            const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = newFlixTerminal()
             await passArgs(terminal, flixFilename)
         }

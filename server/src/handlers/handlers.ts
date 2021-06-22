@@ -187,42 +187,6 @@ function makeRenameJob (params: any) {
 /**
  * @function
  */
-export const handleRunBenchmarks = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunBenchmarks }, makeRunBenchmarksResponseHandler, hasErrorsHandlerForCommands)
-
-function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
-    if (status === 'success') {
-      sendNotification(jobs.Request.internalMessage, 'Benchmarks ran successfully')
-      promiseResolver(result)
-    } else {
-      sendNotification(jobs.Request.internalError, 'Benchmarks failed to run')
-      promiseResolver()
-    }
-  }
-}
-
-function prettyPrintMainResult (result: any) {
-  printHorizontalRuler()
-  console.log(result)
-}
-
-function makeRunMainResponseHandler (promiseResolver: Function) {
-  return function responseHandler (flixResponse: socket.FlixResponse) {
-    const { status, result } = flixResponse
-    prettyPrintMainResult(result)
-    if (status === 'success') {
-      promiseResolver(result)
-    } else {
-      sendNotification(jobs.Request.internalError, 'Could not run main')
-      promiseResolver()
-    }
-    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
-  }
-}
-
-/**
- * @function
- */
 export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
 
 function prettyPrintTestResults (result: any) {
@@ -261,25 +225,6 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
     prettyPrintTestResults(result)
     promiseResolver(result)
     sendNotification(jobs.Request.internalFinishedJob, flixResponse)
-  }
-}
-
-/**
- * @function
- */
-export const makeHandleRunPackageCommand = (request: jobs.Request) => (
-  enqueueUnlessHasErrors(() => ({ request, projectRootUri: getProjectRootUri() }), makeRunPackageCommandResponseHandler, hasErrorsHandlerForCommands)
-)
-
-function makeRunPackageCommandResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
-    if (status === 'success') {
-      sendNotification(jobs.Request.internalMessage, `Package command result: \n${result}`)
-      promiseResolver(result)
-    } else {
-      sendNotification(jobs.Request.internalError, 'Package command failed')
-      promiseResolver()
-    }
   }
 }
 

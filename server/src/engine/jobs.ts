@@ -29,7 +29,6 @@ export enum Request {
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
 
-  cmdRunBenchmarks = 'cmd/runBenchmarks',
   cmdRunTests = 'cmd/runTests',
 
   lspCheck = 'lsp/check',
@@ -40,14 +39,6 @@ export enum Request {
   lspGoto = 'lsp/goto',
   lspUses = 'lsp/uses',
   lspRename = 'lsp/rename',
-
-  pkgBenchmark = 'pkg/benchmark',
-  pkgBuild = 'pkg/build',
-  pkgBuildDoc = 'pkg/buildDoc',
-  pkgBuildJar = 'pkg/buildJar',
-  pkgBuildPkg = 'pkg/buildPkg',
-  pkgInit = 'pkg/init',
-  pkgTest = 'pkg/test',
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request

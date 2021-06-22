@@ -34,17 +34,7 @@ connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
 // cmd/*
-connection.onNotification(jobs.Request.cmdRunBenchmarks, handlers.handleRunBenchmarks)
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
-
-// pkg/*
-connection.onNotification(jobs.Request.pkgBenchmark, handlers.makeHandleRunPackageCommand(jobs.Request.pkgBenchmark))
-connection.onNotification(jobs.Request.pkgBuild, handlers.makeHandleRunPackageCommand(jobs.Request.pkgBuild))
-connection.onNotification(jobs.Request.pkgBuildDoc, handlers.makeHandleRunPackageCommand(jobs.Request.pkgBuildDoc))
-connection.onNotification(jobs.Request.pkgBuildJar, handlers.makeHandleRunPackageCommand(jobs.Request.pkgBuildJar))
-connection.onNotification(jobs.Request.pkgBuildPkg, handlers.makeHandleRunPackageCommand(jobs.Request.pkgBuildPkg))
-connection.onNotification(jobs.Request.pkgInit, handlers.makeHandleRunPackageCommand(jobs.Request.pkgInit))
-connection.onNotification(jobs.Request.pkgTest, handlers.makeHandleRunPackageCommand(jobs.Request.pkgTest))
 
 // Cleanup after exit
 connection.onExit(handlers.handleExit)

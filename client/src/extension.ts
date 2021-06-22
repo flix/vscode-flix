@@ -14,7 +14,7 @@ import initialiseState from './services/state'
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 
-export const _ = require('lodash/fp')
+const _ = require('lodash/fp')
 
 export interface LaunchOptions {
   shouldUpdateFlix: boolean

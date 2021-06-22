@@ -1,12 +1,14 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
-import { quote } from 'shell-quote';
+import { quote } from 'shell-quote'
 
 import * as jobs from '../engine/jobs'
 import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, _ } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN } from './../extension'
+
+const _ = require('lodash/fp')
 
 let countTerminals:number = 0
 
@@ -26,13 +28,13 @@ export function makeHandleRunJob (
  *
  * @return vscode.Terminal
 */
-function ensureFlixTerminal() {
+function getFlixTerminal() {
     const activeTerminals = vscode.window.terminals
     for (const element of activeTerminals) {
         if(element.name.substring(0, 4) == `flix`)
             return element
     }
-    const terminal = vscode.window.createTerminal(`flix-`+countTerminals.toString());
+    const terminal = vscode.window.createTerminal(`flix-`+countTerminals.toString())
     countTerminals+=1 //creating a new terminal since no active flix terminals available.
     return terminal
 }
@@ -47,7 +49,7 @@ function ensureFlixTerminal() {
  *
  * @return vscode.Terminal
 */
-function ensureNewFlixTerminal() {
+function newFlixTerminal() {
     const terminal = vscode.window.createTerminal(`flix-`+countTerminals.toString())
     countTerminals+=1
     return terminal
@@ -62,9 +64,9 @@ function ensureNewFlixTerminal() {
  *
  * @return void
 */
-function passCommandToTerminal(cmd:string, terminal: vscode.Terminal) {
-    terminal.show();
-    terminal.sendText(cmd);
+function passCommandToTerminal(cmd:string[], terminal: vscode.Terminal) {
+    terminal.show()
+    terminal.sendText(quote(cmd))
 }
 
 /**
@@ -92,9 +94,7 @@ async function takeInputFromUser() {
 */
 async function getFiles() {
     const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
-    let paths = files.map(x => x.path)
-    let cmd = quote(paths)
-    return cmd
+    return files.map(x => x.path)
 }
 
 /**
@@ -105,13 +105,12 @@ async function getFiles() {
  * @return void
 */
 async function passArgs(terminal:vscode.Terminal, flixFilename: string) {
-
-    let cmd = "java -jar "+ flixFilename + " "
-    cmd += await getFiles()
+    let cmd = ['java', '-jar', flixFilename]
+    cmd.push(...await getFiles())
     let input = await takeInputFromUser()
     if(!(input == undefined || input.trim().length == 0)) {
-        cmd += " --args ";
-        cmd += quote([input]);
+        cmd.push("--args")
+        cmd.push(input)
     }
     passCommandToTerminal(cmd, terminal)  
 }
@@ -134,11 +133,11 @@ export function cmdRunMain(
         return async function handler () {
             const globalStoragePath = context.globalStoragePath
             const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFileLocation = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            var flixFilename = quote([flixFileLocation])
-            let cmd = "java -jar "+ flixFilename + " "
-            cmd += await getFiles()
-            let terminal = ensureFlixTerminal()
+            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+
+            let cmd = ['java', '-jar', flixFilename]
+            cmd.push(...await getFiles())
+            let terminal = getFlixTerminal()
             passCommandToTerminal(cmd, terminal)  
         }
 }
@@ -161,10 +160,9 @@ export function runMainWithArgs(
         return async function handler () {
             const globalStoragePath = context.globalStoragePath
             const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFileLocation = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            var flixFilename = quote([flixFileLocation])
+            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
             
-            let terminal = ensureFlixTerminal()
+            let terminal = getFlixTerminal()
             await passArgs(terminal, flixFilename)
         }
 }
@@ -187,12 +185,11 @@ export function runMainNewTerminal(
         return async function handler () {
             const globalStoragePath = context.globalStoragePath
             const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFileLocation = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            var flixFilename = quote([flixFileLocation])
+            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
             
-            let terminal = ensureNewFlixTerminal()
-            let cmd = "java -jar "+ flixFilename + " "
-            cmd += await getFiles()
+            let terminal = newFlixTerminal()
+            let cmd = ['java', '-jar', flixFilename]
+            cmd.push(...await getFiles())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -216,10 +213,9 @@ export function runMainNewTerminalWithArgs(
         return async function handler () {
             const globalStoragePath = context.globalStoragePath
             const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-            const flixFileLocation = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
-            var flixFilename = quote([flixFileLocation])
+            const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
 
-            let terminal = ensureNewFlixTerminal()
+            let terminal = newFlixTerminal()
             await passArgs(terminal, flixFilename)
         }
 }

@@ -94,7 +94,7 @@ async function takeInputFromUser() {
 */
 async function getFiles() {
     const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
-    return files.map(x => x.path)
+    return files.map(x => x.fsPath)
 }
 
 /**

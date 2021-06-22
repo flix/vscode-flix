@@ -33,20 +33,20 @@
         "title": "Flix: Download Latest Version"
       },
       {
-        "command": "flix.cmdRunMain",
-        "title": "Flix: Run Main"
+        "command": "flix.runMain",
+        "title": "Flix: Run"
       },
       {
         "command": "flix.runMainWithArgs",
-        "title": "Flix: Run Main with args"
+        "title": "Flix: Run with args ..."
       },
       {
         "command": "flix.runMainNewTerminal",
-        "title": "Flix: Run Main (New Terminal) "
+        "title": "Flix: Run (in new terminal) "
       },
       {
         "command": "flix.runMainNewTerminalWithArgs",
-        "title": "Flix: Run Main with args (New Terminal)"
+        "title": "Flix: Run with args ... (in new terminal)"
       },
       {
         "command": "flix.cmdRunAllTests",

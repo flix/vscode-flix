@@ -142,7 +142,7 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
  * 
  * @return function handler
 */
-export function cmdRunMain(
+export function runMain(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {

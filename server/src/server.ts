@@ -12,6 +12,7 @@ import * as jobs from './engine/jobs'
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
+// @ts-ignore // TODO: Bug in VSCode?
 const connection = createConnection(ProposedFeatures.all)
 
 // Create a simple text document manager.
@@ -34,7 +35,6 @@ connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
 // cmd/*
 connection.onNotification(jobs.Request.cmdRunBenchmarks, handlers.handleRunBenchmarks)
-connection.onNotification(jobs.Request.cmdRunMain, handlers.handleRunMain)
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
 
 // pkg/*

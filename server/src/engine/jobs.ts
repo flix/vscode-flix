@@ -30,7 +30,6 @@ export enum Request {
   apiShutdown = 'api/shutdown',
 
   cmdRunBenchmarks = 'cmd/runBenchmarks',
-  cmdRunMain = 'cmd/runMain',
   cmdRunTests = 'cmd/runTests',
 
   lspCheck = 'lsp/check',

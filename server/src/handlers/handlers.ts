@@ -201,11 +201,6 @@ function makeRunBenchmarksResponseHandler (promiseResolver: Function) {
   }
 }
 
-/**
- * @function
- */
-export const handleRunMain = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunMain }, makeRunMainResponseHandler, hasErrorsHandlerForCommands)
-
 function prettyPrintMainResult (result: any) {
   printHorizontalRuler()
   console.log(result)

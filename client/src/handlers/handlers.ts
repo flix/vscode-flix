@@ -104,13 +104,13 @@ async function getFiles() {
  *
  * @return void
 */
-async function passArgs(terminal:vscode.Terminal, flixFilename: string) {
+async function passArgs(terminal:vscode.Terminal, flixFilename: string, args: string) {
     let cmd = ['java', '-jar', flixFilename]
     cmd.push(...await getFiles())
-    let input = await takeInputFromUser()
-    if(!(input == undefined || input.trim().length == 0)) {
+
+    if(args.trim().length != 0) {
         cmd.push("--args")
-        cmd.push(input)
+        cmd.push(args)
     }
     passCommandToTerminal(cmd, terminal)  
 }
@@ -142,6 +142,7 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
  * 
  * @return function handler
 */
+
 export function runMain(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
@@ -172,8 +173,12 @@ export function runMainWithArgs(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            let terminal = getFlixTerminal()
-            await passArgs(terminal, flixFilename)
+            let input = await takeInputFromUser()
+            if(input != undefined)
+            {
+                let terminal = getFlixTerminal()
+                await passArgs(terminal, flixFilename, input)
+            }
         }
 }
 
@@ -219,8 +224,12 @@ export function runMainNewTerminalWithArgs(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            let terminal = newFlixTerminal()
-            await passArgs(terminal, flixFilename)
+            let input = await takeInputFromUser()
+            if(input != undefined)
+            {
+                let terminal = newFlixTerminal()
+                await passArgs(terminal, flixFilename, input)
+            }
         }
 }
 

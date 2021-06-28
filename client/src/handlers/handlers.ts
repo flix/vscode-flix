@@ -260,3 +260,222 @@ export function makeHandleRunJobWithProgress (
     })
   }
 }
+
+
+/**
+ * Returns a terminal with the given name (new if already not exists)
+ * 
+ * @param name name of the terminal
+ * 
+ * @returns vscode.Terminal
+ */
+
+function getTerminal(name: string) {
+    const activeTerminals = vscode.window.terminals
+    for (const element of activeTerminals) {
+        if(element.name == name)
+            return element
+    }
+    return vscode.window.createTerminal({name: name})
+}
+
+
+
+/**
+ * creates a new project in the current directory using command `java -jar flix.jar init`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+ export function cmdInit(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'init']
+            let terminal = getTerminal('init')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * checks the current project for errors using command `java -jar flix.jar check`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+
+export function cmdCheck(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'check']
+            let terminal = getTerminal('check')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds (i.e. compiles) the current project using command `java -jar flix.jar build`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuild(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'build']
+            let terminal = getTerminal('build')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds a jar-file from the current project using command `java -jar flix.jar build-jar`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuildJar(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'build-jar']
+            let terminal = getTerminal('build-jar')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds a fpkg-file from the current project using command `java -jar flix.jar build-pkg`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuildPkg(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'build-pkg']
+            let terminal = getTerminal('build-pkg')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs main for the current project using command `java -jar flix.jar run`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdRunProject(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'run']
+            let terminal = getTerminal('run')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs the benchmarks for the current project using command `java -jar flix.jar benchmark`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBenchmark(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'benchmark']
+            let terminal = getTerminal('benchmark')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs all the tests for the current project using command `java -jar flix.jar test`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdTests(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'test']
+            let terminal = getTerminal('test')
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs the custom tests for the current project using command `java -jar flix.jar test <test01> <test02> ...`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdTestWithFilter(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            const flixFilename = await getFlixFilename(context, launchOptions)
+            const cmd = ['java', '-jar', flixFilename, 'test']
+            const input = await vscode.window.showInputBox({
+                prompt: "Enter names of test functions separated by spaces",
+                placeHolder: "test01 test02 ...",
+                ignoreFocusOut: true
+            })
+            if(input != undefined)
+            {
+                cmd.push(input)
+                let terminal = getTerminal('testWithFilter')
+                passCommandToTerminal(cmd, terminal)
+            }
+        }
+}

@@ -473,7 +473,7 @@ export function cmdTestWithFilter(
             })
             if(input != undefined)
             {
-                cmd.push(...input.split(' '))
+                cmd.push(input)
                 let terminal = getTerminal('testWithFilter')
                 passCommandToTerminal(cmd, terminal)
             }

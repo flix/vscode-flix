@@ -109,8 +109,17 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
-
+  
+  registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
+  registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
+  registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
+  registerCommand('flix.cmdBuildJar', handlers.cmdBuildJar(context, launchOptions))
+  registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
+  registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
+  registerCommand('flix.cmdBenchmark', handlers.cmdBenchmark(context, launchOptions))
+  registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.cmdTest', handlers.cmdTest(context, launchOptions))
+  
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {

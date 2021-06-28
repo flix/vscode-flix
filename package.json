@@ -81,8 +81,8 @@
         "title": "Flix: run all tests"
       },
       {
-        "command": "flix.cmdTest",
-        "title": "Flix: run custom tests"
+        "command": "flix.cmdTestWithFilter",
+        "title": "Flix: run tests (with filter)"
       }
     ],
     "languages": [

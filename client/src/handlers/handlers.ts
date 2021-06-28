@@ -261,6 +261,26 @@ export function makeHandleRunJobWithProgress (
   }
 }
 
+
+/**
+ * Returns a terminal with the given name (new if already not exists)
+ * 
+ * @param name name of the terminal
+ * 
+ * @returns vscode.Terminal
+ */
+
+function getTerminal(name: string) {
+    const activeTerminals = vscode.window.terminals
+    for (const element of activeTerminals) {
+        if(element.name == name)
+            return element
+    }
+    return vscode.window.createTerminal({name: name})
+}
+
+
+
 /**
  * creates a new project in the current directory using command `java -jar flix.jar init`
  * 
@@ -277,7 +297,7 @@ export function makeHandleRunJobWithProgress (
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'init']
-            let terminal = vscode.window.createTerminal({name: `init`})
+            let terminal = getTerminal('init')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -299,7 +319,7 @@ export function cmdCheck(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'check']
-            let terminal = vscode.window.createTerminal({name: `check`})
+            let terminal = getTerminal('check')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -320,7 +340,7 @@ export function cmdBuild(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'build']
-            let terminal = vscode.window.createTerminal({name: 'build'})
+            let terminal = getTerminal('build')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -341,7 +361,7 @@ export function cmdBuildJar(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'build-jar']
-            let terminal = vscode.window.createTerminal({name: 'build-jar'})
+            let terminal = getTerminal('build-jar')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -362,7 +382,7 @@ export function cmdBuildPkg(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'build-pkg']
-            let terminal = vscode.window.createTerminal({name: 'build-pkg'})
+            let terminal = getTerminal('build-pkg')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -383,7 +403,7 @@ export function cmdRunProject(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'run']
-            let terminal = vscode.window.createTerminal('run')
+            let terminal = getTerminal('run')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -404,7 +424,7 @@ export function cmdBenchmark(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'benchmark']
-            let terminal = vscode.window.createTerminal({name: 'benchmark'})
+            let terminal = getTerminal('benchmark')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -425,7 +445,7 @@ export function cmdTests(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             const cmd = ['java', '-jar', flixFilename, 'test']
-            let terminal = vscode.window.createTerminal('tests')
+            let terminal = getTerminal('test')
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -439,7 +459,7 @@ export function cmdTests(
  * 
  * @returns function handler
  */
-export function cmdTest(
+export function cmdTestWithFilter(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
@@ -454,7 +474,7 @@ export function cmdTest(
             if(input != undefined)
             {
                 cmd.push(...input.split(' '))
-                let terminal = vscode.window.createTerminal('test')
+                let terminal = getTerminal('testWithFilter')
                 passCommandToTerminal(cmd, terminal)
             }
         }

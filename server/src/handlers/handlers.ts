@@ -74,16 +74,16 @@ export function handleAddUri ({ uri }: UriInput) {
 }
 
 export function handleRemUri ({ uri }: UriInput) {
-    engine.remUri(uri)
+  engine.remUri(uri)
 }
 
 export function handlerAddPkg ( { uri } : UriInput) {
-    engine.addPkg(uri)
+  engine.addPkg(uri)
 }
 
 export function handleRemPkg ({ uri }: UriInput) {
-    engine.remPkg(uri)
-  }
+  engine.remPkg(uri)
+}
 
 export function handleExit () {
   engine.stop()
@@ -103,7 +103,7 @@ export function handleChangeContent (params: any) {
 }
 
 function addUriToCompiler (document: TextDocument, skipDelay?: boolean) {
-    const job: jobs.Job = {
+  const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
     src: document.getText()

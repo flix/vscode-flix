@@ -34,7 +34,7 @@ const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
 
-const FPKG_GLOB_PATTERN = '**/lib/**/*.fpkg'
+export const FPKG_GLOB_PATTERN = '**/lib/**/*.fpkg'
 
 let outputChannel: vscode.OutputChannel
 

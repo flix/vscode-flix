@@ -6,7 +6,7 @@ import * as jobs from '../engine/jobs'
 import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTERN } from './../extension'
 
 const _ = require('lodash/fp')
 
@@ -93,7 +93,11 @@ async function takeInputFromUser() {
  * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
 */
 async function getFiles() {
-    const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
+    const flixFiles = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
+    const fpkgFiles = await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)
+    let files = []
+    files.push(...flixFiles)
+    files.push(...fpkgFiles)
     return files.map(x => x.fsPath)
 }
 

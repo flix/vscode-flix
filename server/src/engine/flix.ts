@@ -123,10 +123,12 @@ export async function start (input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen () {
           flixRunning = true
-          let jobArray = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles)
-          let pkgJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddPkg }), workspacePkgs)
-          jobArray.push(...pkgJobs)
-          queue.initialiseQueues(jobArray)
+          let addUriJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles)
+          let addPkgJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddPkg }), workspacePkgs)
+          let Jobs:any = []
+          Jobs.push(...addUriJobs)
+          Jobs.push(...addPkgJobs)
+          queue.initialiseQueues(Jobs)
           handleVersion()
         },
         onClose: function handleClose () {
@@ -167,20 +169,20 @@ export function remUri (uri: string) {
 }
 
 export function addPkg (uri: string) {
-    const job: jobs.Job = {
-      request: jobs.Request.apiAddPkg,
-      uri
-    }
-    queue.enqueue(job)
+  const job: jobs.Job = {
+    request: jobs.Request.apiAddPkg,
+    uri
   }
+  queue.enqueue(job)
+}
   
-  export function remPkg (uri: string) {
-    const job: jobs.Job = {
-      request: jobs.Request.apiRemPkg,
-      uri
-    }
-    queue.enqueue(job)
+export function remPkg (uri: string) {
+  const job: jobs.Job = {
+    request: jobs.Request.apiRemPkg,
+    uri
   }
+  queue.enqueue(job)
+}
 
 export function enqueueJobWithPosition (request: jobs.Request, params?: any) {
   const job: jobs.Job = {

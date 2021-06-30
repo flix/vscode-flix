@@ -47,6 +47,7 @@ export interface StartEngineInput {
   extensionVersion: string,
   globalStoragePath: string,
   workspaceFiles: [string],
+  workspacePkgs: [string],
   userConfiguration: UserConfiguration
 }
 
@@ -95,7 +96,7 @@ export async function start (input: StartEngineInput) {
   // copy input to local var for later use
   startEngineInput = _.clone(input)
 
-  const { flixFilename, extensionPath, workspaceFiles } = input
+  const { flixFilename, extensionPath, workspaceFiles, workspacePkgs } = input
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
@@ -122,7 +123,12 @@ export async function start (input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen () {
           flixRunning = true
-          queue.initialiseQueues(_.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles))
+          let addUriJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles)
+          let addPkgJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddPkg }), workspacePkgs)
+          let Jobs:any = []
+          Jobs.push(...addUriJobs)
+          Jobs.push(...addPkgJobs)
+          queue.initialiseQueues(Jobs)
           handleVersion()
         },
         onClose: function handleClose () {
@@ -157,6 +163,22 @@ export function addUri (uri: string) {
 export function remUri (uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemUri,
+    uri
+  }
+  queue.enqueue(job)
+}
+
+export function addPkg (uri: string) {
+  const job: jobs.Job = {
+    request: jobs.Request.apiAddPkg,
+    uri
+  }
+  queue.enqueue(job)
+}
+  
+export function remPkg (uri: string) {
+  const job: jobs.Job = {
+    request: jobs.Request.apiRemPkg,
     uri
   }
   queue.enqueue(job)

@@ -28,9 +28,13 @@ let client: LanguageClient
 
 let flixWatcher: vscode.FileSystemWatcher
 
+let pkgWatcher: vscode.FileSystemWatcher
+
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
+
+const FPKG_GLOB_PATTERN = '**/lib/**/*.fpkg'
 
 let outputChannel: vscode.OutputChannel
 
@@ -131,6 +135,18 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
 
+  // watch for changes on the file system (delete, create .fpkg files)
+  pkgWatcher = vscode.workspace.createFileSystemWatcher(FPKG_GLOB_PATTERN)
+  pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiRemPkg, { uri })
+  })
+  pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiAddPkg, { uri })
+  })
+  
+
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })
@@ -152,6 +168,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const globalStoragePath = context.globalStoragePath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
+  const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
 
   // Make sure we can write to `./target`
   if (!ensureTargetWritable(_.first(workspaceFolders))) {
@@ -172,6 +189,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles,
+    workspacePkgs,
     userConfiguration: getUserConfiguration()
   })
 
@@ -197,6 +215,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
 export function deactivate (): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
+  pkgWatcher && pkgWatcher.dispose()
   outputChannel && outputChannel.dispose()
   diagnosticsOutputChannel && diagnosticsOutputChannel.dispose()
   return client ? client.stop() : undefined

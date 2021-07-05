@@ -109,7 +109,11 @@ async function getFiles() {
  * @return void
 */
 async function passArgs(terminal:vscode.Terminal, flixFilename: string, args: string) {
-    let cmd = ['java', '-jar', flixFilename]
+    const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename])
     cmd.push(...await getFiles())
 
     if(args.trim().length != 0) {
@@ -153,7 +157,11 @@ export function runMain(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            let cmd = ['java', '-jar', flixFilename]
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename])
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
             passCommandToTerminal(cmd, terminal)  
@@ -204,7 +212,11 @@ export function runMainNewTerminal(
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = newFlixTerminal()
-            let cmd = ['java', '-jar', flixFilename]
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename])
             cmd.push(...await getFiles())
             passCommandToTerminal(cmd, terminal)
         }
@@ -300,7 +312,11 @@ function getTerminal(name: string) {
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'init']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'init'])
             let terminal = getTerminal('init')
             passCommandToTerminal(cmd, terminal)
         }
@@ -322,7 +338,11 @@ export function cmdCheck(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'check']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'check'])
             let terminal = getTerminal('check')
             passCommandToTerminal(cmd, terminal)
         }
@@ -343,7 +363,11 @@ export function cmdBuild(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'build'])
             let terminal = getTerminal('build')
             passCommandToTerminal(cmd, terminal)
         }
@@ -364,7 +388,11 @@ export function cmdBuildJar(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build-jar']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'build-jar'])
             let terminal = getTerminal('build-jar')
             passCommandToTerminal(cmd, terminal)
         }
@@ -385,7 +413,11 @@ export function cmdBuildPkg(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build-pkg']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'build-pkg'])
             let terminal = getTerminal('build-pkg')
             passCommandToTerminal(cmd, terminal)
         }
@@ -406,7 +438,11 @@ export function cmdRunProject(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'run']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'run'])
             let terminal = getTerminal('run')
             passCommandToTerminal(cmd, terminal)
         }
@@ -427,7 +463,11 @@ export function cmdBenchmark(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'benchmark']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'benchmark'])
             let terminal = getTerminal('benchmark')
             passCommandToTerminal(cmd, terminal)
         }
@@ -448,7 +488,11 @@ export function cmdTests(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'test']
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'test'])
             let terminal = getTerminal('test')
             passCommandToTerminal(cmd, terminal)
         }
@@ -469,7 +513,12 @@ export function cmdTestWithFilter(
     ) {
         return async function handler () {
             const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'test']
+            // const jvm = extraArgumentsToTheJVM();
+            const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+            const cmd = ['java']
+            if(jvm.length != 0)
+                cmd.push(...jvm.split(' '))
+            cmd.push(...['-jar', flixFilename, 'test'])
             const input = await vscode.window.showInputBox({
                 prompt: "Enter names of test functions separated by spaces",
                 placeHolder: "test01 test02 ...",

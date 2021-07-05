@@ -122,6 +122,11 @@
           "type": "boolean",
           "default": true,
           "description": "Run the compiler on every change"
+        },
+        "flix.extraArgumentsToTheJVM": {
+            "type": "string",
+            "default": "",
+            "description": "jvm compiler options separated by specs"
         }
       }
     },

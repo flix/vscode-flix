@@ -126,7 +126,7 @@
         "flix.extraArgumentsToTheJVM": {
             "type": "string",
             "default": "",
-            "description": "jvm compiler options separated by specs"
+            "description": "Additional JVM arguments separated by spaces"
         }
       }
     },

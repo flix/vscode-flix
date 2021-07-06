@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -123,9 +123,9 @@
           "description": "Run the compiler on every change"
         },
         "flix.extraArgumentsToTheJVM": {
-            "type": "string",
-            "default": "",
-            "description": "Additional JVM arguments separated by spaces"
+          "type": "string",
+          "default": "",
+          "description": "Additional JVM arguments separated by spaces"
         }
       }
     },

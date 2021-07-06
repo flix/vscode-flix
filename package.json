@@ -49,39 +49,39 @@
       },
       {
         "command": "flix.cmdInit",
-        "title": "Flix: init"
+        "title": "Flix Package Manager: init"
       },
       {
         "command": "flix.cmdCheck",
-        "title": "Flix: check"
+        "title": "Flix Package Manager: check"
       },
       {
         "command": "flix.cmdBuild",
-        "title": "Flix: build"
+        "title": "Flix Package Manager: build"
       },
       {
         "command": "flix.cmdBuildJar",
-        "title": "Flix: build-jar"
+        "title": "Flix Package Manager: build-jar"
       },
       {
         "command": "flix.cmdBuildPkg",
-        "title": "Flix: build-pkg"
+        "title": "Flix Package Manager: build-pkg"
       },
       {
         "command": "flix.cmdRunProject",
-        "title": "Flix: run project"
+        "title": "Flix Package Manager: run"
       },
       {
         "command": "flix.cmdBenchmark",
-        "title": "Flix: run benchmark"
+        "title": "Flix Package Manager: benchmark"
       },
       {
         "command": "flix.cmdTests",
-        "title": "Flix: run all tests"
+        "title": "Flix Package Manager: test"
       },
       {
         "command": "flix.cmdTestWithFilter",
-        "title": "Flix: run tests (with filter)"
+        "title": "Flix Package Manager: test (with filter)"
       }
     ],
     "languages": [

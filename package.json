@@ -18,8 +18,7 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix",
-    "workspaceContains:**/*.flix"
+    "onLanguage:flix"
   ],
   "main": "./client/out/extension",
   "contributes": {

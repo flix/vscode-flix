@@ -55,6 +55,12 @@ function newFlixTerminal() {
     return terminal
 }
 
+
+
+function extraFlixOptions() {
+    const arg:string = vscode.workspace.getConfiguration('flix').get('extraOptionsToFlixCompiler')
+    return arg.split(' ')
+}
 /**
  * takes a string and a terminal and passes that string to the terminal.
  *
@@ -121,6 +127,7 @@ async function passArgs (
             cmd.push("--args")
             cmd.push(args)
         }
+        cmd.push(...extraFlixOptions())
         passCommandToTerminal(cmd, terminal)  
 }
 
@@ -180,6 +187,7 @@ export function runMain(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)  
         }
 }
@@ -228,6 +236,7 @@ export function runMainNewTerminal(
             let terminal = newFlixTerminal()
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -323,6 +332,7 @@ function getTerminal(name: string) {
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('init')
             let terminal = getTerminal('init')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -345,6 +355,7 @@ export function cmdCheck(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('check')
             let terminal = getTerminal('check')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -366,6 +377,7 @@ export function cmdBuild(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build')
             let terminal = getTerminal('build')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -387,6 +399,7 @@ export function cmdBuildJar(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-jar')
             let terminal = getTerminal('build-jar')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -408,6 +421,7 @@ export function cmdBuildPkg(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-pkg')
             let terminal = getTerminal('build-pkg')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -429,6 +443,7 @@ export function cmdRunProject(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('run')
             let terminal = getTerminal('run')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -450,6 +465,7 @@ export function cmdBenchmark(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('benchmark')
             let terminal = getTerminal('benchmark')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -471,6 +487,7 @@ export function cmdTests(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('test')
             let terminal = getTerminal('test')
+            cmd.push(...extraFlixOptions())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -500,6 +517,7 @@ export function cmdTestWithFilter(
             {
                 cmd.push(input)
                 let terminal = getTerminal('testWithFilter')
+                cmd.push(...extraFlixOptions())
                 passCommandToTerminal(cmd, terminal)
             }
         }

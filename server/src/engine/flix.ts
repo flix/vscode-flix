@@ -38,7 +38,8 @@ export interface CompileOnChange {
 export interface UserConfiguration {
   compileOnSave: CompileOnSave,
   compileOnChange: CompileOnChange,
-  extraArgumentsToTheJVM: string
+  extraArgumentsToTheJVM: string,
+  extraOptionsToFlixCompiler: string
 }
 
 export interface StartEngineInput {

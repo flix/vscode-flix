@@ -85,6 +85,24 @@ async function takeInputFromUser() {
     return input
 }
 
+
+async function handleUnsavedFiles() {
+    let unsaved = []
+    const textDocuments = vscode.workspace.textDocuments
+    for(const textDocument of textDocuments)
+    {
+        if(textDocument.isDirty)
+            unsaved.push(textDocument)
+    }
+    if(unsaved.length != 0)
+    {
+        const items = ['run without saving', 'save all modified files']
+        const action = await vscode.window.showWarningMessage("Some of workspace files are not saved.", ...items)
+        if(action == 'save all modified files')
+            await vscode.workspace.saveAll(false)
+    }
+}
+
 /**
  * combines the paths of all flix files present in the current directory of vscode window.
  * 
@@ -93,6 +111,7 @@ async function takeInputFromUser() {
  * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
 */
 async function getFiles() {
+    await handleUnsavedFiles()
     const flixFiles = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
     const fpkgFiles = await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)
     let files = []
@@ -323,6 +342,7 @@ function getTerminal(name: string) {
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('init')
             let terminal = getTerminal('init')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -345,6 +365,7 @@ export function cmdCheck(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('check')
             let terminal = getTerminal('check')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -366,6 +387,7 @@ export function cmdBuild(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build')
             let terminal = getTerminal('build')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -387,6 +409,7 @@ export function cmdBuildJar(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-jar')
             let terminal = getTerminal('build-jar')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -408,6 +431,7 @@ export function cmdBuildPkg(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-pkg')
             let terminal = getTerminal('build-pkg')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -429,6 +453,7 @@ export function cmdRunProject(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('run')
             let terminal = getTerminal('run')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -450,6 +475,7 @@ export function cmdBenchmark(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('benchmark')
             let terminal = getTerminal('benchmark')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -471,6 +497,7 @@ export function cmdTests(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('test')
             let terminal = getTerminal('test')
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -500,6 +527,7 @@ export function cmdTestWithFilter(
             {
                 cmd.push(input)
                 let terminal = getTerminal('testWithFilter')
+                await handleUnsavedFiles()
                 passCommandToTerminal(cmd, terminal)
             }
         }

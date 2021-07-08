@@ -126,6 +126,11 @@
           "type": "string",
           "default": "",
           "description": "Additional JVM arguments separated by spaces"
+        },
+        "flix.extraOptionsToFlixCompiler": {
+          "type": "string",
+          "default": "",
+          "description": "Additional Flix Compiler options separated by spaces"
         }
       }
     },

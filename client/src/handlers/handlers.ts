@@ -94,6 +94,24 @@ async function takeInputFromUser() {
     return input
 }
 
+
+async function handleUnsavedFiles() {
+    let unsaved = []
+    const textDocuments = vscode.workspace.textDocuments
+    for(const textDocument of textDocuments)
+    {
+        if(textDocument.isDirty)
+            unsaved.push(textDocument)
+    }
+    if(unsaved.length != 0)
+    {
+        const items = ['run without saving', 'save all modified files']
+        const action = await vscode.window.showWarningMessage("Some of workspace files are not saved.", ...items)
+        if(action == 'save all modified files')
+            await vscode.workspace.saveAll(false)
+    }
+}
+
 /**
  * combines the paths of all flix files present in the current directory of vscode window.
  * 
@@ -102,6 +120,7 @@ async function takeInputFromUser() {
  * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
 */
 async function getFiles() {
+    await handleUnsavedFiles()
     const flixFiles = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
     const fpkgFiles = await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)
     let files = []
@@ -336,6 +355,7 @@ function getTerminal(name: string) {
             cmd.push('init')
             let terminal = getTerminal('init')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -359,6 +379,7 @@ export function cmdCheck(
             cmd.push('check')
             let terminal = getTerminal('check')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -381,6 +402,7 @@ export function cmdBuild(
             cmd.push('build')
             let terminal = getTerminal('build')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -403,6 +425,7 @@ export function cmdBuildJar(
             cmd.push('build-jar')
             let terminal = getTerminal('build-jar')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -425,6 +448,7 @@ export function cmdBuildPkg(
             cmd.push('build-pkg')
             let terminal = getTerminal('build-pkg')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -447,6 +471,7 @@ export function cmdRunProject(
             cmd.push('run')
             let terminal = getTerminal('run')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -469,6 +494,7 @@ export function cmdBenchmark(
             cmd.push('benchmark')
             let terminal = getTerminal('benchmark')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -491,6 +517,7 @@ export function cmdTests(
             cmd.push('test')
             let terminal = getTerminal('test')
             cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -521,6 +548,7 @@ export function cmdTestWithFilter(
                 cmd.push(input)
                 let terminal = getTerminal('testWithFilter')
                 cmd.push(...getExtraFlixArgs())
+                await handleUnsavedFiles()
                 passCommandToTerminal(cmd, terminal)
             }
         }

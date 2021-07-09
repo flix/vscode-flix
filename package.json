@@ -122,10 +122,15 @@
           "default": true,
           "description": "Run the compiler on every change"
         },
-        "flix.extraArgumentsToTheJVM": {
+        "flix.extraJvmArgs": {
           "type": "string",
           "default": "",
           "description": "Additional JVM arguments separated by spaces"
+        },
+        "flix.extraFlixArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Additional Flix compiler options separated by spaces"
         }
       }
     },

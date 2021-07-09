@@ -56,6 +56,15 @@ function newFlixTerminal() {
 }
 
 /**
+ * an array of string arguments entered by user in flix extension settings `Extra Flix Args`.
+ * @returns string[]
+ */
+
+function getExtraFlixArgs() {
+    const arg:string = vscode.workspace.getConfiguration('flix').get('extraFlixArgs')
+    return arg.split(' ')
+}
+/**
  * takes a string and a terminal and passes that string to the terminal.
  *
  * @param cmd string (a terminal command) to pass to the terminal.
@@ -140,6 +149,7 @@ async function passArgs (
             cmd.push("--args")
             cmd.push(args)
         }
+        cmd.push(...getExtraFlixArgs())
         passCommandToTerminal(cmd, terminal)  
 }
 
@@ -170,7 +180,7 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         const flixFilename = await getFlixFilename(context, launchOptions)
-        const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+        const jvm:string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
         let cmd = ['java']
         if(jvm.length != 0)
         cmd.push(...jvm.split(' '))
@@ -199,6 +209,7 @@ export function runMain(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
+            cmd.push(...getExtraFlixArgs())
             passCommandToTerminal(cmd, terminal)  
         }
 }
@@ -247,6 +258,7 @@ export function runMainNewTerminal(
             let terminal = newFlixTerminal()
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
+            cmd.push(...getExtraFlixArgs())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -342,6 +354,7 @@ function getTerminal(name: string) {
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('init')
             let terminal = getTerminal('init')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -365,6 +378,7 @@ export function cmdCheck(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('check')
             let terminal = getTerminal('check')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -387,6 +401,7 @@ export function cmdBuild(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build')
             let terminal = getTerminal('build')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -409,6 +424,7 @@ export function cmdBuildJar(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-jar')
             let terminal = getTerminal('build-jar')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -431,6 +447,7 @@ export function cmdBuildPkg(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('build-pkg')
             let terminal = getTerminal('build-pkg')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -453,6 +470,7 @@ export function cmdRunProject(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('run')
             let terminal = getTerminal('run')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -475,6 +493,7 @@ export function cmdBenchmark(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('benchmark')
             let terminal = getTerminal('benchmark')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -497,6 +516,7 @@ export function cmdTests(
             let cmd = await getJVMCmd(context, launchOptions)
             cmd.push('test')
             let terminal = getTerminal('test')
+            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
         }
@@ -527,6 +547,7 @@ export function cmdTestWithFilter(
             {
                 cmd.push(input)
                 let terminal = getTerminal('testWithFilter')
+                cmd.push(...getExtraFlixArgs())
                 await handleUnsavedFiles()
                 passCommandToTerminal(cmd, terminal)
             }

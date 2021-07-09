@@ -86,8 +86,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   initialiseState(context)
 
   // create output channels
-  outputChannel = vscode.window.createOutputChannel('Flix')
   diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Compiler')
+  outputChannel = diagnosticsOutputChannel
 
   // create language client
   client = createLanguageClient({ context, outputChannel })

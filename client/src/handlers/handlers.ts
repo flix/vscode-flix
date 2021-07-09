@@ -94,20 +94,19 @@ async function takeInputFromUser() {
     return input
 }
 
-
 async function handleUnsavedFiles() {
     let unsaved = []
     const textDocuments = vscode.workspace.textDocuments
-    for(const textDocument of textDocuments)
-    {
+    for (const textDocument of textDocuments) {
         if(textDocument.isDirty)
             unsaved.push(textDocument)
     }
-    if(unsaved.length != 0)
-    {
-        const items = ['run without saving', 'save all modified files']
-        const action = await vscode.window.showWarningMessage("Some of workspace files are not saved.", ...items)
-        if(action == 'save all modified files')
+    if (unsaved.length != 0) {
+        const msg = "The workspace contains unsaved files. Do you want to save?"
+        const option1 = 'Run without saving'
+        const option2 = 'Save all and run'
+        const action = await vscode.window.showWarningMessage(msg, option1, option2)
+        if(action == option2)
             await vscode.workspace.saveAll(false)
     }
 }

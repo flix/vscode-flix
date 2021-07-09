@@ -37,7 +37,8 @@ export interface CompileOnChange {
 
 export interface UserConfiguration {
   compileOnSave: CompileOnSave,
-  compileOnChange: CompileOnChange
+  compileOnChange: CompileOnChange,
+  extraArgumentsToTheJVM: string
 }
 
 export interface StartEngineInput {

@@ -122,20 +122,25 @@ async function getFiles() {
 
 /**
  * sends a java command to compile and run flix program of vscode window to the terminal.
- *
- * @param terminal vscode.Terminal to receive the command. 
- *
- * @return void
-*/
-async function passArgs(terminal:vscode.Terminal, flixFilename: string, args: string) {
-    let cmd = ['java', '-jar', flixFilename]
-    cmd.push(...await getFiles())
-
-    if(args.trim().length != 0) {
-        cmd.push("--args")
-        cmd.push(args)
-    }
-    passCommandToTerminal(cmd, terminal)  
+ * 
+ * @param terminal vscode.Terminal
+ * @param args string
+ * @param context vscode.ExtensionContext
+ * @param launchOptions LaunchOptions
+ */
+async function passArgs (
+    terminal:vscode.Terminal,
+    args: string,
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        let cmd = await getJVMCmd(context, launchOptions)
+        cmd.push(...await getFiles())
+        if(args.trim().length != 0) {
+            cmd.push("--args")
+            cmd.push(args)
+        }
+        passCommandToTerminal(cmd, terminal)  
 }
 
 /**
@@ -151,6 +156,26 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
     const globalStoragePath = context.globalStoragePath
     const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
     return await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+}
+
+
+/**
+ * generate a java command to compile the flix program.
+ * @param context vscode.ExtensionContext
+ * @param launchOptions LaunchOptions
+ * @returns string[]
+ */
+ async function getJVMCmd(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        const flixFilename = await getFlixFilename(context, launchOptions)
+        const jvm:string = vscode.workspace.getConfiguration('flix').get('extraArgumentsToTheJVM')
+        let cmd = ['java']
+        if(jvm.length != 0)
+        cmd.push(...jvm.split(' '))
+        cmd.push(...['-jar', flixFilename])
+        return cmd
 }
 
 
@@ -171,8 +196,7 @@ export function runMain(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            let cmd = ['java', '-jar', flixFilename]
+            let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
             passCommandToTerminal(cmd, terminal)  
@@ -195,12 +219,11 @@ export function runMainWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = getFlixTerminal()
-                await passArgs(terminal, flixFilename, input)
+                await passArgs(terminal, input, context, launchOptions)
             }
         }
 }
@@ -221,9 +244,8 @@ export function runMainNewTerminal(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = newFlixTerminal()
-            let cmd = ['java', '-jar', flixFilename]
+            let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
             passCommandToTerminal(cmd, terminal)
         }
@@ -246,12 +268,11 @@ export function runMainNewTerminalWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = newFlixTerminal()
-                await passArgs(terminal, flixFilename, input)
+                await passArgs(terminal, input, context, launchOptions)
             }
         }
 }
@@ -318,8 +339,8 @@ function getTerminal(name: string) {
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'init']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('init')
             let terminal = getTerminal('init')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -341,8 +362,8 @@ export function cmdCheck(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'check']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('check')
             let terminal = getTerminal('check')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -363,8 +384,8 @@ export function cmdBuild(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build')
             let terminal = getTerminal('build')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -385,8 +406,8 @@ export function cmdBuildJar(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build-jar']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build-jar')
             let terminal = getTerminal('build-jar')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -407,8 +428,8 @@ export function cmdBuildPkg(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'build-pkg']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build-pkg')
             let terminal = getTerminal('build-pkg')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -429,8 +450,8 @@ export function cmdRunProject(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'run']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('run')
             let terminal = getTerminal('run')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -451,8 +472,8 @@ export function cmdBenchmark(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'benchmark']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('benchmark')
             let terminal = getTerminal('benchmark')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -473,8 +494,8 @@ export function cmdTests(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'test']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('test')
             let terminal = getTerminal('test')
             await handleUnsavedFiles()
             passCommandToTerminal(cmd, terminal)
@@ -495,8 +516,8 @@ export function cmdTestWithFilter(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            const cmd = ['java', '-jar', flixFilename, 'test']
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('test')
             const input = await vscode.window.showInputBox({
                 prompt: "Enter names of test functions separated by spaces",
                 placeHolder: "test01 test02 ...",

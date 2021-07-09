@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -18,8 +18,7 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix",
-    "workspaceContains:**/*.flix"
+    "onLanguage:flix"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -50,39 +49,39 @@
       },
       {
         "command": "flix.cmdInit",
-        "title": "Flix: init"
+        "title": "Flix Package Manager: init"
       },
       {
         "command": "flix.cmdCheck",
-        "title": "Flix: check"
+        "title": "Flix Package Manager: check"
       },
       {
         "command": "flix.cmdBuild",
-        "title": "Flix: build"
+        "title": "Flix Package Manager: build"
       },
       {
         "command": "flix.cmdBuildJar",
-        "title": "Flix: build-jar"
+        "title": "Flix Package Manager: build-jar"
       },
       {
         "command": "flix.cmdBuildPkg",
-        "title": "Flix: build-pkg"
+        "title": "Flix Package Manager: build-pkg"
       },
       {
         "command": "flix.cmdRunProject",
-        "title": "Flix: run project"
+        "title": "Flix Package Manager: run"
       },
       {
         "command": "flix.cmdBenchmark",
-        "title": "Flix: run benchmark"
+        "title": "Flix Package Manager: benchmark"
       },
       {
         "command": "flix.cmdTests",
-        "title": "Flix: run all tests"
+        "title": "Flix Package Manager: test"
       },
       {
         "command": "flix.cmdTestWithFilter",
-        "title": "Flix: run tests (with filter)"
+        "title": "Flix Package Manager: test (with filter)"
       }
     ],
     "languages": [
@@ -122,6 +121,11 @@
           "type": "boolean",
           "default": true,
           "description": "Run the compiler on every change"
+        },
+        "flix.extraArgumentsToTheJVM": {
+          "type": "string",
+          "default": "",
+          "description": "Additional JVM arguments separated by spaces"
         }
       }
     },

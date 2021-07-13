@@ -38,8 +38,6 @@ export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.wor
 
 let outputChannel: vscode.OutputChannel
 
-let diagnosticsOutputChannel: vscode.OutputChannel
-
 // flag to keep track of whether errors were present last time we ran diagnostics
 let diagnosticsErrors = false
 
@@ -66,18 +64,18 @@ function getUserConfiguration () {
 function handlePrintDiagnostics ({ status, result }) {
   if (status === 'success') {
     if (diagnosticsErrors) {
-      diagnosticsOutputChannel.clear()
+      outputChannel.clear()
       diagnosticsErrors = false
     }
   } else {
-    diagnosticsOutputChannel.clear()
+    outputChannel.clear()
     diagnosticsErrors = true
     for (const res of result) {
       for (const diag of res.diagnostics) {
-        diagnosticsOutputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+        outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
       }
     }
-    diagnosticsOutputChannel.show(true)
+    outputChannel.show(true)
   }
 }
 
@@ -86,8 +84,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   initialiseState(context)
 
   // create output channels
-  diagnosticsOutputChannel = vscode.window.createOutputChannel('Flix Compiler')
-  outputChannel = diagnosticsOutputChannel
+  outputChannel = vscode.window.createOutputChannel('Flix Compiler')
 
   // create language client
   client = createLanguageClient({ context, outputChannel })
@@ -160,7 +157,6 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   // clear outputs
   outputChannel.clear()
-  diagnosticsOutputChannel.clear()
   
   // show default output channel without changing focus
   outputChannel.show(true)
@@ -217,6 +213,5 @@ export function deactivate (): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
   pkgWatcher && pkgWatcher.dispose()
   outputChannel && outputChannel.dispose()
-  diagnosticsOutputChannel && diagnosticsOutputChannel.dispose()
   return client ? client.stop() : undefined
 }

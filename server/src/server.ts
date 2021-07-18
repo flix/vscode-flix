@@ -63,6 +63,9 @@ connection.onCompletion(handlers.handleComplete)
 // Hover over [line, character]
 connection.onHover(handlers.handleHover)
 
+// Symbol Information
+connection.onDocumentSymbol(handlers.handleSymbol)
+
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 

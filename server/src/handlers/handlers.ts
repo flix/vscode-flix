@@ -52,7 +52,8 @@ export function handleInitialize (_params: InitializeParams) {
       },
       renameProvider: {
         prepareProvider: true
-      }
+      },
+      documentSymbolProvider: true
     }
   }
   return result
@@ -145,6 +146,12 @@ export const handleHighlight = makePositionalHandler(jobs.Request.lspHighlight)
  * @function
  */
 export const handleHover = makePositionalHandler(jobs.Request.lspHover)
+
+/**
+ * @function
+ */
+export const handleSymbol = makePositionalHandler(jobs.Request.lspSymbols)
+
 
 /**
  * @function

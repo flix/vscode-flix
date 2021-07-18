@@ -34,7 +34,7 @@ const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
 
-const FPKG_GLOB_PATTERN = '**/lib/**/*.fpkg'
+export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
 
 let outputChannel: vscode.OutputChannel
 
@@ -113,8 +113,17 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
-
+  
+  registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
+  registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
+  registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
+  registerCommand('flix.cmdBuildJar', handlers.cmdBuildJar(context, launchOptions))
+  registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
+  registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
+  registerCommand('flix.cmdBenchmark', handlers.cmdBenchmark(context, launchOptions))
+  registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
+  
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {

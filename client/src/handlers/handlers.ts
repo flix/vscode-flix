@@ -6,7 +6,7 @@ import * as jobs from '../engine/jobs'
 import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTERN } from './../extension'
 
 const _ = require('lodash/fp')
 
@@ -56,6 +56,15 @@ function newFlixTerminal() {
 }
 
 /**
+ * an array of string arguments entered by user in flix extension settings `Extra Flix Args`.
+ * @returns string[]
+ */
+
+function getExtraFlixArgs() {
+    const arg:string = vscode.workspace.getConfiguration('flix').get('extraFlixArgs')
+    return arg.split(' ')
+}
+/**
  * takes a string and a terminal and passes that string to the terminal.
  *
  * @param cmd string (a terminal command) to pass to the terminal.
@@ -85,6 +94,23 @@ async function takeInputFromUser() {
     return input
 }
 
+async function handleUnsavedFiles() {
+    let unsaved = []
+    const textDocuments = vscode.workspace.textDocuments
+    for (const textDocument of textDocuments) {
+        if(textDocument.isDirty)
+            unsaved.push(textDocument)
+    }
+    if (unsaved.length != 0) {
+        const msg = "The workspace contains unsaved files. Do you want to save?"
+        const option1 = 'Run without saving'
+        const option2 = 'Save all and run'
+        const action = await vscode.window.showWarningMessage(msg, option1, option2)
+        if(action == option2)
+            await vscode.workspace.saveAll(false)
+    }
+}
+
 /**
  * combines the paths of all flix files present in the current directory of vscode window.
  * 
@@ -93,26 +119,37 @@ async function takeInputFromUser() {
  * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
 */
 async function getFiles() {
-    const files = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
+    await handleUnsavedFiles()
+    const flixFiles = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
+    const fpkgFiles = await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)
+    let files = []
+    files.push(...flixFiles)
+    files.push(...fpkgFiles)
     return files.map(x => x.fsPath)
 }
 
 /**
  * sends a java command to compile and run flix program of vscode window to the terminal.
- *
- * @param terminal vscode.Terminal to receive the command. 
- *
- * @return void
-*/
-async function passArgs(terminal:vscode.Terminal, flixFilename: string, args: string) {
-    let cmd = ['java', '-jar', flixFilename]
-    cmd.push(...await getFiles())
-
-    if(args.trim().length != 0) {
-        cmd.push("--args")
-        cmd.push(args)
-    }
-    passCommandToTerminal(cmd, terminal)  
+ * 
+ * @param terminal vscode.Terminal
+ * @param args string
+ * @param context vscode.ExtensionContext
+ * @param launchOptions LaunchOptions
+ */
+async function passArgs (
+    terminal:vscode.Terminal,
+    args: string,
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        let cmd = await getJVMCmd(context, launchOptions)
+        cmd.push(...await getFiles())
+        if(args.trim().length != 0) {
+            cmd.push("--args")
+            cmd.push(args)
+        }
+        cmd.push(...getExtraFlixArgs())
+        passCommandToTerminal(cmd, terminal)  
 }
 
 /**
@@ -128,6 +165,26 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
     const globalStoragePath = context.globalStoragePath
     const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
     return await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+}
+
+
+/**
+ * generate a java command to compile the flix program.
+ * @param context vscode.ExtensionContext
+ * @param launchOptions LaunchOptions
+ * @returns string[]
+ */
+ async function getJVMCmd(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        const flixFilename = await getFlixFilename(context, launchOptions)
+        const jvm:string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
+        let cmd = ['java']
+        if(jvm.length != 0)
+        cmd.push(...jvm.split(' '))
+        cmd.push(...['-jar', flixFilename])
+        return cmd
 }
 
 
@@ -148,10 +205,10 @@ export function runMain(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
-            let cmd = ['java', '-jar', flixFilename]
+            let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
+            cmd.push(...getExtraFlixArgs())
             passCommandToTerminal(cmd, terminal)  
         }
 }
@@ -172,12 +229,11 @@ export function runMainWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = getFlixTerminal()
-                await passArgs(terminal, flixFilename, input)
+                await passArgs(terminal, input, context, launchOptions)
             }
         }
 }
@@ -198,10 +254,10 @@ export function runMainNewTerminal(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let terminal = newFlixTerminal()
-            let cmd = ['java', '-jar', flixFilename]
+            let cmd = await getJVMCmd(context, launchOptions)
             cmd.push(...await getFiles())
+            cmd.push(...getExtraFlixArgs())
             passCommandToTerminal(cmd, terminal)
         }
 }
@@ -223,12 +279,11 @@ export function runMainNewTerminalWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            const flixFilename = await getFlixFilename(context, launchOptions)
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = newFlixTerminal()
-                await passArgs(terminal, flixFilename, input)
+                await passArgs(terminal, input, context, launchOptions)
             }
         }
 }
@@ -259,4 +314,241 @@ export function makeHandleRunJobWithProgress (
       })
     })
   }
+}
+
+
+/**
+ * Returns a terminal with the given name (new if already not exists)
+ * 
+ * @param name name of the terminal
+ * 
+ * @returns vscode.Terminal
+ */
+
+function getTerminal(name: string) {
+    const activeTerminals = vscode.window.terminals
+    for (const element of activeTerminals) {
+        if(element.name == name)
+            return element
+    }
+    return vscode.window.createTerminal({name: name})
+}
+
+
+
+/**
+ * creates a new project in the current directory using command `java -jar flix.jar init`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+ export function cmdInit(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('init')
+            let terminal = getTerminal('init')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * checks the current project for errors using command `java -jar flix.jar check`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+
+export function cmdCheck(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('check')
+            let terminal = getTerminal('check')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds (i.e. compiles) the current project using command `java -jar flix.jar build`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuild(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build')
+            let terminal = getTerminal('build')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds a jar-file from the current project using command `java -jar flix.jar build-jar`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuildJar(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build-jar')
+            let terminal = getTerminal('build-jar')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * builds a fpkg-file from the current project using command `java -jar flix.jar build-pkg`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBuildPkg(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('build-pkg')
+            let terminal = getTerminal('build-pkg')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs main for the current project using command `java -jar flix.jar run`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdRunProject(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('run')
+            let terminal = getTerminal('run')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs the benchmarks for the current project using command `java -jar flix.jar benchmark`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdBenchmark(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('benchmark')
+            let terminal = getTerminal('benchmark')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs all the tests for the current project using command `java -jar flix.jar test`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdTests(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('test')
+            let terminal = getTerminal('test')
+            cmd.push(...getExtraFlixArgs())
+            await handleUnsavedFiles()
+            passCommandToTerminal(cmd, terminal)
+        }
+}
+
+/**
+ * runs the custom tests for the current project using command `java -jar flix.jar test <test01> <test02> ...`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function cmdTestWithFilter(
+    context: vscode.ExtensionContext, 
+    launchOptions: LaunchOptions = defaultLaunchOptions
+    ) {
+        return async function handler () {
+            let cmd = await getJVMCmd(context, launchOptions)
+            cmd.push('test')
+            const input = await vscode.window.showInputBox({
+                prompt: "Enter names of test functions separated by spaces",
+                placeHolder: "test01 test02 ...",
+                ignoreFocusOut: true
+            })
+            if(input != undefined)
+            {
+                cmd.push(input)
+                let terminal = getTerminal('testWithFilter')
+                cmd.push(...getExtraFlixArgs())
+                await handleUnsavedFiles()
+                passCommandToTerminal(cmd, terminal)
+            }
+        }
 }

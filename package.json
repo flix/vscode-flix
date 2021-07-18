@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.24.0",
+  "version": "0.27.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -18,8 +18,7 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix",
-    "workspaceContains:**/*.flix"
+    "onLanguage:flix"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -49,8 +48,40 @@
         "title": "Flix: Run with args ... (in new terminal)"
       },
       {
-        "command": "flix.cmdRunAllTests",
-        "title": "Flix: Run Tests"
+        "command": "flix.cmdInit",
+        "title": "Flix Package Manager: init"
+      },
+      {
+        "command": "flix.cmdCheck",
+        "title": "Flix Package Manager: check"
+      },
+      {
+        "command": "flix.cmdBuild",
+        "title": "Flix Package Manager: build"
+      },
+      {
+        "command": "flix.cmdBuildJar",
+        "title": "Flix Package Manager: build-jar"
+      },
+      {
+        "command": "flix.cmdBuildPkg",
+        "title": "Flix Package Manager: build-pkg"
+      },
+      {
+        "command": "flix.cmdRunProject",
+        "title": "Flix Package Manager: run"
+      },
+      {
+        "command": "flix.cmdBenchmark",
+        "title": "Flix Package Manager: benchmark"
+      },
+      {
+        "command": "flix.cmdTests",
+        "title": "Flix Package Manager: test"
+      },
+      {
+        "command": "flix.cmdTestWithFilter",
+        "title": "Flix Package Manager: test (with filter)"
       }
     ],
     "languages": [
@@ -90,6 +121,16 @@
           "type": "boolean",
           "default": true,
           "description": "Run the compiler on every change"
+        },
+        "flix.extraJvmArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Additional JVM arguments separated by spaces"
+        },
+        "flix.extraFlixArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Additional Flix compiler options separated by spaces"
         }
       }
     },

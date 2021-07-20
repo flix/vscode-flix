@@ -33,6 +33,12 @@ connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 // A file has been removed
 connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
+// A fpkg has been added or updated
+connection.onNotification(jobs.Request.apiAddPkg, handlers.handlerAddPkg)
+
+// A fpkg has been removed
+connection.onNotification(jobs.Request.apiRemPkg, handlers.handleRemPkg)
+
 // cmd/*
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
 

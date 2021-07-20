@@ -28,9 +28,13 @@ let client: LanguageClient
 
 let flixWatcher: vscode.FileSystemWatcher
 
+let pkgWatcher: vscode.FileSystemWatcher
+
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
+
+export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
 
 let outputChannel: vscode.OutputChannel
 
@@ -109,8 +113,17 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  registerCommand('flix.cmdRunAllTests', handlers.makeHandleRunJobWithProgress(client, outputChannel, jobs.Request.cmdRunTests, 'Running Tests'))
-
+  
+  registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
+  registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
+  registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
+  registerCommand('flix.cmdBuildJar', handlers.cmdBuildJar(context, launchOptions))
+  registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
+  registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
+  registerCommand('flix.cmdBenchmark', handlers.cmdBenchmark(context, launchOptions))
+  registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
+  
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -121,6 +134,18 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiAddUri, { uri })
   })
+
+  // watch for changes on the file system (delete, create .fpkg files)
+  pkgWatcher = vscode.workspace.createFileSystemWatcher(FPKG_GLOB_PATTERN)
+  pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiRemPkg, { uri })
+  })
+  pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiAddPkg, { uri })
+  })
+  
 
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
@@ -143,6 +168,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const globalStoragePath = context.globalStoragePath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
+  const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
 
   // Make sure we can write to `./target`
   if (!ensureTargetWritable(_.first(workspaceFolders))) {
@@ -163,6 +189,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath: context.globalStoragePath,
     workspaceFiles,
+    workspacePkgs,
     userConfiguration: getUserConfiguration()
   })
 
@@ -188,6 +215,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
 export function deactivate (): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
+  pkgWatcher && pkgWatcher.dispose()
   outputChannel && outputChannel.dispose()
   diagnosticsOutputChannel && diagnosticsOutputChannel.dispose()
   return client ? client.stop() : undefined

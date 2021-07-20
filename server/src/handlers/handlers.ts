@@ -77,6 +77,14 @@ export function handleRemUri ({ uri }: UriInput) {
   engine.remUri(uri)
 }
 
+export function handlerAddPkg ( { uri } : UriInput) {
+  engine.addPkg(uri)
+}
+
+export function handleRemPkg ({ uri }: UriInput) {
+  engine.remPkg(uri)
+}
+
 export function handleExit () {
   engine.stop()
 }

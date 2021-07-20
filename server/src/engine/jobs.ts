@@ -26,6 +26,8 @@
 export enum Request {
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
+  apiAddPkg = 'api/addPkg',
+  apiRemPkg = 'api/remPkg',
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
 
@@ -59,6 +61,7 @@ export interface Job {
   request: Request
   uri?: string
   src?: string
+  base64?: string
   position?: Position
   projectRootUri?: string
   newName?: string

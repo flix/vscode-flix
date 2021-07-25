@@ -18,7 +18,15 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix"
+    "onLanguage:flix",
+    "onCommand:flix.cmdInit",
+    "onCommand:flix.cmdCheck",
+    "onCommand:flix.cmdBuild",
+    "onCommand:flix.cmdBuildJar",
+    "onCommand:flix.cmdBuildPkg",
+    "onCommand:flix.cmdRunProject",
+    "onCommand:flix.cmdBenchmark",
+    "onCommand:flix.cmdTests"
   ],
   "main": "./client/out/extension",
   "contributes": {

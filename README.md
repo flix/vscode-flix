@@ -1,5 +1,5 @@
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/flix/flix/master/doc/logo.png" height="91px" 
+    <img src="https://raw.githubusercontent.com/flix/flix/master/docs/logo.png" height="91px" 
     alt="The Flix Programming Language" 
     title="The Flix Programming Language">
 </p>

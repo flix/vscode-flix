@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -93,26 +93,26 @@
       }
     ],
     "keybindings": [
-        {
-            "command": "flix.runMain",
-            "key": "ctrl+alt+f5",
-            "mac": "ctrl+cmd+f5"
-        },
-        {
-            "command": "flix.cmdTests",
-            "key": "ctrl+alt+f6",
-            "mac": "ctrl+cmd+f6"
-        },
-        {
-            "command": "flix.cmdCheck",
-            "key": "ctrl+alt+f9",
-            "mac": "ctrl+cmd+f9"
-        },
-        {
-            "command": "flix.cmdBuild",
-            "key": "ctrl+alt+f10",
-            "mac": "ctrl+cmd+f10"
-        }
+      {
+        "command": "flix.runMain",
+        "key": "ctrl+alt+f5",
+        "mac": "ctrl+cmd+f5"
+      },
+      {
+        "command": "flix.cmdTests",
+        "key": "ctrl+alt+f6",
+        "mac": "ctrl+cmd+f6"
+      },
+      {
+        "command": "flix.cmdCheck",
+        "key": "ctrl+alt+f9",
+        "mac": "ctrl+cmd+f9"
+      },
+      {
+        "command": "flix.cmdBuild",
+        "key": "ctrl+alt+f10",
+        "mac": "ctrl+cmd+f10"
+      }
     ],
     "languages": [
       {

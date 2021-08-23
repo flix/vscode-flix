@@ -92,6 +92,28 @@
         "title": "Flix Package Manager: test (with filter)"
       }
     ],
+    "keybindings": [
+        {
+            "command": "flix.runMain",
+            "key": "ctrl+alt+f5",
+            "mac": "ctrl+cmd+f5"
+        },
+        {
+            "command": "flix.cmdTests",
+            "key": "ctrl+alt+f6",
+            "mac": "ctrl+cmd+f6"
+        },
+        {
+            "command": "flix.cmdCheck",
+            "key": "ctrl+alt+f9",
+            "mac": "ctrl+cmd+f9"
+        },
+        {
+            "command": "flix.cmdBuild",
+            "key": "ctrl+alt+f10",
+            "mac": "ctrl+cmd+f10"
+        }
+    ],
     "languages": [
       {
         "id": "flix",

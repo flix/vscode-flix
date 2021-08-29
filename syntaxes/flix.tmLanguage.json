@@ -110,10 +110,6 @@
                     "match": "\\b(spawn)\\b"
                 },
                 {
-                    "name": "keyword.control.chan.flix",
-                    "match": "\\b(chan)\\b"
-                },
-                {
                     "name": "keyword.operator.bool.flix",
                     "match": "\\b(not|and|or)\\b"
                 },
@@ -130,7 +126,7 @@
                     "match": "\\b(default)\\b"
                 },
                 {
-                    "name": "keyword.control.fixpoint.flix",
+                    "name": "keyword.expression.fixpoint.flix",
                     "match": "\\b(from|into|project|solve|query|where|select)\\b"
                 },
                 {

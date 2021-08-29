@@ -6,6 +6,9 @@
     "scopeName": "source.flix",
     "patterns": [
         {
+            "include": "#function_declarations"
+        },
+        {
             "include": "#constants"
         },
         {
@@ -28,6 +31,41 @@
         }
     ],
     "repository": {
+        "function_declarations": {
+            "name": "meta.function.flix",
+            "begin": "(?:(\\bpub)\\s+)?(def\\b)\\s+([a-z_][_[:alnum:]]*)\\s*\\(",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.declaration.flix"
+                },
+                "2": {
+                    "name": "keyword.declaration.flix"
+                },
+                "3": {
+                    "name": "entity.name.function.flix"
+                }
+            },
+            "end": "\\)\\s*:",
+            "patterns": [
+                {
+                    "include": "#types"
+                },
+                {
+                    "include": "#comments"
+                },
+                {
+                    "match": "([a-z_][_[:alnum:]]*)\\s*(:)",
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.flix"
+                        },
+                        "2": {
+                            "name": "meta.colon.flix"
+                        }
+                    }   
+                }
+            ]
+        },
         "constants": {
             "patterns": [
                 {
@@ -139,8 +177,8 @@
         "types": {
             "patterns": [
                 {
-                    "name": "type.flix",
-                    "match": "\\b(Array|BigInt|Bool|Channel|Char|Choice|Float32|Float64|Int|Int8|Int16|Int32|Int64|Option|List|Result|String|Unit)\\b"
+                    "name": "entity.name.type",
+                    "match": "\\b([A-Z_][_[:alnum:]]*)\\b"
                 }
             ]
         },

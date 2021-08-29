@@ -52,9 +52,9 @@
 			}
         },
         {
-			"scope": "type",
+			"scope": "entity.name.type",
 			"settings": {
-				"foreground": "#8fcaff"
+				"foreground": "#4EC9B0"
 			}
         },
         {
@@ -73,6 +73,18 @@
 			"scope": "string",
 			"settings": {
 				"foreground": "#ce9178"
+			}
+		},
+        {
+			"scope": "entity.name.function",
+			"settings": {
+				"foreground": "#DCDCAA"
+			}
+		},
+        {
+			"scope": "variable.parameter",
+			"settings": {
+				"foreground": "#9CDCFE"
 			}
 		}
     ]

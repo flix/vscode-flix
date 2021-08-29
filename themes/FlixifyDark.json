@@ -52,7 +52,7 @@
 			}
         },
         {
-			"scope": "type",
+			"scope": "entity.name.type",
 			"settings": {
 				"foreground": "#4EC9B0"
 			}
@@ -76,13 +76,13 @@
 			}
 		},
         {
-			"scope": "entity.name.function.flix",
+			"scope": "entity.name.function",
 			"settings": {
 				"foreground": "#DCDCAA"
 			}
 		},
         {
-			"scope": "variable.parameter.flix",
+			"scope": "variable.parameter",
 			"settings": {
 				"foreground": "#9CDCFE"
 			}

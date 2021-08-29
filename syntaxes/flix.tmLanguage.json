@@ -177,7 +177,7 @@
         "types": {
             "patterns": [
                 {
-                    "name": "type.flix",
+                    "name": "entity.name.type",
                     "match": "\\b([A-Z_][_[:alnum:]]*)\\b"
                 }
             ]

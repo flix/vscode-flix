@@ -52,7 +52,8 @@ export function handleInitialize (_params: InitializeParams) {
       },
       renameProvider: {
         prepareProvider: true
-      }
+      },
+      documentSymbolProvider: true,
     }
   }
   return result
@@ -191,6 +192,11 @@ function makeRenameJob (params: any) {
     newName: params.newName || ''
   }
 }
+
+/**
+ * @function 
+ */
+export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
 
 /**
  * @function

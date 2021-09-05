@@ -6,3 +6,4 @@ By adding your name to this document, you agree to release all your contribution
 - [Thomas Søe Plougsgaard](https://github.com/plougsgaard)
 - [Manoj Kumar](https://github.com/manoj2601)
 - [Jacob Harris Cryer Kragh](https://github.com/jhckragh)
+- [Nicola Dardanis](https://github.com/nicdard)

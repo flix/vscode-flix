@@ -154,6 +154,10 @@
                     "match": "\\b(ref|deref)\\b"
                 },
                 {
+                    "name": "keyword.expression.reify.flix",
+                    "match": "\\b(reify)\\b"
+                },
+                {
                     "name": "keyword.use.flix",
                     "match": "\\b(use)\\b"
                 },

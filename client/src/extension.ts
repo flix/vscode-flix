@@ -72,7 +72,9 @@ function handlePrintDiagnostics ({ status, result }) {
     diagnosticsErrors = true
     for (const res of result) {
       for (const diag of res.diagnostics) {
-        outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+        if (diag.severity <= 2) {
+            outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+        }
       }
     }
   }

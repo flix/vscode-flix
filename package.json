@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"

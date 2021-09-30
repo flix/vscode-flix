@@ -74,6 +74,8 @@ connection.onRenameRequest(handlers.handleRename)
 
 // Find DocumentSymbols hierarchical information to dispaly outline and breadcrumb
 connection.onDocumentSymbol(handlers.handleDocumentSymbols)
+// Find WorkspaceSymbols information.
+connection.onWorkspaceSymbol(handlers.handleWorkspaceSymbols)
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

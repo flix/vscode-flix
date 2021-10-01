@@ -124,6 +124,10 @@ export function clearDiagnostics () {
  * Proxy for `connection.sendDiagnostics` that also adds the `uri` to `fileUrisWithErrors`.
  */
 export function sendDiagnostics (params: PublishDiagnosticsParams) {
-  fileUrisWithErrors.add(params.uri)
+  params.diagnostics.forEach(diagnostic => {
+      if (diagnostic.severity && diagnostic.severity <= 2) {
+        fileUrisWithErrors.add(params.uri)
+      }
+  });
   connection.sendDiagnostics(params)
 }

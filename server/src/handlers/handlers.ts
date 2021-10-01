@@ -54,6 +54,7 @@ export function handleInitialize (_params: InitializeParams) {
         prepareProvider: true
       },
       documentSymbolProvider: true,
+      workspaceSymbolProvider: true,
     }
   }
   return result
@@ -197,6 +198,19 @@ function makeRenameJob (params: any) {
  * @function 
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
+
+/**
+ * @function
+ */
+export const handleWorkspaceSymbols = enqueueUnlessHasErrors(makeWorkspaceSymbolsJob, makeDefaultResponseHandler, hasErrorsHandlerForCommands)
+
+function makeWorkspaceSymbolsJob(params: any) {
+    return {
+        request: jobs.Request.lspWorkspaceSymbols,
+        position: params.position,
+        query: params.query || ''
+    }
+}
 
 /**
  * @function

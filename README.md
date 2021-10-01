@@ -12,6 +12,9 @@ The official Visual Studio Code extension for the [Flix Programming Language
 Flix is a next-generation reliable, safe, concise, and functional-first
 programming language.
 
+We aim to have world-class Visual Studio Code support and our extension is based
+on the real Flix compiler infrastructure. 
+
 ## Features
 
 * __Syntax Highlighting__
@@ -22,6 +25,9 @@ programming language.
 
 * __Auto-complete__
   - Auto-complete as you type.
+
+* __Snippets__
+  - Auto-complete common code constructs.
 
 * __Type and Effect Hovers__
   - Hover over any expression to see its type and effect.
@@ -38,6 +44,10 @@ programming language.
     - Find all references to a function.
     - Find all references to a local variable or formal parameter.
     - Find all references to an enum case.
+
+* __Symbols__
+    - List all document symbols.
+    - List all workspace symbols.
 
 * __Rename__
     - Rename local variables or formal parameters.

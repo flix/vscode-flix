@@ -55,6 +55,9 @@ documents.onDidSave(handlers.handleSave)
 // Go to definition (from context menu or F12 usually)
 connection.onDefinition(handlers.handleGotoDefinition)
 
+// Go to implementation (Cntrl + F12)
+connection.onImplementation(handlers.handleImplementation)
+
 connection.onDocumentHighlight(handlers.handleHighlight)
 
 //Auto completion

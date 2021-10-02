@@ -55,6 +55,7 @@ export function handleInitialize (_params: InitializeParams) {
       },
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
+      implementationProvider: true,
     }
   }
   return result
@@ -131,6 +132,11 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
     promiseResolver()
   }
 }
+
+/**
+ * @function
+ */
+export const handleImplementation = makePositionalHandler(jobs.Request.lspImplementation);
 
 /**
  * @function

@@ -39,6 +39,7 @@ export enum Request {
   lspComplete = 'lsp/complete',
   lspHover = 'lsp/hover',
   lspGoto = 'lsp/goto',
+  lspImplementation = 'lsp/implementation',
   lspUses = 'lsp/uses',
   lspRename = 'lsp/rename',
   lspDocumentSymbols = 'lsp/documentSymbols',

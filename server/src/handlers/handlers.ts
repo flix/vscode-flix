@@ -56,6 +56,14 @@ export function handleInitialize (_params: InitializeParams) {
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
       implementationProvider: true,
+      semanticTokensProvider: {
+        // Note: Types and modifiers must be listed in the same order as in the LSP
+        legend: {
+          tokenTypes: ["number", "string", "function"],
+          tokenModifiers: ["declaration"]
+        },
+        full: true
+      }
     }
   }
   return result
@@ -217,6 +225,11 @@ function makeWorkspaceSymbolsJob(params: any) {
         query: params.query || ''
     }
 }
+
+/**
+ * @function
+ */
+export const handleSemanticTokens = makePositionalHandler(jobs.Request.lspSemanticTokens)
 
 /**
  * @function

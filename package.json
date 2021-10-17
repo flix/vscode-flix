@@ -170,7 +170,12 @@
         "uiTheme": "vs-dark",
         "path": "./themes/FlixifyDark.json"
       }
-    ]
+    ],
+    "configurationDefaults": {
+      "[flix]": {
+        "editor.semanticHighlighting.enabled": true
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

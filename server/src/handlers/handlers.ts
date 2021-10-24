@@ -69,8 +69,10 @@ export function handleInitialize (_params: InitializeParams) {
               "parameter",
               "property",
               "method",
+              "namespace",
               "type",
-              "typeParameter"
+              "typeParameter",
+              "variable"
             ],
           tokenModifiers: ["declaration"]
         },

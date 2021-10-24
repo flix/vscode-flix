@@ -15,9 +15,6 @@
             "include": "#keywords"
         },
         {
-            "include": "#types"
-        },
-        {
             "include": "#literal_char"
         },
         {
@@ -53,9 +50,6 @@
             },
             "end": "\\)\\s*:",
             "patterns": [
-                {
-                    "include": "#types"
-                },
                 {
                     "include": "#comments"
                 }
@@ -170,14 +164,6 @@
                 {
                     "name": "storage.type.modifier.flix",
                     "match": "\\b(inline|mut|lawless|opaque|override|sealed|unlawful)\\b"
-                }
-            ]
-        },
-        "types": {
-            "patterns": [
-                {
-                    "name": "entity.name.type",
-                    "match": "\\b(_?[A-Z][_[:alnum:]]*)\\b"
                 }
             ]
         },

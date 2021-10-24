@@ -57,9 +57,21 @@ export function handleInitialize (_params: InitializeParams) {
       workspaceSymbolProvider: true,
       implementationProvider: true,
       semanticTokensProvider: {
-        // Note: Types and modifiers must be listed in the same order as in the LSP
+        // NB: Must be in sync with ca.uwaterloo.flix.api.lsp.SemanticTokenType.
         legend: {
-          tokenTypes: ["number", "string", "function"],
+          tokenTypes: [
+              "class",
+              "enum",
+              "enumMember",
+              "function",
+              "interface",
+              "operator",
+              "parameter",
+              "property",
+              "method",
+              "type",
+              "typeParameter"
+            ],
           tokenModifiers: ["declaration"]
         },
         full: true

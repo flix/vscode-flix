@@ -6,9 +6,6 @@
     "scopeName": "source.flix",
     "patterns": [
         {
-            "include": "#function_declarations"
-        },
-        {
             "include": "#constants"
         },
         {
@@ -28,33 +25,9 @@
         },
         {
             "include": "#comments"
-        },
-        {
-            "include": "#function_names"
         }
     ],
     "repository": {
-        "function_declarations": {
-            "name": "meta.function.flix",
-            "begin": "(?:(\\bpub)\\s+)?(def\\b)\\s+([a-z_][_![:alnum:]]*)\\s*[\\(\\[]",
-            "beginCaptures": {
-                "1": {
-                    "name": "keyword.declaration.flix"
-                },
-                "2": {
-                    "name": "keyword.declaration.flix"
-                },
-                "3": {
-                    "name": "entity.name.function.flix"
-                }
-            },
-            "end": "\\)\\s*:",
-            "patterns": [
-                {
-                    "include": "#comments"
-                }
-            ]
-        },
         "constants": {
             "patterns": [
                 {
@@ -237,26 +210,6 @@
                     "name": "comment.block.flix",
                     "begin": "/\\*",
                     "end": "\\*/"
-                }
-            ]
-        },
-        "function_names": {
-            "patterns": [
-                {
-                    "match": "\\b([a-z][_![:alnum:]]*)\\s*\\(",
-                    "captures": {
-                        "1": {
-                            "name": "entity.name.function.flix"
-                        }
-                    }
-                },
-                {
-                    "name": "entity.name.function.flix",
-                    "match": "(?<=\\|>\\s*)([a-z][_![:alnum:]]*)"
-                },
-                {
-                    "name": "entity.name.function.flix",
-                    "match": "(?<=\\b[A-Z][_[:alnum:]]*\\.\\s*)([a-z][_![:alnum:]]*)"
                 }
             ]
         }

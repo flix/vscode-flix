@@ -34,9 +34,6 @@
         },
         {
             "include": "#function_names"
-        },
-        {
-            "include": "#variables"
         }
     ],
     "repository": {
@@ -61,9 +58,6 @@
                 },
                 {
                     "include": "#comments"
-                },
-                {
-                    "include": "#variables"
                 }
             ]
         },
@@ -279,10 +273,6 @@
                     "match": "(?<=\\b[A-Z][_[:alnum:]]*\\.\\s*)([a-z][_![:alnum:]]*)"
                 }
             ]
-        },
-        "variables": {
-            "name": "variable.flix",
-            "match": "\\b([a-z_][_[:alnum:]]*)\\b"
         }
     }
 }

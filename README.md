@@ -60,12 +60,6 @@ on the real Flix compiler infrastructure.
 * __Highlight__
     - Highlights semantically related symbols.
 
-## Color Theme
-
-* __Flixify Dark__
-    - The extension comes with a dark color theme specifically designed for Flix named 'Flixify Dark'.
-    - The color theme can be enabled in `File -> Preferences -> Color Theme`.
-
 ## Installation
 
 - Install the Flix Visual Studio Code extension.

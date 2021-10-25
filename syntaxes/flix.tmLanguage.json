@@ -24,6 +24,9 @@
             "include": "#annotations"
         },
         {
+            "include": "#types"
+        },
+        {
             "include": "#comments"
         }
     ],
@@ -197,6 +200,14 @@
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@Time"
+                }
+            ]
+        },
+        "types": {
+            "patterns": [
+                {
+                    "name": "entity.name.type",
+                    "match": "(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)"
                 }
             ]
         },

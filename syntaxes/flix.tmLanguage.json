@@ -119,7 +119,7 @@
                 },
                 {
                     "name": "keyword.expression.reify.flix",
-                    "match": "\\b(reify)\\b"
+                    "match": "\\b(reify|reifyBool|reifyType)\\b"
                 },
                 {
                     "name": "keyword.use.flix",
@@ -128,10 +128,6 @@
                 {
                     "name": "keyword.symbols.flix",
                     "match": "(\\->|~>|<\\-|=>)"
-                },
-                {
-                    "name": "keyword.operator.flix",
-                    "match": "(==|!=|>=|<=|>|<|\\+|\\-|\\*|%|>>>|<<<|::|:::|:\\-|:=)"
                 },
                 {
                     "name": "keyword.operator.semicolon.flix",

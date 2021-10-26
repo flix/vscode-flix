@@ -60,6 +60,9 @@ on the real Flix compiler infrastructure.
 * __Highlight__
     - Highlights semantically related symbols.
 
+* __Semantic Tokens__
+  - Additional code highlighting hints provided by the compiler.
+
 ## Installation
 
 - Install the Flix Visual Studio Code extension.

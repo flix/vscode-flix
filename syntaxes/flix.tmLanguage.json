@@ -177,7 +177,7 @@
         },
         "literal_int": {
             "name": "constant.numeric.decimal.flix",
-            "match": "[0-9]+"
+            "match": "\\b[0-9]+\\b"
         },
         "annotations": {
             "patterns": [
@@ -203,7 +203,7 @@
             "patterns": [
                 {
                     "name": "entity.name.type",
-                    "match": "(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)"
+                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)\\b"
                 }
             ]
         },

@@ -18,7 +18,10 @@
             "include": "#literal_string"
         },
         {
-            "include": "#literal_int"
+            "include": "#literal_dec"
+        },
+        {
+            "include": "#literal_hex"
         },
         {
             "include": "#annotations"
@@ -175,9 +178,13 @@
                 }
             ]
         },
-        "literal_int": {
+        "literal_dec": {
             "name": "constant.numeric.decimal.flix",
-            "match": "\\b[0-9]+\\b"
+            "match": "\\b[0-9](_*[0-9])*(\\.[0-9](_*[0-9])*)?\\b"
+        },
+        "literal_hex": {
+            "name": "constant.numeric.hex.flix",
+            "match": "\\b0x[a-fA-F0-9](_*[a-fA-F0-9])*\\b"
         },
         "annotations": {
             "patterns": [

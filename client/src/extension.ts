@@ -52,6 +52,15 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
+/**
+ * Convert URI to string appropriate for use on the command line.
+ * 
+ * @param uri {vscode.Uri}
+ */
+function vsCodeUriToTerminalString (uri: vscode.Uri) {
+  return vscode.Uri.file(uri.path).toString(true)
+}
+
 function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient () {
     callResolversAndEmptyList()
@@ -168,7 +177,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
-  const workspaceJars: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
+  const workspaceJars: [string] = _.map(vsCodeUriToTerminalString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
 
   // Make sure we can write to `./target`
   if (!ensureTargetWritable(_.first(workspaceFolders))) {

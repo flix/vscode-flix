@@ -50,6 +50,7 @@ export interface StartEngineInput {
   globalStoragePath: string,
   workspaceFiles: [string],
   workspacePkgs: [string],
+  workspaceJars: [string],
   userConfiguration: UserConfiguration
 }
 
@@ -98,7 +99,7 @@ export async function start (input: StartEngineInput) {
   // copy input to local var for later use
   startEngineInput = _.clone(input)
 
-  const { flixFilename, extensionPath, workspaceFiles, workspacePkgs } = input
+  const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
@@ -110,7 +111,11 @@ export async function start (input: StartEngineInput) {
   // get a port starting from 8888
   const port = await portfinder.getPortPromise({ port: 8888 })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
+  
+  // build the classpath from the jars in the lib folder, plus flix.jar
+  const classpath = workspaceJars.concat(flixFilename).join(':')
+
+  flixInstance = ChildProcess.spawn('java', ['-cp', classpath, 'ca.uwaterloo.flix.Main', '--lsp', port])
   const webSocketUrl = `ws://localhost:${port}`
 
   // forward flix to own stdout & stderr

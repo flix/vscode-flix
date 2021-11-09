@@ -6,9 +6,10 @@ import * as jobs from '../engine/jobs'
 import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTERN } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTERN, JAR_GLOB_PATTERN } from './../extension'
 
 const _ = require('lodash/fp')
+const path = require('path')
 
 let countTerminals:number = 0
 
@@ -180,10 +181,15 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
     ) {
         const flixFilename = await getFlixFilename(context, launchOptions)
         const jvm:string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
+        const workspaceJars: [string] = _.map((uri: vscode.Uri) => uri.fsPath, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
+
+        // build the classpath from the jars in the lib folder, plus flix.jar
+        const classpath = workspaceJars.concat(flixFilename).join(path.delimiter)
+
         let cmd = ['java']
         if(jvm.length != 0)
         cmd.push(...jvm.split(' '))
-        cmd.push(...['-jar', flixFilename])
+        cmd.push(...['-cp', classpath, 'ca.uwaterloo.flix.Main'])
         return cmd
 }
 

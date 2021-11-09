@@ -177,7 +177,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
-  const workspaceJars: [string] = _.map(vsCodeUriToTerminalString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
+  const workspaceJars: [string] = _.map((uri: vscode.Uri) => uri.fsPath, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
 
   // Make sure we can write to `./target`
   if (!ensureTargetWritable(_.first(workspaceFolders))) {

@@ -58,7 +58,7 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
  * @param uri {vscode.Uri}
  */
 function vsCodeUriToTerminalString (uri: vscode.Uri) {
-  return vscode.Uri.file(uri.path).toString(true)
+  return uri.fsPath
 }
 
 function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {

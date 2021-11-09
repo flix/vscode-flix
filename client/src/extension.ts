@@ -52,15 +52,6 @@ function vsCodeUriToUriString (uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
-/**
- * Convert URI to string appropriate for use on the command line.
- * 
- * @param uri {vscode.Uri}
- */
-function vsCodeUriToTerminalString (uri: vscode.Uri) {
-  return uri.fsPath
-}
-
 function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient () {
     callResolversAndEmptyList()

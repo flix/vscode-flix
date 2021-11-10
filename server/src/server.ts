@@ -34,10 +34,16 @@ connection.onNotification(jobs.Request.apiAddUri, handlers.handleAddUri)
 connection.onNotification(jobs.Request.apiRemUri, handlers.handleRemUri)
 
 // A fpkg has been added or updated
-connection.onNotification(jobs.Request.apiAddPkg, handlers.handlerAddPkg)
+connection.onNotification(jobs.Request.apiAddPkg, handlers.handleAddPkg)
 
 // A fpkg has been removed
 connection.onNotification(jobs.Request.apiRemPkg, handlers.handleRemPkg)
+
+// A jar has been added or updated
+connection.onNotification(jobs.Request.apiAddJar, handlers.handleAddJar)
+
+// A jar has been removed
+connection.onNotification(jobs.Request.apiRemJar, handlers.handleRemJar)
 
 // cmd/*
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)

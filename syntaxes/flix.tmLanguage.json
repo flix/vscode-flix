@@ -6,34 +6,41 @@
     "scopeName": "source.flix",
     "patterns": [
         {
-            "include": "#constants"
-        },
-        {
-            "include": "#keywords"
-        },
-        {
-            "include": "#literal_char"
-        },
-        {
-            "include": "#literal_string"
-        },
-        {
-            "include": "#literal_dec"
-        },
-        {
-            "include": "#literal_hex"
-        },
-        {
-            "include": "#annotations"
-        },
-        {
-            "include": "#types"
-        },
-        {
-            "include": "#comments"
+            "include": "#all_patterns"
         }
     ],
     "repository": {
+        "all_patterns": {
+            "patterns": [
+                {
+                    "include": "#constants"
+                },
+                {
+                    "include": "#keywords"
+                },
+                {
+                    "include": "#literal_char"
+                },
+                {
+                    "include": "#literal_string"
+                },
+                {
+                    "include": "#literal_dec"
+                },
+                {
+                    "include": "#literal_hex"
+                },
+                {
+                    "include": "#annotations"
+                },
+                {
+                    "include": "#types"
+                },
+                {
+                    "include": "#comments"
+                }
+            ]
+        },
         "constants": {
             "patterns": [
                 {
@@ -174,7 +181,13 @@
                         "0": {
                             "name": "punctuation.definition.template-expression.end.flix"
                         }
-                    }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#all_patterns"
+                        }
+                    ],
+                    "contentName": "meta.embedded.line.flix"
                 }
             ]
         },

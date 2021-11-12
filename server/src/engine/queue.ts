@@ -174,8 +174,6 @@ export async function processQueue () {
       } else if(job.request == jobs.Request.apiAddPkg && !job.src) {
         const base64 = fs.readFileSync(fileURLToPath(job.uri!)).toString('base64')
         socket.sendMessage({...job, base64 })
-      } else if (job.request === jobs.Request.apiAddJar) {
-        socket.sendMessage({...job, })
       } else {
         socket.sendMessage(job)
       }

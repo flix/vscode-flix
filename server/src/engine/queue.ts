@@ -35,7 +35,8 @@ let waitingForPriorityQueue: jobs.JobMap = {
 
 function isPriorityJob (job: jobs.Job) {
   return (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri 
-    || job.request == jobs.Request.apiAddPkg || job.request == jobs.Request.apiRemPkg)
+    || job.request == jobs.Request.apiAddPkg || job.request == jobs.Request.apiRemPkg
+    || job.request == jobs.Request.apiAddJar || job.request == jobs.Request.apiRemJar)
 }
 
 function jobToEnqueuedJob (job: jobs.Job) {

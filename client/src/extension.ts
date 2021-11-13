@@ -35,6 +35,7 @@ const extensionObject = vscode.extensions.getExtension('flix.flix')
 export const FLIX_GLOB_PATTERN = '**/*.flix'
 
 export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
+export const JAR_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.jar')
 
 let outputChannel: vscode.OutputChannel
 
@@ -144,6 +145,16 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.apiAddPkg, { uri })
   })
   
+  // watch for changes on the file system (delete, create .jar files)
+  pkgWatcher = vscode.workspace.createFileSystemWatcher(JAR_GLOB_PATTERN)
+  pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiRemJar, { uri })
+  })
+  pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
+    const uri = vsCodeUriToUriString(vsCodeUri)
+    client.sendNotification(jobs.Request.apiAddJar, { uri })
+  })
 
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
@@ -166,6 +177,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
+  const workspaceJars: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
 
   // Make sure we can write to `./target`
   if (!ensureTargetWritable(_.first(workspaceFolders))) {
@@ -187,6 +199,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     globalStoragePath: context.globalStoragePath,
     workspaceFiles,
     workspacePkgs,
+    workspaceJars,
     userConfiguration: getUserConfiguration()
   })
 

@@ -28,6 +28,8 @@ export enum Request {
   apiRemUri = 'api/remUri',
   apiAddPkg = 'api/addPkg',
   apiRemPkg = 'api/remPkg',
+  apiAddJar = 'api/addJar',
+  apiRemJar = 'api/remJar',
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
 

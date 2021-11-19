@@ -144,7 +144,7 @@
         },
         "flix.compileOnChange.delay": {
           "type": "number",
-          "default": 300,
+          "default": 150,
           "description": "Specify delay in ms"
         },
         "flix.compileOnChange.enabled": {

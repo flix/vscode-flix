@@ -63,7 +63,7 @@ function handleEnqueue () {
 }
 
 function makeEnqueueDebounced () {
-  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue)
+  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, {'leading': true, 'trailing': true})
 }
 
 export function resetEnqueueDebounced () {

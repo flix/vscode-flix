@@ -77,8 +77,6 @@ connection.onReferences(handlers.handleReferences)
 
 connection.onCodeLens(handlers.handleCodelens)
 
-connection.onPrepareRename(handlers.handlePrepareRename)
-
 connection.onRenameRequest(handlers.handleRename)
 
 // Find DocumentSymbols hierarchical information to dispaly outline and breadcrumb

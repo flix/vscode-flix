@@ -51,7 +51,7 @@ export function handleInitialize (_params: InitializeParams) {
         resolveProvider: true
       },
       renameProvider: {
-        prepareProvider: true
+        prepareProvider: false
       },
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
@@ -197,28 +197,6 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 /**
  * @function
  */
-export const handlePrepareRename = enqueueUnlessHasErrors(makeRenameJob, makePrepareRenameResponseHandler, hasErrorsHandlerForCommands)
-
-// changes have a weird data structure
-const getFirstChange = _.flow(_.get('changes'), _.values, _.first, _.first)
-
-function makePrepareRenameResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
-    if (status === 'success') {
-      const change = getFirstChange(result)
-      promiseResolver({
-        range: _.get('range', change),
-        placeholder: _.get('newText', change)
-      })
-    } else {
-      promiseResolver()
-    }
-  }
-}
-
-/**
- * @function
- */
 export const handleRename = enqueueUnlessHasErrors(makeRenameJob, makeDefaultResponseHandler, hasErrorsHandlerForCommands)
 
 function makeRenameJob (params: any) {
@@ -226,7 +204,7 @@ function makeRenameJob (params: any) {
     request: jobs.Request.lspRename,
     uri: params.textDocument.uri,
     position: params.position,
-    newName: params.newName || ''
+    newName: params.newName
   }
 }
 

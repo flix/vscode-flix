@@ -219,6 +219,14 @@
                 },
                 {
                     "name": "storage.type.annotation.flix",
+                    "match": "@LazyWhenPure"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@ParallelWhenPure"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
                     "match": "@Space"
                 },
                 {

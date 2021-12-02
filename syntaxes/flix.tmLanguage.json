@@ -145,7 +145,7 @@
                 },
                 {
                     "name": "storage.type.modifier.flix",
-                    "match": "\\b(inline|mut|lawless|pub|override|sealed|unlawful)\\b"
+                    "match": "\\b(inline|mut|lawless|pub|override|sealed|static|unlawful)\\b"
                 }
             ]
         },
@@ -216,6 +216,10 @@
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@test"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Deprecated"
                 },
                 {
                     "name": "storage.type.annotation.flix",

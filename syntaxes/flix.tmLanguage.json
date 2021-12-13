@@ -96,10 +96,6 @@
                     "match": "\\b(as)\\b"
                 },
                 {
-                    "name": "keyword.expression.default.flix",
-                    "match": "\\b(default)\\b"
-                },
-                {
                     "name": "keyword.expression.fixpoint.flix",
                     "match": "\\b(from|into|project|solve|query|where|select)\\b"
                 },

@@ -103,12 +103,12 @@ export function enqueue (job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
 /**
  * Initialises the queues.
  *
- * @param jobArray
+ * @param jobs
  */
-export function initialiseQueues (jobArray: [jobs.Job]) {
+export function initialiseQueues(jobs: jobs.Job[]) {
   resetEnqueueDebounced()
   queueRunning = false // make sure `startQueue` actually starts it
-  for (const job of jobArray) {
+  for (const job of jobs) {
     const enqueuedJob = jobToEnqueuedJob(job)
     if (isPriorityJob(job)) {
       priorityQueue.push(enqueuedJob)

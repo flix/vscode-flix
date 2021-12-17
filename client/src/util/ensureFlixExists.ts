@@ -48,27 +48,31 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
       }
 
       // Check if a newer version is available
-      const flixRelease = await fetchRelease()
-      // Give the user the option to update if there's a newer version available
-      if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
-        const updateResponse = await vscode.window.showInformationMessage(
-          `A new version of the Flix compiler (${flixRelease.name}) is available. Download?`,
-          'Download',
-          'Skip'
-        )
-        if (updateResponse === 'Download') {
-          await downloadWithRetryDialog(async () => {
-            await download({
-              url: flixRelease.downloadUrl,
-              dest: filename,
-              progressTitle: 'Downloading Flix Compiler',
-              overwrite: true
-            })
-            await setInstalledFlixVersion(flixRelease)
-          })
+      try {
+        const flixRelease = await fetchRelease();
+        // Give the user the option to update if there's a newer version available
+        if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
+          const updateResponse = await vscode.window.showInformationMessage(
+            `A new version of the Flix compiler (${flixRelease.name}) is available. Download?`,
+            'Download',
+            'Skip'
+          );
+          if (updateResponse === 'Download') {
+            await downloadWithRetryDialog(async () => {
+              await download({
+                url: flixRelease.downloadUrl,
+                dest: filename,
+                progressTitle: 'Downloading Flix Compiler',
+                overwrite: true,
+              });
+              await setInstalledFlixVersion(flixRelease);
+            });
+          }
         }
+      } catch (error) {
+        // If the fetch request fails, we simply do not check for a new version of the compiler.
+        // Since the extension can still work, avoid bothering the user.
       }
-      
       return filename
     }
   }

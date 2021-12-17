@@ -17,14 +17,13 @@
 import { handleVersion } from '../handlers'
 import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
+import { ChildProcess, spawn } from 'child_process'
+import { getPortPromise } from 'portfinder';
+import * as _ from "lodash";
 
 import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
-
-const _ = require('lodash/fp')
-const ChildProcess = require('child_process')
-const portfinder = require('portfinder')
 
 export interface CompileOnSave {
   enabled: boolean
@@ -54,7 +53,7 @@ export interface StartEngineInput {
   userConfiguration: UserConfiguration
 }
 
-let flixInstance: any
+let flixInstance: ChildProcess | undefined = undefined;
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
 
@@ -67,7 +66,7 @@ export function getFlixFilename () {
 }
 
 export function getExtensionVersion () {
-  return _.getOr('(unknown version)', 'extensionVersion', startEngineInput)
+  return _.get(startEngineInput, 'extensionVersion', '(unknown version)');
 }
 
 export function getProjectRootUri () {
@@ -75,7 +74,7 @@ export function getProjectRootUri () {
 }
 
 export function updateUserConfiguration (userConfiguration: UserConfiguration) {
-  startEngineInput = _.set('userConfiguration', userConfiguration, startEngineInput)
+  _.set(userConfiguration, 'userConfiguration', startEngineInput);
   queue.resetEnqueueDebounced()
 }
 
@@ -109,14 +108,14 @@ export async function start (input: StartEngineInput) {
   }
 
   // get a port starting from 8888
-  const port = await portfinder.getPortPromise({ port: 8888 })
+  const port = await getPortPromise({ port: 8888 })
 
-  flixInstance = ChildProcess.spawn('java', ['-jar', flixFilename, '--lsp', port])
+  const instance = flixInstance = spawn('java', ["-jar", flixFilename, "--lsp", `${port}`]);
   const webSocketUrl = `ws://localhost:${port}`
 
   // forward flix to own stdout & stderr
-  flixInstance.stdout.pipe(process.stdout)
-  flixInstance.stderr.pipe(process.stderr)
+  instance.stdout.pipe(process.stdout)
+  instance.stderr.pipe(process.stderr)
 
   const connectToSocket = (data: any) => {
     const str = data.toString().split(/(\r?\n)/g).join('')
@@ -126,13 +125,14 @@ export async function start (input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen () {
           flixRunning = true
-          let addUriJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddUri }), workspaceFiles)
-          let addPkgJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddPkg }), workspacePkgs)
-          let addJarJobs = _.map((uri: string) => ({ uri, request: jobs.Request.apiAddJar }), workspaceJars)
-          let Jobs:any = []
-          Jobs.push(...addUriJobs)
-          Jobs.push(...addPkgJobs)
-          Jobs.push(...addJarJobs)
+          const addUriJobs = _.map(workspaceFiles, uri => ({ uri, request: jobs.Request.apiAddUri }));
+          const addPkgJobs = _.map(workspacePkgs, uri => ({ uri, request: jobs.Request.apiAddPkg }));
+          const addJarJobs = _.map(workspaceJars, uri => ({ uri, request: jobs.Request.apiAddJar }));
+          const Jobs: jobs.Job[] = [
+            ...addUriJobs,
+            ...addPkgJobs,
+            ...addJarJobs,
+          ];
           queue.initialiseQueues(Jobs)
           handleVersion()
         },
@@ -142,11 +142,11 @@ export async function start (input: StartEngineInput) {
       })
 
       // now that the connection is established, there's no reason to listen for new messages
-      flixInstance.stdout.removeListener('data', connectToSocket)
+      instance.stdout.removeListener('data', connectToSocket)
     }
   }
 
-  flixInstance.stdout.on('data', connectToSocket)
+  instance.stdout.addListener('data', connectToSocket)
 }
 
 export function stop () {

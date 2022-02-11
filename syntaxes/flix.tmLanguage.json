@@ -88,6 +88,10 @@
                     "match": "\\b(not|and|or)\\b"
                 },
                 {
+                    "name": "keyword.operator.fix.flix",
+                    "match": "\\bfix\\b"
+                },
+                {
                     "name": "keyword.declaration.flix",
                     "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias|class|instance|with|opaque)\\b"
                 },

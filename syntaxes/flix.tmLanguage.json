@@ -124,6 +124,10 @@
                     "match": "\\b(lazy)\\b"
                 },
                 {
+                    "name": "keyword.expression.region.flix",
+                    "match": "\\b(region)\\b"
+                },
+                {
                     "name": "keyword.expression.references.flix",
                     "match": "\\b(ref|deref)\\b"
                 },

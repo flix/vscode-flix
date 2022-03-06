@@ -71,6 +71,7 @@ export async function fetchRelease (
     url: _.get(release, 'url'),
     id: _.get(release, 'id'),
     name: _.get(release, 'name'),
+    description: _.get(release, 'body'),
     version: tagToVersion(_.get(release, 'tag_name')),
     downloadUrl: _.get(release, 'assets.0.browser_download_url'),
     downloadedAt: Date.now()
@@ -105,6 +106,7 @@ export interface FlixRelease {
   url: string
   id: number
   name: string
+  description: string
   version: FlixVersion
   downloadUrl: string
   downloadedAt: number
@@ -114,6 +116,7 @@ export interface FlixRelease {
 interface GithubRelease {
     name: string
     id: number
+    body: string
     // eslint-disable-next-line camelcase
     published_at: string
     assets: Array<{

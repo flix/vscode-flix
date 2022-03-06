@@ -91,7 +91,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
       progressTitle: 'Downloading Flix Compiler',
       overwrite: true
     })
-    await setInstalledFlixVersion(flixRelease)
+    await setInstalledFlixVersion(flixRelease);
   })
 
   return filename

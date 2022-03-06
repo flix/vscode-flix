@@ -18,6 +18,7 @@
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.179",
     "@types/vscode": "^1.57.0",
     "vscode-test": "^1.5.2"
   }

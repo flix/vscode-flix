@@ -12,10 +12,9 @@ import * as zlib from 'zlib'
 import * as util from 'util'
 import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
+import * as _ from 'lodash'
 
 const fetch = require('node-fetch') as typeof import('node-fetch')['default']
-
-const _ = require('lodash/fp')
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -69,19 +68,19 @@ export async function fetchRelease (
   // We skip runtime type checks for simplicity (here we cast from `any` to `GithubRelease`)
   const release: GithubRelease = await response.json()
   const flixRelease: FlixRelease = {
-    url: _.get('url', release),
-    id: _.get('id', release),
-    name: _.get('name', release),
-    version: tagToVersion(_.get('tag_name', release)),
-    downloadUrl: _.get('assets.0.browser_download_url', release),
+    url: _.get(release, 'url'),
+    id: _.get(release, 'id'),
+    name: _.get(release, 'name'),
+    version: tagToVersion(_.get(release, 'tag_name')),
+    downloadUrl: _.get(release, 'assets.0.browser_download_url'),
     downloadedAt: Date.now()
   }
   return flixRelease
 }
 
 function tagToVersion (tagName: string = ''): FlixVersion {
-  const versionString = tagName[0] === 'v' ? tagName.substr(1) : tagName
-  const [major, minor, patch] = _.map(_.parseInt(10), _.split('.', versionString))
+  const versionString = tagName[0] === 'v' ? tagName.slice(1) : tagName
+  const [major, minor, patch] = _.map(_.split(versionString, '.'), _.parseInt)
   return {
     major,
     minor,

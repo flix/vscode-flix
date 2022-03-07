@@ -38,7 +38,8 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
             `## Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n`
             + `${installedVersion.description}`;
       } else {
-        throw new Error(`The current installed compiler (${installedVersion.id}) doesn't match the requested one (${id}).`);
+        return 'Unable to get latest changelog. ' + 
+            'Please visit https://github.com/flix/flix/releases for more information on the available flix releases.';
       }
     }
   })();

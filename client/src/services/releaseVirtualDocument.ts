@@ -31,10 +31,11 @@ const scheme = 'flixcompiler';
 const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentContentProvider {
   provideTextDocumentContent(uri: vscode.Uri): string {
       // use uri-path as text
-      const id = new Number(uri.path);
+      const id = new Number(uri.path.split('/')[0]);
       const installedVersion = getInstalledFlixVersion();
       if (id == installedVersion.id) {
-        return `Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n`
+        return `# New Flix Release!\n` + 
+            `## Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n`
             + `${installedVersion.description}`;
       } else {
         throw new Error(`The current installed compiler (${installedVersion.id}) doesn't match the requested one (${id}).`);
@@ -49,9 +50,7 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
  */
 async function openFlixReleaseDocument(uri: vscode.Uri) {
   // trigger the provider.
-  let document = await vscode.workspace.openTextDocument(uri);
-  await vscode.window.showTextDocument(document, { preview: false, preserveFocus: true });
-  await vscode.languages.setTextDocumentLanguage(document, "plaintext");
+  await vscode.commands.executeCommand("markdown.showPreview", uri);
 }
 
 /**
@@ -61,7 +60,7 @@ async function openFlixReleaseDocument(uri: vscode.Uri) {
 function createFlixReleaseContentUri({ id }: FlixRelease): vscode.Uri {
   const uri = vscode.Uri.from({
     scheme,
-    path: `${id}`,
+    path: `${id}/CHANGELOG`,
   });
   return uri;
 }

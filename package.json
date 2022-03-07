@@ -92,16 +92,6 @@
         "title": "Flix Package Manager: test (with filter)"
       }
     ],
-    "resourceLabelFormatters": [
-      {
-        "scheme": "flixcompiler",
-        "formatting": {
-          "label": "Flix Release Notes",
-          "separator": "/",
-          "workspaceSuffix": "*"
-        }
-      }
-    ],
     "keybindings": [
       {
         "command": "flix.runMain",

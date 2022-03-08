@@ -15,6 +15,7 @@
  */
 import * as vscode from 'vscode'
 import { FlixRelease } from './releases'
+import { openFlixReleaseOverview } from './releaseVirtualDocument'
 
 let globalState: vscode.Memento
 
@@ -31,5 +32,6 @@ export function getInstalledFlixVersion (): FlixRelease {
 }
 
 export async function setInstalledFlixVersion (value) {
-  return globalState?.update(StateKeys.installedFlixVersion, value)
+  await globalState?.update(StateKeys.installedFlixVersion, value);
+  return openFlixReleaseOverview(value);
 }

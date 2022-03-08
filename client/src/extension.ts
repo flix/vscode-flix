@@ -13,6 +13,7 @@ import initialiseState from './services/state'
 
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
+import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
 
 const _ = require('lodash/fp')
 
@@ -84,6 +85,8 @@ function handlePrintDiagnostics ({ status, result }) {
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   // activate state
   initialiseState(context)
+
+  registerFlixReleaseDocumentProvider(context);
 
   // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix Compiler')

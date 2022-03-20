@@ -227,11 +227,27 @@
                 },
                 {
                     "name": "storage.type.annotation.flix",
-                    "match": "@LazyWhenPure"
+                    "match": "@Experimental"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Internal"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Parallel"
                 },
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@ParallelWhenPure"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Lazy"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@LazyWhenPure"
                 },
                 {
                     "name": "storage.type.annotation.flix",
@@ -240,6 +256,10 @@
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@Time"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Unsafe"
                 }
             ]
         },

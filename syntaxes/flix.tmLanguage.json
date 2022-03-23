@@ -57,7 +57,7 @@
                 },
                 {
                     "name": "constant.language.effect.flix",
-                    "match": "\\b(Pure|Impure)\\b"
+                    "match": "\\b(Pure|Impure|Read|Write)\\b"
                 }
             ]
         },

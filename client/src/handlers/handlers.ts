@@ -140,9 +140,10 @@ async function passArgs (
     terminal:vscode.Terminal,
     args: string,
     context: vscode.ExtensionContext, 
-    launchOptions: LaunchOptions = defaultLaunchOptions
+    launchOptions: LaunchOptions = defaultLaunchOptions,
+    entryPoint?: string
     ) {
-        let cmd = await getJVMCmd(context, launchOptions)
+        let cmd = await getJVMCmd(context, launchOptions, entryPoint)
         cmd.push(...await getFiles())
         if(args.trim().length != 0) {
             cmd.push("--args")
@@ -176,7 +177,8 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
  */
  async function getJVMCmd(
     context: vscode.ExtensionContext, 
-    launchOptions: LaunchOptions = defaultLaunchOptions
+    launchOptions: LaunchOptions = defaultLaunchOptions,
+    entryPoint?: string
     ) {
         const flixFilename = await getFlixFilename(context, launchOptions)
         const jvm:string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
@@ -184,9 +186,11 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
         if(jvm.length != 0)
         cmd.push(...jvm.split(' '))
         cmd.push(...['-jar', flixFilename])
+        if (entryPoint && entryPoint.length > 0) {
+            cmd.push(...['--entrypoint', entryPoint])
+        }
         return cmd
 }
-
 
 /**
  * Run main without any custom arguments
@@ -204,8 +208,8 @@ export function runMain(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
+        return async function handler (entryPoint) {
+            let cmd = await getJVMCmd(context, launchOptions, entryPoint)
             cmd.push(...await getFiles())
             let terminal = getFlixTerminal()
             cmd.push(...getExtraFlixArgs())
@@ -228,12 +232,12 @@ export function runMainWithArgs(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
+        return async function handler (entryPoint) {
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = getFlixTerminal()
-                await passArgs(terminal, input, context, launchOptions)
+                await passArgs(terminal, input, context, launchOptions, entryPoint)
             }
         }
 }
@@ -253,9 +257,9 @@ export function runMainNewTerminal(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
+        return async function handler (entryPoint) {
             let terminal = newFlixTerminal()
-            let cmd = await getJVMCmd(context, launchOptions)
+            let cmd = await getJVMCmd(context, launchOptions, entryPoint)
             cmd.push(...await getFiles())
             cmd.push(...getExtraFlixArgs())
             passCommandToTerminal(cmd, terminal)
@@ -278,12 +282,12 @@ export function runMainNewTerminalWithArgs(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
+        return async function handler (entryPoint) {
             let input = await takeInputFromUser()
             if(input != undefined)
             {
                 let terminal = newFlixTerminal()
-                await passArgs(terminal, input, context, launchOptions)
+                await passArgs(terminal, input, context, launchOptions, entryPoint)
             }
         }
 }

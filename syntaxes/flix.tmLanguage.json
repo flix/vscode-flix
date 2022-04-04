@@ -149,7 +149,7 @@
                 },
                 {
                     "name": "storage.type.modifier.flix",
-                    "match": "\\b(inline|mut|lawless|pub|override|sealed|static|unlawful)\\b"
+                    "match": "\\b(lawful|pub|override|sealed|static)\\b"
                 }
             ]
         },

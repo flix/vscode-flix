@@ -101,7 +101,7 @@
                 },
                 {
                     "name": "keyword.expression.fixpoint.flix",
-                    "match": "\\b(from|into|inject|project|solve|query|where|select)\\b"
+                    "match": "\\b(from|into|inject|solve|query|where|select)\\b"
                 },
                 {
                     "name": "keyword.expression.force.flix",

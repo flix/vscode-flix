@@ -68,6 +68,10 @@
                     "match": "\\b(choose)\\b"
                 },
                 {
+                    "name": "keyword.control.do.flix",
+                    "match": "\\b(do)\\b"
+                },
+                {
                     "name": "keyword.control.if.flix",
                     "match": "\\b(if|else)\\b"
                 },
@@ -78,6 +82,10 @@
                 {
                     "name": "keyword.control.try.flix",
                     "match": "\\b(try|catch)\\b"
+                },
+                {
+                    "name": "keyword.control.resume.flix",
+                    "match": "\\b(resume)\\b"
                 },
                 {
                     "name": "keyword.control.spawn.flix",
@@ -93,7 +101,7 @@
                 },
                 {
                     "name": "keyword.declaration.flix",
-                    "match": "\\b(namespace|def|law|enum|case|type|rel|lat|alias|class|instance|with|opaque|new)\\b"
+                    "match": "\\b(namespace|eff|def|law|enum|case|type|rel|lat|alias|class|instance|with|opaque|new)\\b"
                 },
                 {
                     "name": "keyword.expression.cast.flix",

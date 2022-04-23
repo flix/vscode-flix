@@ -243,19 +243,19 @@
                 },
                 {
                     "name": "storage.type.annotation.flix",
-                    "match": "@Parallel"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
                     "match": "@ParallelWhenPure"
                 },
                 {
                     "name": "storage.type.annotation.flix",
-                    "match": "@Lazy"
+                    "match": "@Parallel"
                 },
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@LazyWhenPure"
+                },
+                {
+                    "name": "storage.type.annotation.flix",
+                    "match": "@Lazy"
                 },
                 {
                     "name": "storage.type.annotation.flix",

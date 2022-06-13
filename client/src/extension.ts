@@ -95,10 +95,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   client = createLanguageClient({ context, outputChannel })
 
   // Start the client. This will also launch the server
-  client.start()
-
-  // Wait for client and server to be ready before registering listeners
-  await client.onReady()
+  await client.start()
 
   // Utility for safely registering commands
   const registeredCommands = await vscode.commands.getCommands(true)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { InitializeParams, InitializeResult, TextDocumentSyncKind } from 'vscode-languageserver'
+import { InitializeParams, InitializeResult, InlayHintParams, ServerRequestHandler, TextDocumentSyncKind } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
@@ -45,6 +45,7 @@ export function handleInitialize (_params: InitializeParams) {
           
       }, 
       hoverProvider: true,
+      inlayHintProvider: true,
       definitionProvider: true,
       referencesProvider: true,
       codeLensProvider: {
@@ -230,6 +231,11 @@ function makeWorkspaceSymbolsJob(params: any) {
  * @function
  */
 export const handleSemanticTokens = makePositionalHandler(jobs.Request.lspSemanticTokens)
+
+export const handleInlayHints = (params: InlayHintParams): Thenable<any> => new Promise((resolve) => {
+  const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspInlayHints, { uri: params.textDocument.uri, range: params.range });
+  socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve));
+});
 
 /**
  * @function

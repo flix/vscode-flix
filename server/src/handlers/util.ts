@@ -32,7 +32,7 @@ export function makeDefaultResponseHandler (promiseResolver: Function) {
 export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Function, uri?: string, position?: any) {
   return function enqueuePromise () {
     return new Promise(function (resolve) {
-      const job = engine.enqueueJobWithPosition(type, { uri, position })
+      const job = engine.enqueueJobWithFlattenedParams(type, { uri, position })
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))
     })
@@ -59,7 +59,7 @@ export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeRe
     }
     return new Promise(function (resolve) {
       const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob(params) : jobOrGetJob
-      const job = engine.enqueueJobWithPosition(request, jobData)
+      const job = engine.enqueueJobWithFlattenedParams(request, jobData)
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))
     })

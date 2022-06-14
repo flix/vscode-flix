@@ -205,10 +205,10 @@ export function remJar (uri: string) {
   queue.enqueue(job)
 }
 
-export function enqueueJobWithPosition (request: jobs.Request, params?: any) {
+export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: any) {
   const job: jobs.Job = {
     request,
-    ...(params || {})
-  }
-  return queue.enqueue(job)
+    ...(params || {}),
+  };
+  return queue.enqueue(job);
 }

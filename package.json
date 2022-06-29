@@ -90,6 +90,10 @@
       {
         "command": "flix.cmdTestWithFilter",
         "title": "Flix Package Manager: test (with filter)"
+      },
+      {
+        "command": "flix.cmdRepl",
+        "title": "Flix Package Manager: repl"
       }
     ],
     "keybindings": [

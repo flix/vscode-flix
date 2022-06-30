@@ -554,5 +554,28 @@ export function cmdTestWithFilter(
                 await handleUnsavedFiles()
                 passCommandToTerminal(cmd, terminal)
             }
-        }
+        } 
+}
+
+/**
+ * runs a repl for the current project using command `java -jar flix.jar repl`
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+ export function cmdRepl(
+  context: vscode.ExtensionContext, 
+  launchOptions: LaunchOptions = defaultLaunchOptions
+  ) {
+      return async function handler () {
+          let cmd = await getJVMCmd(context, launchOptions)
+          cmd.push('repl')
+          let terminal = getTerminal('repl')
+          cmd.push(...getExtraFlixArgs())
+          await handleUnsavedFiles()
+          passCommandToTerminal(cmd, terminal)
+      }
 }

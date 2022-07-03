@@ -56,6 +56,10 @@
         "title": "Flix: Run with args ... (in new terminal)"
       },
       {
+        "command": "flix.cmdRepl",
+        "title": "Flix: Open REPL"
+      },
+      {
         "command": "flix.cmdInit",
         "title": "Flix Package Manager: init"
       },
@@ -90,10 +94,6 @@
       {
         "command": "flix.cmdTestWithFilter",
         "title": "Flix Package Manager: test (with filter)"
-      },
-      {
-        "command": "flix.cmdRepl",
-        "title": "Flix Package Manager: repl"
       }
     ],
     "keybindings": [

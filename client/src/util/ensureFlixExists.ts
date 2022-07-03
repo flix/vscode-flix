@@ -27,7 +27,7 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
   }
 }
 
-export default async function ensureFlixExists ({ globalStoragePath, workspaceFolders, shouldUpdateFlix }) {
+export default async function ensureFlixExists ({ globalStorageUri, workspaceFolders, shouldUpdateFlix }) {
   if (!shouldUpdateFlix) {
     // 1. If `flix.jar` exists in any workspace folder, use that
     for (const folder of workspaceFolders) {
@@ -36,8 +36,8 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
         return filename
       }
     }
-    // 2. If `flix.jar` exists in `globalStoragePath`, use that
-    const filename = path.join(globalStoragePath, FLIX_JAR)
+    // 2. If `flix.jar` exists in `globalStorageUri`, use that
+    const filename = path.join(globalStorageUri, FLIX_JAR)
     if (fs.existsSync(filename)) {
       const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
       const thirtyMinutesInMilliseconds = 1000 * 60 * 30
@@ -76,11 +76,11 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
       return filename
     }
   }
-  // 3. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
-  const filename = path.join(globalStoragePath, FLIX_JAR)
+  // 3. Otherwise download `FLIX_URL` into `globalStorageUri` (create folder if necessary)
+  const filename = path.join(globalStorageUri, FLIX_JAR)
     
-  if (!fs.existsSync(globalStoragePath)) {
-    fs.mkdirSync(globalStoragePath)
+  if (!fs.existsSync(globalStorageUri)) {
+    fs.mkdirSync(globalStorageUri)
   }
 
   await downloadWithRetryDialog(async () => {

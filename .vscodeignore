@@ -6,3 +6,15 @@
 **/tsconfig.base.json
 contributing.md
 .travis.yml
+
+.vscode
+**/node_modules
+test/
+client/
+server/
+tsconfig.json
+webpack.config.js
+*.vsix
+.github/
+scripts/
+java/

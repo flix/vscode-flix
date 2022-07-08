@@ -185,8 +185,15 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     throw new Error('Cannot write to "target" folder.')
   }
 
+  const userConfiguration = getUserConfiguration()
+
   // Wait until we're sure flix exists
-  const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  let flixFilename: string
+  if (userConfiguration.flixFilename) {
+    flixFilename = flixFilename
+  } else {
+    flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  }
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()
@@ -201,7 +208,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     workspaceFiles,
     workspacePkgs,
     workspaceJars,
-    userConfiguration: getUserConfiguration()
+    userConfiguration,
   })
 
   // Handle when server has answered back after getting the notification above

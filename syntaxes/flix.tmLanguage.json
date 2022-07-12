@@ -72,6 +72,10 @@
                     "match": "\\b(do)\\b"
                 },
                 {
+                    "name": "keyword.control.foryield.flix",
+                    "match": "\\b(for|yield)\\b"
+                },
+                {
                     "name": "keyword.control.if.flix",
                     "match": "\\b(if|else)\\b"
                 },

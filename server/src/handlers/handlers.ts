@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { InitializeParams, InitializeResult, InlayHintParams, ServerRequestHandler, TextDocumentSyncKind } from 'vscode-languageserver'
+import { CodeActionParams, InitializeParams, InitializeResult, InlayHintParams, TextDocumentSyncKind } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
@@ -78,7 +78,8 @@ export function handleInitialize (_params: InitializeParams) {
           tokenModifiers: ["declaration"]
         },
         full: true
-      }
+      },
+      codeActionProvider: true
     }
   }
   return result
@@ -236,6 +237,17 @@ export const handleInlayHints = (params: InlayHintParams): Thenable<any> => new 
   const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspInlayHints, { uri: params.textDocument.uri, range: params.range });
   socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve));
 });
+
+export const hanldeCodeAction = (params: CodeActionParams) => {
+  const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspTextDocumentCodeAction, {
+    uri: params.textDocument.uri,
+    range: params.range,
+    context: {
+      diagnostics: [],
+    },
+  });
+};
+
 
 /**
  * @function

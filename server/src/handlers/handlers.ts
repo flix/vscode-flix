@@ -238,7 +238,7 @@ export const handleInlayHints = (params: InlayHintParams): Thenable<any> => new 
   socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve));
 });
 
-export const hanldeCodeAction = (params: CodeActionParams) => {
+export const hanldeCodeAction = (params: CodeActionParams): Thenable<any> => new Promise((resolve) => {
   const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspTextDocumentCodeAction, {
     uri: params.textDocument.uri,
     range: params.range,
@@ -246,7 +246,8 @@ export const hanldeCodeAction = (params: CodeActionParams) => {
       diagnostics: [],
     },
   });
-};
+  socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve));
+});
 
 
 /**

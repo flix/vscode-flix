@@ -170,6 +170,7 @@
     },
     "configurationDefaults": {
       "[flix]": {
+        "editor.tabSize": 4,
         "editor.semanticHighlighting.enabled": true
       }
     }

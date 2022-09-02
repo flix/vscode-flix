@@ -113,9 +113,10 @@ export async function start (input: StartEngineInput) {
   // build the Java args from the user configuration
   // TODO split respecting ""
   const args = []
-  args.push(...startEngineInput.userConfiguration.extraJvmArgs.split(' '))
+  args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
   args.push("-jar", flixFilename, "lsp", `${port}`)
-  args.push(...startEngineInput.userConfiguration.extraFlixArgs.split(' '))
+  args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
+  console.log(args)
 
   const instance = flixInstance = spawn('java', args);
   const webSocketUrl = `ws://localhost:${port}`
@@ -154,6 +155,18 @@ export async function start (input: StartEngineInput) {
   }
 
   instance.stdout.addListener('data', connectToSocket)
+}
+
+/**
+ * Parses the argument string into a list of arguments.
+ */
+function parseArgs(args: string): Array<string> {
+    const trimmed = args.trim()
+    if (trimmed === '') {
+        return []
+    } else {
+        return args.split(' ')
+    }
 }
 
 export function stop () {

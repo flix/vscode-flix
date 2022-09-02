@@ -116,7 +116,6 @@ export async function start (input: StartEngineInput) {
   args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
   args.push("-jar", flixFilename, "lsp", `${port}`)
   args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
-  console.log(args)
 
   const instance = flixInstance = spawn('java', args);
   const webSocketUrl = `ws://localhost:${port}`

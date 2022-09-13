@@ -220,9 +220,9 @@ export function runMain(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
+            await handleUnsavedFiles()
             FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(":r")
-            FLIX_TERMINAL.sendText(entryPoint + "()")
+            FLIX_TERMINAL.sendText(`:eval ${entryPoint}()`)
         }
 }
 

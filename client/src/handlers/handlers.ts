@@ -243,10 +243,10 @@ export function runMainWithArgs(
     ) {
         return async function handler (entryPoint) {
             let input = await takeInputFromUser()
-            if(input != undefined)
-            {
-                let terminal = getFlixTerminal()
-                await passArgs(terminal, input, context, launchOptions, entryPoint)
+            if(input != undefined) {
+                let args = input.split(" ").map(s => `"${s}"`)
+                FLIX_TERMINAL.show()
+                FLIX_TERMINAL.sendText(`:eval ${entryPoint}(${args.join(", ")})`)
             }
         }
 }

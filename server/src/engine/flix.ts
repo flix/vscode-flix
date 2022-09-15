@@ -110,7 +110,14 @@ export async function start (input: StartEngineInput) {
   // get a port starting from 8888
   const port = await getPortPromise({ port: 8888 })
 
-  const instance = flixInstance = spawn('java', ["-jar", flixFilename, "--lsp", `${port}`]);
+  // build the Java args from the user configuration
+  // TODO split respecting ""
+  const args = []
+  args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
+  args.push("-jar", flixFilename, "lsp", `${port}`)
+  args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
+
+  const instance = flixInstance = spawn('java', args);
   const webSocketUrl = `ws://localhost:${port}`
 
   // forward flix to own stdout & stderr
@@ -147,6 +154,18 @@ export async function start (input: StartEngineInput) {
   }
 
   instance.stdout.addListener('data', connectToSocket)
+}
+
+/**
+ * Parses the argument string into a list of arguments.
+ */
+function parseArgs(args: string): Array<string> {
+    const trimmed = args.trim()
+    if (trimmed === '') {
+        return []
+    } else {
+        return args.split(' ')
+    }
 }
 
 export function stop () {

@@ -208,6 +208,9 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
+    
+    // start the Flix runner (but only after the Flix LSP instance has started.)
+    handlers.createSharedRepl(context, launchOptions)
   })
 
   client.onNotification(jobs.Request.internalFinishedJob, function handler () {
@@ -222,6 +225,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
+
 }
 
 export function deactivate (): Thenable<void> | undefined {

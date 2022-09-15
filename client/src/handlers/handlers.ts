@@ -10,6 +10,8 @@ import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTE
 
 const _ = require('lodash/fp')
 
+let FLIX_TERMINAL: vscode.Terminal = undefined
+
 let countTerminals:number = 0
 
 export function makeHandleRunJob (
@@ -19,6 +21,16 @@ export function makeHandleRunJob (
   return function handler () {
     client.sendNotification(request)
   }
+}
+
+/**
+ * Creates a persistent shared repl.
+ */
+export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+    FLIX_TERMINAL = vscode.window.createTerminal("REPL")
+    let cmd = await getJVMCmd(context, launchOptions)
+    cmd.push('repl')
+    FLIX_TERMINAL.sendText(quote(cmd))
 }
 
 /**
@@ -38,7 +50,6 @@ function getFlixTerminal() {
     countTerminals+=1 //creating a new terminal since no active flix terminals available.
     return terminal
 }
-
 
 /**
  * returns an new active terminal with prefix name `flix`.
@@ -192,6 +203,7 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
         return cmd
 }
 
+
 /**
  * Run main without any custom arguments
  * 
@@ -203,17 +215,14 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
  * 
  * @return function handler
 */
-
 export function runMain(
     context: vscode.ExtensionContext, 
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
-            let cmd = await getJVMCmd(context, launchOptions, entryPoint)
-            cmd.push(...await getFiles())
-            let terminal = getFlixTerminal()
-            cmd.push(...getExtraFlixArgs())
-            passCommandToTerminal(cmd, terminal)  
+            await handleUnsavedFiles()
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:eval ${entryPoint}()`)
         }
 }
 
@@ -234,10 +243,10 @@ export function runMainWithArgs(
     ) {
         return async function handler (entryPoint) {
             let input = await takeInputFromUser()
-            if(input != undefined)
-            {
-                let terminal = getFlixTerminal()
-                await passArgs(terminal, input, context, launchOptions, entryPoint)
+            if(input != undefined) {
+                let args = input.split(" ").map(s => `"${s}"`)
+                FLIX_TERMINAL.show()
+                FLIX_TERMINAL.sendText(`:eval ${entryPoint}(${args.join(", ")})`)
             }
         }
 }

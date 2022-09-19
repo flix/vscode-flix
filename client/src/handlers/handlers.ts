@@ -27,7 +27,15 @@ export function makeHandleRunJob (
  * Creates a persistent shared repl.
  */
 export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-    FLIX_TERMINAL = vscode.window.createTerminal("REPL")
+    const activeTerminals = vscode.window.terminals
+    for (const element of activeTerminals) {
+        if(element.name.substring(0, 4) == `REPL`) {
+            FLIX_TERMINAL = element
+        }
+    }
+    if (FLIX_TERMINAL === undefined) {
+        FLIX_TERMINAL = vscode.window.createTerminal("REPL")
+    }
     let cmd = await getJVMCmd(context, launchOptions)
     cmd.push('repl')
     FLIX_TERMINAL.sendText(quote(cmd))

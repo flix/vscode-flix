@@ -18,15 +18,7 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:flix",
-    "onCommand:flix.cmdInit",
-    "onCommand:flix.cmdCheck",
-    "onCommand:flix.cmdBuild",
-    "onCommand:flix.cmdBuildJar",
-    "onCommand:flix.cmdBuildPkg",
-    "onCommand:flix.cmdRunProject",
-    "onCommand:flix.cmdBenchmark",
-    "onCommand:flix.cmdTests"
+    "onLanguage:flix"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -40,82 +32,36 @@
         "title": "Flix: Download Latest Version"
       },
       {
-        "command": "flix.runMain",
-        "title": "Flix: Run"
-      },
-      {
-        "command": "flix.runMainWithArgs",
-        "title": "Flix: Run with args ..."
-      },
-      {
-        "command": "flix.runMainNewTerminal",
-        "title": "Flix: Run (in new terminal) "
-      },
-      {
-        "command": "flix.runMainNewTerminalWithArgs",
-        "title": "Flix: Run with args ... (in new terminal)"
-      },
-      {
-        "command": "flix.cmdRepl",
-        "title": "Flix: Open REPL"
-      },
-      {
         "command": "flix.cmdInit",
-        "title": "Flix Package Manager: init"
+        "title": "Flix: init"
       },
       {
         "command": "flix.cmdCheck",
-        "title": "Flix Package Manager: check"
+        "title": "Flix: check"
       },
       {
         "command": "flix.cmdBuild",
-        "title": "Flix Package Manager: build"
+        "title": "Flix: build"
       },
       {
         "command": "flix.cmdBuildJar",
-        "title": "Flix Package Manager: build-jar"
+        "title": "Flix: build-jar"
       },
       {
         "command": "flix.cmdBuildPkg",
-        "title": "Flix Package Manager: build-pkg"
+        "title": "Flix: build-pkg"
       },
       {
         "command": "flix.cmdRunProject",
-        "title": "Flix Package Manager: run"
+        "title": "Flix: run"
       },
       {
         "command": "flix.cmdBenchmark",
-        "title": "Flix Package Manager: benchmark"
+        "title": "Flix: benchmark"
       },
       {
         "command": "flix.cmdTests",
-        "title": "Flix Package Manager: test"
-      },
-      {
-        "command": "flix.cmdTestWithFilter",
-        "title": "Flix Package Manager: test (with filter)"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "flix.runMain",
-        "key": "ctrl+alt+f5",
-        "mac": "ctrl+cmd+f5"
-      },
-      {
-        "command": "flix.cmdTests",
-        "key": "ctrl+alt+f6",
-        "mac": "ctrl+cmd+f6"
-      },
-      {
-        "command": "flix.cmdCheck",
-        "key": "ctrl+alt+f9",
-        "mac": "ctrl+cmd+f9"
-      },
-      {
-        "command": "flix.cmdBuild",
-        "key": "ctrl+alt+f10",
-        "mac": "ctrl+cmd+f10"
+        "title": "Flix: test"
       }
     ],
     "languages": [

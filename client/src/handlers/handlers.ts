@@ -371,12 +371,9 @@ function getTerminal(name: string) {
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('init')
-            let terminal = getTerminal('init')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:init`)
         }
 }
 
@@ -395,12 +392,9 @@ export function cmdCheck(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('check')
-            let terminal = getTerminal('check')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:check`)
         }
 }
 
@@ -418,12 +412,9 @@ export function cmdBuild(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('build')
-            let terminal = getTerminal('build')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:build`)
         }
 }
 
@@ -441,12 +432,9 @@ export function cmdBuildJar(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('build-jar')
-            let terminal = getTerminal('build-jar')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:jar`)
         }
 }
 
@@ -464,12 +452,9 @@ export function cmdBuildPkg(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('build-pkg')
-            let terminal = getTerminal('build-pkg')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:pkg`)
         }
 }
 
@@ -487,12 +472,9 @@ export function cmdRunProject(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('run')
-            let terminal = getTerminal('run')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:eval main()`)
         }
 }
 
@@ -510,12 +492,9 @@ export function cmdBenchmark(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('benchmark')
-            let terminal = getTerminal('benchmark')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:bench`)
         }
 }
 
@@ -533,66 +512,8 @@ export function cmdTests(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('test')
-            let terminal = getTerminal('test')
-            cmd.push(...getExtraFlixArgs())
             await handleUnsavedFiles()
-            passCommandToTerminal(cmd, terminal)
+            FLIX_TERMINAL.show()
+            FLIX_TERMINAL.sendText(`:test`)
         }
-}
-
-/**
- * runs the custom tests for the current project using command `java -jar flix.jar test <test01> <test02> ...`
- * 
- * @param context vscode.ExtensionContext
- * 
- * @param launchOptions LaunchOptions
- * 
- * @returns function handler
- */
-export function cmdTestWithFilter(
-    context: vscode.ExtensionContext, 
-    launchOptions: LaunchOptions = defaultLaunchOptions
-    ) {
-        return async function handler () {
-            let cmd = await getJVMCmd(context, launchOptions)
-            cmd.push('test')
-            const input = await vscode.window.showInputBox({
-                prompt: "Enter names of test functions separated by spaces",
-                placeHolder: "test01 test02 ...",
-                ignoreFocusOut: true
-            })
-            if(input != undefined)
-            {
-                cmd.push(input)
-                let terminal = getTerminal('testWithFilter')
-                cmd.push(...getExtraFlixArgs())
-                await handleUnsavedFiles()
-                passCommandToTerminal(cmd, terminal)
-            }
-        } 
-}
-
-/**
- * runs a repl for the current project using command `java -jar flix.jar repl`
- * 
- * @param context vscode.ExtensionContext
- * 
- * @param launchOptions LaunchOptions
- * 
- * @returns function handler
- */
- export function cmdRepl(
-  context: vscode.ExtensionContext, 
-  launchOptions: LaunchOptions = defaultLaunchOptions
-  ) {
-      return async function handler () {
-          let cmd = await getJVMCmd(context, launchOptions)
-          cmd.push('repl')
-          let terminal = getTerminal('repl')
-          cmd.push(...getExtraFlixArgs())
-          await handleUnsavedFiles()
-          passCommandToTerminal(cmd, terminal)
-      }
 }

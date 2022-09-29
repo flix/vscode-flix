@@ -3,7 +3,6 @@ import { LanguageClient } from 'vscode-languageclient/node'
 
 import * as jobs from './engine/jobs'
 
-import ensureTargetWritable from './util/ensureTargetWritable'
 import ensureFlixExists from './util/ensureFlixExists'
 import createLanguageClient from './util/createLanguageClient'
 import showStartupProgress from './util/showStartupProgress'
@@ -179,11 +178,6 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
   const workspaceJars: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
-
-  // Make sure we can write to `./target`
-  if (!ensureTargetWritable(_.first(workspaceFolders))) {
-    throw new Error('Cannot write to "target" folder.')
-  }
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })

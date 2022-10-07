@@ -68,6 +68,10 @@
                     "match": "\\b(choose)\\b"
                 },
                 {
+                    "name": "keyword.control.debug.flix",
+                    "match": "\\b(debug)\\b"
+                },
+                {
                     "name": "keyword.control.do.flix",
                     "match": "\\b(do)\\b"
                 },

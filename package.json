@@ -111,6 +111,11 @@
           "type": "string",
           "default": "",
           "description": "Additional Flix compiler options separated by spaces"
+        },
+        "flix.customCompilerPath": {
+            "type":"string",
+            "default":"",
+            "description": "Custom Flix Compiler path for `flix.jar`"
         }
       }
     },

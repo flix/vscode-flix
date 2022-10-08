@@ -29,14 +29,22 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
 
 export default async function ensureFlixExists ({ globalStoragePath, workspaceFolders, shouldUpdateFlix }) {
   if (!shouldUpdateFlix) {
-    // 1. If `flix.jar` exists in any workspace folder, use that
+
+    //1. If custom Path provided for `flix.jar`, use that
+    const customCompilerPath:string = vscode.workspace.getConfiguration('flix').get('customCompilerPath')
+    if(customCompilerPath.length != 0) {
+        if (fs.existsSync(customCompilerPath)) {
+            return customCompilerPath
+        }
+    }
+    // 2. If `flix.jar` exists in any workspace folder, use that
     for (const folder of workspaceFolders) {
       const filename = path.join(folder, FLIX_JAR)
       if (fs.existsSync(filename)) {
         return filename
       }
     }
-    // 2. If `flix.jar` exists in `globalStoragePath`, use that
+    // 3. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)
     if (fs.existsSync(filename)) {
       const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
@@ -76,7 +84,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
       return filename
     }
   }
-  // 3. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
+  // 4. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
   const filename = path.join(globalStoragePath, FLIX_JAR)
     
   if (!fs.existsSync(globalStoragePath)) {

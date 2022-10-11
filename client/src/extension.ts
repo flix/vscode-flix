@@ -112,7 +112,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   //registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   //registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
   
-  registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
+  //registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
   registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
   registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
   registerCommand('flix.cmdBuildJar', handlers.cmdBuildJar(context, launchOptions))

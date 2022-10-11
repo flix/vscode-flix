@@ -32,10 +32,6 @@
         "title": "Flix: Download Latest Version"
       },
       {
-        "command": "flix.cmdInit",
-        "title": "Flix: init"
-      },
-      {
         "command": "flix.cmdCheck",
         "title": "Flix: check"
       },

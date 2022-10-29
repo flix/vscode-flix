@@ -89,7 +89,7 @@
                 },
                 {
                     "name": "keyword.control.match.flix",
-                    "match": "\\b(case|match)\\b"
+                    "match": "\\b(case|match|typematch)\\b"
                 },
                 {
                     "name": "keyword.control.try.flix",

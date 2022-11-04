@@ -18,7 +18,7 @@ on the real Flix compiler infrastructure.
 ## Features
 
 * __Syntax Highlighting__
-  - Code highlighting for *.flix files.
+  - Code highlighting for *.flix files. This work best with the [official vscode theme](https://marketplace.visualstudio.com/items?itemName=flix.flixify-dark).
 
 * __Diagnostics__
   - Compiler error messages. 

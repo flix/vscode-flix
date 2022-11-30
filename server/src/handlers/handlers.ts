@@ -42,7 +42,7 @@ export function handleInitialize (_params: InitializeParams) {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentHighlightProvider: true,
       completionProvider: {
-        triggerCharacters: [".", "/"]
+        triggerCharacters: [".", "/", "?"]
       }, 
       hoverProvider: true,
       inlayHintProvider: true,

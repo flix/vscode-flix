@@ -121,7 +121,7 @@
                 },
                 {
                     "name": "keyword.expression.cast.flix",
-                    "match": "\\b(as)\\b"
+                    "match": "\\b(cast|upcast|supercast|as)\\b"
                 },
                 {
                     "name": "keyword.expression.discard.flix",

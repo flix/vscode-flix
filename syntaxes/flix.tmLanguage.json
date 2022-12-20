@@ -117,7 +117,7 @@
                 },
                 {
                     "name": "keyword.declaration.flix",
-                    "match": "\\b(namespace|eff|def|law|enum|case|type|rel|lat|alias|class|instance|with|without|opaque|new)\\b"
+                    "match": "\\b(eff|def|law|enum|case|type|rel|lat|alias|class|instance|with|without|opaque|mod|new)\\b"
                 },
                 {
                     "name": "keyword.expression.cast.flix",

@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.2.8",
     "vscode-languageclient": "^8.0.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.179",
-    "@types/vscode": "^1.68.0",
+    "@types/lodash": "^4.14.191",
+    "@types/vscode": "^1.74.0",
     "vscode-test": "^1.6.1"
   }
 }

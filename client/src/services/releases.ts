@@ -14,7 +14,7 @@ import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
 import * as _ from 'lodash'
 
-const fetch = require('node-fetch') as typeof import('node-fetch')['default']
+const fetch = import('node-fetch')['default']
 
 const pipeline = util.promisify(stream.pipeline)
 

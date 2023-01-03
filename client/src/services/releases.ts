@@ -13,8 +13,7 @@ import * as util from 'util'
 import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
 import * as _ from 'lodash'
-
-const fetch = import('node-fetch')['default']
+const fetch = require('node-fetch-commonjs')
 
 const pipeline = util.promisify(stream.pipeline)
 

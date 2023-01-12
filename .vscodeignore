@@ -6,3 +6,7 @@
 **/tsconfig.base.json
 contributing.md
 .travis.yml
+node_modules
+server
+client
+!client/out/extension.js

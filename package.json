@@ -20,7 +20,7 @@
   "activationEvents": [
     "onLanguage:flix"
   ],
-  "main": "./client/out/extension",
+  "main": "./dist/client/src/extension",
   "contributes": {
     "commands": [
       {
@@ -118,10 +118,8 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run build --minify",
-    "build": "esbuild ./client/src/extension.ts --bundle --outfile=client/out/extension.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run build --sourcemap",
-    "esbuild-watch": "npm run build --sourcemap --watch",
+    "vscode:prepublish": "npm run build",
+    "build": "node build.js",
     "watch": "tsc -b -w",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "test": "sh ./scripts/e2e.sh"

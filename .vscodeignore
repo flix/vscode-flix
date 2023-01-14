@@ -9,3 +9,5 @@ contributing.md
 node_modules
 server
 client
+!server/out/server.js
+!client/out/extension.js

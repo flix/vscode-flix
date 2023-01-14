@@ -1,12 +1,17 @@
 const { build } = require("esbuild");
-const sharedConfig = {
-  entryPoints: ["client/src/extension.ts", "server/src/server.ts"],
-  bundle: true,
-  minify: true,
-};
 build({
-  ...sharedConfig,
-  platform: 'node', // for CJS
-  outdir: "dist",
-  external: ["vscode"],
+    entryPoints: ["client/src/extension.ts"],
+    bundle: true,
+    minify: true,
+    platform: 'node',
+    outfile: "client/out/extension.js",
+    external: ["vscode"],
 });
+build({
+    entryPoints: ["server/src/server.ts"],
+    bundle: true,
+    minify: true,
+    platform: 'node',
+    outfile: "server/out/server.js",
+    external: ["vscode"],
+  });

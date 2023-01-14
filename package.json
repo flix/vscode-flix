@@ -20,7 +20,7 @@
   "activationEvents": [
     "onLanguage:flix"
   ],
-  "main": "./dist/client/src/extension",
+  "main": "./client/out/extension.js",
   "contributes": {
     "commands": [
       {

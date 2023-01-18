@@ -173,7 +173,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   // show default output channel without changing focus
   outputChannel.show(true)
 
-  const globalStoragePath = context.globalStoragePath
+  const globalStoragePath = context.globalStorageUri.fsPath;
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
   const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
   const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
@@ -191,7 +191,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     workspaceFolders,
     extensionPath: extensionObject.extensionPath || context.extensionPath,
     extensionVersion: extensionObject.packageJSON.version,
-    globalStoragePath: context.globalStoragePath,
+    globalStoragePath,
     workspaceFiles,
     workspacePkgs,
     workspaceJars,

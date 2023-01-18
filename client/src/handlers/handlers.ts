@@ -182,7 +182,7 @@ async function passArgs (
  * @returns string (path of `flix.jar`)
  */
 async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: LaunchOptions) {
-    const globalStoragePath = context.globalStoragePath
+    const globalStoragePath = context.globalStorageUri.fsPath;
     const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
     return await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
 }

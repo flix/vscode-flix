@@ -101,7 +101,7 @@
         "flix.explain.enabled": {
             "type": "boolean",
             "default": false,
-            "description": "Include suggestions on how to solve errors"
+            "description": "Enable detailed compiler error messages"
         },
         "flix.extraJvmArgs": {
           "type": "string",

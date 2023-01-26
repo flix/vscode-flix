@@ -98,6 +98,11 @@
           "default": true,
           "description": "Run the compiler on every change"
         },
+        "flix.explain.enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include suggestions on how to solve errors"
+        },
         "flix.extraJvmArgs": {
           "type": "string",
           "default": "",

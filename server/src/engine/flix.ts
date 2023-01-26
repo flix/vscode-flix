@@ -34,9 +34,14 @@ export interface CompileOnChange {
   delay: number
 }
 
+export interface Explain {
+    enabled: boolean;
+}
+
 export interface UserConfiguration {
   compileOnSave: CompileOnSave,
   compileOnChange: CompileOnChange,
+  explain: Explain,
   extraJvmArgs: string,
   extraFlixArgs: string
 }
@@ -116,6 +121,9 @@ export async function start (input: StartEngineInput) {
   args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
   args.push("-jar", flixFilename, "lsp", `${port}`)
   args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
+  if (startEngineInput?.userConfiguration.explain.enabled ?? false) {
+    args.push("--explain")
+  }
 
   const instance = flixInstance = spawn('java', args);
   const webSocketUrl = `ws://localhost:${port}`

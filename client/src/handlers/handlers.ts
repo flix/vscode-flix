@@ -38,6 +38,9 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
     }
     let cmd = await getJVMCmd(context, launchOptions)
     cmd.push('repl')
+    if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
+        cmd.push("--explain")
+    }
     FLIX_TERMINAL.sendText(quote(cmd))
 }
 

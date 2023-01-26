@@ -92,7 +92,7 @@ export function compileOnChangeDelay () {
 
 export async function start (input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
-    stop()
+    await stop()
   }
 
   // copy input to local var for later use
@@ -142,6 +142,7 @@ export async function start (input: StartEngineInput) {
           ];
           queue.initialiseQueues(Jobs)
           handleVersion()
+          sendNotification(jobs.Request.internalFinishedJob)
         },
         onClose: function handleClose () {
           flixRunning = false
@@ -168,9 +169,9 @@ function parseArgs(args: string): Array<string> {
     }
 }
 
-export function stop () {
+export async function stop () {
   queue.terminateQueue()
-  socket.closeSocket()
+  await socket.closeSocket()
   if (flixInstance) {
     flixInstance.kill()
   }

@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.90.0",
+  "version": "0.91.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -99,9 +99,9 @@
           "description": "Run the compiler on every change"
         },
         "flix.explain.enabled": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable detailed compiler error messages"
+          "type": "boolean",
+          "default": false,
+          "description": "Enable detailed compiler error messages"
         },
         "flix.extraJvmArgs": {
           "type": "string",

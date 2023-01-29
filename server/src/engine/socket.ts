@@ -77,6 +77,7 @@ export function isClosed () {
 }
 
 let lastAutomaticRestartTimestamp: number = 0
+let lastManualStopTimestamp: number = 0
 
 export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
   if (!uri) {
@@ -90,9 +91,9 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   })
   
   webSocket.on('close', (isException: boolean) => {
-    if (isException) {
+    const currentTimestamp = Date.now()
+    if (isException && lastManualStopTimestamp + 15000 < currentTimestamp) {
       // this happens when connection is lost due to standby or similar
-      const currentTimestamp = Date.now()
       if (lastAutomaticRestartTimestamp + 15000 < currentTimestamp) {
         lastAutomaticRestartTimestamp = currentTimestamp;
         sendNotification(jobs.Request.internalRestart)
@@ -126,6 +127,7 @@ export async function closeSocket () {
   let retries = 0
   if (webSocket) {
     clearAllTimers()
+    lastManualStopTimestamp = Date.now()
     webSocket.close()
 
     while (retries++ < 50) {

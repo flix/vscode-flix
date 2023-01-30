@@ -61,6 +61,7 @@ export interface StartEngineInput {
 let flixInstance: ChildProcess | undefined = undefined;
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
+let lastReconnect: number = 0;
 
 export function isRunning () {
   return flixRunning
@@ -154,6 +155,10 @@ export async function start (input: StartEngineInput) {
         },
         onClose: function handleClose () {
           flixRunning = false
+          if (lastReconnect + 15000 < Date.now()) {
+            lastReconnect = Date.now();
+            reconnect(input, instance);
+          }
         }
       })
 
@@ -164,6 +169,78 @@ export async function start (input: StartEngineInput) {
 
   instance.stdout.addListener('data', connectToSocket)
 }
+
+export function ManualStopped() {
+    lastReconnect = Date.now();
+}
+
+export async function reconnect (input: StartEngineInput, flixInstance: ChildProcess | undefined) {
+    if (flixInstance || socket.isOpen()) {
+      await stop()
+    }
+
+    // copy input to local var for later use
+    startEngineInput = _.clone(input)
+  
+    const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
+  
+    // get a port starting from 8888
+    const port = await getPortPromise({ port: 8888 })
+  
+    // build the Java args from the user configuration
+    // TODO split respecting ""
+    const args = []
+    args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
+    args.push("-jar", flixFilename, "lsp", `${port}`)
+    args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
+    if (startEngineInput?.userConfiguration.explain.enabled ?? false) {
+      args.push("--explain")
+    }
+  
+    const instance = flixInstance;
+    const webSocketUrl = `ws://localhost:${port}`
+  
+    // forward flix to own stdout & stderr
+    instance!.stdout?.pipe(process.stdout)
+    instance!.stderr?.pipe(process.stderr)
+  
+    const connectToSocket = (data: any) => {
+      console.log("connecting")
+      const str = data.toString().split(/(\r?\n)/g).join('')
+      if (str.includes(`:${port}`)) {
+        // initialise websocket, listening to messages and what not
+        socket.initialiseSocket({
+          uri: webSocketUrl,
+          onOpen: function handleOpen () {
+            flixRunning = true
+            const addUriJobs = _.map(workspaceFiles, uri => ({ uri, request: jobs.Request.apiAddUri }));
+            const addPkgJobs = _.map(workspacePkgs, uri => ({ uri, request: jobs.Request.apiAddPkg }));
+            const addJarJobs = _.map(workspaceJars, uri => ({ uri, request: jobs.Request.apiAddJar }));
+            const Jobs: jobs.Job[] = [
+              ...addUriJobs,
+              ...addPkgJobs,
+              ...addJarJobs,
+            ];
+            queue.initialiseQueues(Jobs)
+            handleVersion()
+            sendNotification(jobs.Request.internalFinishedJob)
+          },
+          onClose: function handleClose () {
+            console.log("closed")
+            flixRunning = false
+            if (lastReconnect + 15000 > Date.now()) {
+                reconnect(input, instance);
+            }
+          }
+        })
+  
+        // now that the connection is established, there's no reason to listen for new messages
+        instance!.stdout?.removeListener('data', connectToSocket)
+      }
+    }
+  
+    instance!.stdout?.addListener('data', connectToSocket)
+  }
 
 /**
  * Parses the argument string into a list of arguments.

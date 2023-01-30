@@ -19,6 +19,7 @@ import * as queue from './queue'
 import { sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { lspCheckResponseHandler } from '../handlers'
+import { ManualStopped } from './flix'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -90,16 +91,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     onOpen && setTimeout(onOpen!, 0)
   })
   
-  webSocket.on('close', (isException: boolean) => {
-    const currentTimestamp = Date.now()
-    if (isException && lastManualStopTimestamp + 15000 < currentTimestamp) {
-      // this happens when connection is lost due to standby or similar
-      if (lastAutomaticRestartTimestamp + 15000 < currentTimestamp) {
-        lastAutomaticRestartTimestamp = currentTimestamp;
-        sendNotification(jobs.Request.internalRestart)
-      }
-      return
-    }
+  webSocket.on('close', () => {
     webSocketOpen = false
     onClose && setTimeout(onClose!, 0)
   })
@@ -127,7 +119,7 @@ export async function closeSocket () {
   let retries = 0
   if (webSocket) {
     clearAllTimers()
-    lastManualStopTimestamp = Date.now()
+    ManualStopped();
     webSocket.close()
 
     while (retries++ < 50) {

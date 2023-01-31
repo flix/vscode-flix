@@ -92,8 +92,13 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   webSocket.on('close', () => {
     if (lastManualStopTimestamp + 15000 < Date.now()) {
         // This happends when the connections breaks unintentionally
-        console.log("Connection to the flix server was lost, reconnecting...")
-        initialiseSocket({uri, onOpen, onClose})
+        console.log("Connection to the flix server was lost, trying to reconnect...")
+        tryToConnect({ uri, onOpen, onClose }, 5).then((connected) => {
+            if (!connected) {
+                console.log("Failed to connect to the flix server, restarting the compiler...")
+                sendNotification(jobs.Request.internalRestart)
+            }
+        })
         return
     } 
     webSocketOpen = false
@@ -106,6 +111,18 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 
     handleResponse(flixResponse, job)
   })
+}
+
+async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
+    let retries = times;
+    while(retries-- > 0) {
+        initialiseSocket({uri, onOpen, onClose})
+        await sleep(1000)
+        if (webSocketOpen) {
+            return true
+        }
+    }
+    return false
 }
 
 function clearTimer (id: string) {

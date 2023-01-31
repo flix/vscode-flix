@@ -19,7 +19,6 @@ import * as queue from './queue'
 import { sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { lspCheckResponseHandler } from '../handlers'
-import { ManualStopped } from './flix'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -77,7 +76,6 @@ export function isClosed () {
   return !isOpen()
 }
 
-let lastAutomaticRestartTimestamp: number = 0
 let lastManualStopTimestamp: number = 0
 
 export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
@@ -92,6 +90,11 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   })
   
   webSocket.on('close', () => {
+    if (lastManualStopTimestamp + 15000 < Date.now()) {
+        console.log("Connect to the flix server was lost, reconnecting...")
+        initialiseSocket({uri, onOpen, onClose})
+        return
+    } 
     webSocketOpen = false
     onClose && setTimeout(onClose!, 0)
   })
@@ -119,7 +122,7 @@ export async function closeSocket () {
   let retries = 0
   if (webSocket) {
     clearAllTimers()
-    ManualStopped();
+    lastManualStopTimestamp = Date.now();
     webSocket.close()
 
     while (retries++ < 50) {

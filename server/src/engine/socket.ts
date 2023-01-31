@@ -76,7 +76,6 @@ export function isClosed () {
   return !isOpen()
 }
 
-let lastAutomaticRestartTimestamp: number = 0
 let lastManualStopTimestamp: number = 0
 
 export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
@@ -90,17 +89,19 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     onOpen && setTimeout(onOpen!, 0)
   })
   
-  webSocket.on('close', (isException: boolean) => {
-    const currentTimestamp = Date.now()
-    if (isException && lastManualStopTimestamp + 15000 < currentTimestamp) {
-      // this happens when connection is lost due to standby or similar
-      if (lastAutomaticRestartTimestamp + 15000 < currentTimestamp) {
-        lastAutomaticRestartTimestamp = currentTimestamp;
-        sendNotification(jobs.Request.internalRestart)
-      }
-      return
-    }
+  webSocket.on('close', () => {
     webSocketOpen = false
+    if (lastManualStopTimestamp + 15000 < Date.now()) {
+        // This happends when the connections breaks unintentionally
+        console.log("Connection to the flix server was lost, trying to reconnect...")
+        tryToConnect({ uri, onOpen, onClose }, 5).then((connected) => {
+            if (!connected) {
+                console.log("Failed to connect to the flix server, restarting the compiler...")
+                sendNotification(jobs.Request.internalRestart)
+            }
+        })
+        return
+    } 
     onClose && setTimeout(onClose!, 0)
   })
 
@@ -110,6 +111,18 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 
     handleResponse(flixResponse, job)
   })
+}
+
+async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
+    let retries = times;
+    while(retries-- > 0) {
+        initialiseSocket({uri, onOpen, onClose})
+        await sleep(1000)
+        if (webSocketOpen) {
+            return true
+        }
+    }
+    return false
 }
 
 function clearTimer (id: string) {

@@ -91,7 +91,8 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   
   webSocket.on('close', () => {
     if (lastManualStopTimestamp + 15000 < Date.now()) {
-        console.log("Connect to the flix server was lost, reconnecting...")
+        // This happends when the connections breaks unintentionally
+        console.log("Connection to the flix server was lost, reconnecting...")
         initialiseSocket({uri, onOpen, onClose})
         return
     } 
@@ -122,7 +123,7 @@ export async function closeSocket () {
   let retries = 0
   if (webSocket) {
     clearAllTimers()
-    lastManualStopTimestamp = Date.now();
+    lastManualStopTimestamp = Date.now()
     webSocket.close()
 
     while (retries++ < 50) {

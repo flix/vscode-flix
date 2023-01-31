@@ -61,7 +61,6 @@ export interface StartEngineInput {
 let flixInstance: ChildProcess | undefined = undefined;
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
-let lastReconnect: number = 0;
 
 export function isRunning () {
   return flixRunning

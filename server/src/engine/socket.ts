@@ -19,6 +19,7 @@ import * as queue from './queue'
 import { sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { lspCheckResponseHandler } from '../handlers'
+import { getPort } from 'portfinder';
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -114,6 +115,14 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 }
 
 async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
+    const uriPort = _.toInteger(uri.slice(-4));
+    getPort({port: uriPort},(err, freePort)=> {
+        if (uriPort == freePort) {
+            // This happens if the previously used port is now free
+            sendNotification(jobs.Request.internalRestart)
+            return
+        }
+    })
     let retries = times;
     while(retries-- > 0) {
         initialiseSocket({uri, onOpen, onClose})

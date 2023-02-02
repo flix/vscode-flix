@@ -17,6 +17,7 @@
 import { handleVersion } from '../handlers'
 import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
+import javaHome from '../util/javaHome'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder';
 import * as _ from "lodash";
@@ -104,6 +105,13 @@ export async function start (input: StartEngineInput) {
   startEngineInput = _.clone(input)
 
   const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
+
+  // Check that JAVA_HOME is set
+  const javaHomePath = await javaHome(extensionPath)
+  if (javaHomePath == "") {
+    sendNotification(jobs.Request.internalError, 'No JAVA_HOME environment variable was found')
+    return
+  }
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)

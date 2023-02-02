@@ -2,9 +2,9 @@ const path = require('path')
 const ChildProcess = require('child_process')
 const _ = require('lodash/fp')
 
-const noJavaHomePath: String = ""
+const noJavaHomePath: string = ""
 
-export default async function javaMajorVersion (rootPath: string): Promise<String> {
+export default async function javaMajorVersion (rootPath: string): Promise<string> {
   return new Promise((resolve) => {
     ChildProcess.exec('java -cp . CheckJAVA_HOME', { cwd: path.join(rootPath, 'java') }, (error: any, stdout: any, stderror: any) => {
       if (error) {

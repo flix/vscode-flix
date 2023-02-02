@@ -4,3 +4,4 @@ public class CheckJAVA_HOME {
         System.out.println(javaHome);
     }
  }
+ 

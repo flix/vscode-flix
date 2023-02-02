@@ -21,6 +21,7 @@ import javaHome from '../util/javaHome'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder';
 import * as _ from "lodash";
+import { access, constants } from 'fs';
 
 import * as jobs from './jobs'
 import * as queue from './queue'
@@ -112,6 +113,16 @@ export async function start (input: StartEngineInput) {
     sendNotification(jobs.Request.internalError, 'No JAVA_HOME environment variable was found')
     return
   }
+
+  // Check that JAVA_HOME points to a readable dir
+  const normalizedJavaHomeDir = javaHomePath.replace(/\r/g, "").split("\n")[0]
+  access(normalizedJavaHomeDir, constants.R_OK, (err) => {
+    if (err) {
+        // This happends if we do not have read rights to the JAVA_HOME folder (or if it doesn't exist)
+        sendNotification(jobs.Request.internalError, 'The JAVA_HOME variable points to a non-readable directory')
+        return
+    } 
+   })
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)

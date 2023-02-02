@@ -12,6 +12,7 @@
     "url": "https://github.com/flix/vscode-flix"
   },
   "dependencies": {
+    "fs": "^0.0.1-security",
     "lodash": "^4.17.21",
     "portfinder": "^1.0.32",
     "vscode-languageserver": "^8.0.2",

@@ -162,7 +162,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   tomlWatcher = vscode.workspace.createFileSystemWatcher('**/flix.toml')
   tomlWatcher.onDidChange(() => {
     const doReload = vscode.window.showInformationMessage(
-        "Do you want to reload the flix extention after changing flix.toml?", "Reload", "No")
+        "Do you want to reload the flix extension after changing flix.toml?", "Reload", "No")
     doReload.then((res) => {
         if (res == "Reload") {
             makeHandleRestartClient(context, launchOptions)()

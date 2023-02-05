@@ -30,6 +30,8 @@ let flixWatcher: vscode.FileSystemWatcher
 
 let pkgWatcher: vscode.FileSystemWatcher
 
+let tomlWatcher: vscode.FileSystemWatcher
+
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
@@ -156,6 +158,18 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.apiAddJar, { uri })
   })
 
+  // watch for changes to the flix.toml file
+  tomlWatcher = vscode.workspace.createFileSystemWatcher('**/flix.toml')
+  tomlWatcher.onDidChange(() => {
+    const doReload = vscode.window.showInformationMessage(
+        "Do you wan't to reload the flix extention after changing flix.toml?", "Reload", "No")
+    doReload.then((res) => {
+        if (res == "Reload") {
+            makeHandleRestartClient(context, launchOptions)()
+        }
+    });
+  })
+
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })
@@ -225,6 +239,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 export function deactivate (): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
   pkgWatcher && pkgWatcher.dispose()
+  tomlWatcher && tomlWatcher.dispose()
   outputChannel && outputChannel.dispose()
   return client ? client.stop() : undefined
 }

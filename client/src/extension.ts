@@ -38,6 +38,7 @@ export const FLIX_GLOB_PATTERN = '**/*.flix'
 
 export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
 export const JAR_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.jar')
+export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'flix.toml')
 
 let outputChannel: vscode.OutputChannel
 
@@ -159,7 +160,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   })
 
   // watch for changes to the flix.toml file
-  tomlWatcher = vscode.workspace.createFileSystemWatcher('**/flix.toml')
+  tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
   tomlWatcher.onDidChange(() => {
     const doReload = vscode.window.showInformationMessage(
         "The flix.toml file has changed. Do you want to restart the compiler?", "Yes", "No")

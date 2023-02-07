@@ -30,12 +30,15 @@ let flixWatcher: vscode.FileSystemWatcher
 
 let pkgWatcher: vscode.FileSystemWatcher
 
+let tomlWatcher: vscode.FileSystemWatcher
+
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
 export const FLIX_GLOB_PATTERN = '**/*.flix'
 
 export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
 export const JAR_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.jar')
+export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'flix.toml')
 
 let outputChannel: vscode.OutputChannel
 
@@ -156,6 +159,18 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     client.sendNotification(jobs.Request.apiAddJar, { uri })
   })
 
+  // watch for changes to the flix.toml file
+  tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
+  tomlWatcher.onDidChange(() => {
+    const doReload = vscode.window.showInformationMessage(
+        "The flix.toml file has changed. Do you want to restart the compiler?", "Yes", "No")
+    doReload.then((res) => {
+        if (res == "Yes") {
+            makeHandleRestartClient(context, launchOptions)()
+        }
+    });
+  })
+
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })
@@ -225,6 +240,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 export function deactivate (): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
   pkgWatcher && pkgWatcher.dispose()
+  tomlWatcher && tomlWatcher.dispose()
   outputChannel && outputChannel.dispose()
   return client ? client.stop() : undefined
 }

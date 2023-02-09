@@ -19,12 +19,12 @@ const ChildProcess = require('child_process')
 const _ = require('lodash/fp')
 
 interface JavaVersion {
-  majorVersion: number
+  majorVersion: number | undefined
   versionString: string | undefined
 }
 
 const unknownJavaVersion: JavaVersion = {
-  majorVersion: 0,
+  majorVersion: undefined,
   versionString: undefined
 }
 

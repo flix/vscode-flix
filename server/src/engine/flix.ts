@@ -107,14 +107,14 @@ export async function start (input: StartEngineInput) {
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
-  if (majorVersion == 0) {
+  if (versionString === undefined) {
     // This happends when we are not able to run a java statement or get a java version
     sendNotification(jobs.Request.internalError, 
         "Unable to find java on PATH. Please check that Java is correctly installed and on your PATH")
     return
   }
   
-  if (majorVersion < 11) {
+  if (majorVersion! < 11) {
     sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found "${versionString}".`)
     return
   }

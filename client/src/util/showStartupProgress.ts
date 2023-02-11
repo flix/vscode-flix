@@ -2,11 +2,12 @@ import * as vscode from 'vscode'
 import * as jobs from '../engine/jobs'
 import eventEmitter from '../services/eventEmitter'
 import * as timers from '../services/timers'
+import { USER_MESSAGE } from './userMessages'
 
 export default function showStartupProgress (timeout: number = 30) {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
-    title: 'Starting Flix',
+    title: USER_MESSAGE.starting_flix,
     cancellable: false
   }, function (_progress) {
     return new Promise(function resolver (resolve, reject) {

@@ -13,6 +13,7 @@ import initialiseState from './services/state'
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
+import { USER_MESSAGE } from './util/userMessages'
 
 const _ = require('lodash/fp')
 
@@ -162,8 +163,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // watch for changes to the flix.toml file
   tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
   tomlWatcher.onDidChange(() => {
-    const doReload = vscode.window.showInformationMessage(
-        "The flix.toml file has changed. Do you want to restart the compiler?", "Yes", "No")
+    const {msg, option1, option2} = USER_MESSAGE.reload_on_flixtoml_change
+    const doReload = vscode.window.showInformationMessage(msg, option1, option2)
     doReload.then((res) => {
         if (res == "Yes") {
             makeHandleRestartClient(context, launchOptions)()

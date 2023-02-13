@@ -20,6 +20,7 @@ import { sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { lspCheckResponseHandler } from '../handlers'
 import { getPort } from 'portfinder';
+import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -94,10 +95,10 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     webSocketOpen = false
     if (lastManualStopTimestamp + 15000 < Date.now()) {
         // This happends when the connections breaks unintentionally
-        console.log("Connection to the flix server was lost, trying to reconnect...")
+        console.log(USER_MESSAGE.lost_connection)
         tryToConnect({ uri, onOpen, onClose }, 5).then((connected) => {
             if (!connected) {
-                console.log("Failed to connect to the flix server, restarting the compiler...")
+                console.log(USER_MESSAGE.failed_to_connect_restarting)
                 sendNotification(jobs.Request.internalRestart)
             }
         })
@@ -167,7 +168,7 @@ export async function closeSocket () {
 export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
-      const errorMessage = `Could not send message after ${retries} retries. Websocket not available.`
+      const errorMessage = USER_MESSAGE.ws_not_available(retries)
       return sendNotification(jobs.Request.internalError, errorMessage)
     }
     setTimeout(() => {
@@ -178,7 +179,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
     delete sentMessagesMap[job.id]
-    sendNotification(jobs.Request.internalError, `Job timed out after ${MESSAGE_TIMEOUT_SECONDS} seconds`)
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.job_timed_out(MESSAGE_TIMEOUT_SECONDS))
     setTimeout(queue.processQueue, 0)
   }, (MESSAGE_TIMEOUT_SECONDS * 1000))
   // send job as string

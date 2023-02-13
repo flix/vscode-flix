@@ -24,6 +24,7 @@ import * as _ from "lodash";
 import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
+import { USER_MESSAGE } from '../util/userMessages';
 
 export interface CompileOnSave {
   enabled: boolean
@@ -109,13 +110,12 @@ export async function start (input: StartEngineInput) {
   const { majorVersion, versionString } = await javaVersion(extensionPath)
   if (versionString === undefined) {
     // This happends when we are not able to run a java statement or get a java version
-    sendNotification(jobs.Request.internalError, 
-        "Unable to find java on PATH. Please check that Java is correctly installed and on your PATH")
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.unabled_to_find_java)
     return
   }
   
   if (majorVersion! < 11) {
-    sendNotification(jobs.Request.internalError, `Flix requires Java 11 or later. Found "${versionString}".`)
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.required_java_version(versionString))
     return
   }
 

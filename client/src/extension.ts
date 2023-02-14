@@ -163,7 +163,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // watch for changes to the flix.toml file
   tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
   tomlWatcher.onDidChange(() => {
-    const {msg, option1, option2} = USER_MESSAGE.reload_on_flixtoml_change
+    const {msg, option1, option2} = USER_MESSAGE.ASK_RELOAD_TOML()
     const doReload = vscode.window.showInformationMessage(msg, option1, option2)
     doReload.then((res) => {
         if (res == "Yes") {

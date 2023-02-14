@@ -158,7 +158,7 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
       if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
-        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.src_is_unavailable(targetUri))
+        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri))
       }
     }
     promiseResolver()
@@ -298,10 +298,10 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
     if (status === 'success') {
-      const message = USER_MESSAGE.flix_ready_msg(result, engine)
+      const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {
-      sendNotification(jobs.Request.internalError, USER_MESSAGE.failed_to_start)
+      sendNotification(jobs.Request.internalError, USER_MESSAGE.FAILED_TO_START())
     }
     promiseResolver()
   }

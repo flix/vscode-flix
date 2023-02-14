@@ -35,10 +35,10 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
       const id = new Number(uri.path.split('/')[0]);
       const installedVersion = getInstalledFlixVersion();
       if (id == installedVersion.id) {
-        const msg = USER_MESSAGE.new_flix_release_desc(installedVersion);
+        const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion);
         return msg;
       } else {
-        const msg = USER_MESSAGE.no_changelog_found;
+        const msg = USER_MESSAGE.INFORM_NO_CHANGELOG();
         return msg;
       }
     }

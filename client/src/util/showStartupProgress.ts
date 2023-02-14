@@ -7,7 +7,7 @@ import { USER_MESSAGE } from './userMessages'
 export default function showStartupProgress (timeout: number = 30) {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
-    title: USER_MESSAGE.starting_flix,
+    title: USER_MESSAGE.INFORM_STARTING_FLIX(),
     cancellable: false
   }, function (_progress) {
     return new Promise(function resolver (resolve, reject) {

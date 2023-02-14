@@ -179,7 +179,7 @@ export async function processQueue () {
         socket.sendMessage(job)
       }
     } catch (err) {
-      const errorMessage = USER_MESSAGE.failed_to_read_file(job.uri || "", err)
+      const errorMessage = USER_MESSAGE.FAILED_TO_READ_FILE(job.uri || "", err)
       sendNotification(jobs.Request.internalError, errorMessage)
     }
   } else {

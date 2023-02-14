@@ -110,12 +110,12 @@ export async function start (input: StartEngineInput) {
   const { majorVersion, versionString } = await javaVersion(extensionPath)
   if (versionString === undefined) {
     // This happends when we are not able to run a java statement or get a java version
-    sendNotification(jobs.Request.internalError, USER_MESSAGE.unabled_to_find_java)
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.JAVA_NOT_FOUND())
     return
   }
   
   if (majorVersion! < 11) {
-    sendNotification(jobs.Request.internalError, USER_MESSAGE.required_java_version(versionString))
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.JAVA_WRONG_VERSION(versionString))
     return
   }
 

@@ -37,7 +37,7 @@ let resolversToCleanUp = {
 export function ensureCleanupEventually (resolver, timeout = 180) {
   const index = `${indexCounter++}`
   const timer = setTimeout(() => {
-    const msg = USER_MESSAGE.timeout_message(timeout)
+    const msg = USER_MESSAGE.TIMEOUT(timeout)
     vscode.window.showErrorMessage(msg)
     resolver()
   }, timeout * 1000)

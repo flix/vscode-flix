@@ -109,7 +109,7 @@ function passCommandToTerminal(cmd:string[], terminal: vscode.Terminal) {
  * @return A promise that resolves to a string the user provided or to `undefined` in case of dismissal.
 */
 async function takeInputFromUser() {
-    const { prompt, placeHolder } = USER_MESSAGE.ask_for_space_seperated_args
+    const { prompt, placeHolder } = USER_MESSAGE.ASK_PROGRAM_ARGS()
     const input = await vscode.window.showInputBox({
         prompt,
         placeHolder,
@@ -126,7 +126,7 @@ async function handleUnsavedFiles() {
             unsaved.push(textDocument)
     }
     if (unsaved.length != 0) {
-        const {msg, option1, option2} = USER_MESSAGE.save_unsaved_files
+        const {msg, option1, option2} = USER_MESSAGE.ASK_SAVE_CHANGED_FILES()
         const action = await vscode.window.showWarningMessage(msg, option1, option2)
         if(action == option2)
             await vscode.workspace.saveAll(false)

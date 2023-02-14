@@ -95,10 +95,10 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     webSocketOpen = false
     if (lastManualStopTimestamp + 15000 < Date.now()) {
         // This happends when the connections breaks unintentionally
-        console.log(USER_MESSAGE.lost_connection)
+        console.log(USER_MESSAGE.CONNECTION_LOST())
         tryToConnect({ uri, onOpen, onClose }, 5).then((connected) => {
             if (!connected) {
-                console.log(USER_MESSAGE.failed_to_connect_restarting)
+                console.log(USER_MESSAGE.CONNECTION_LOST_RESTARTING())
                 sendNotification(jobs.Request.internalRestart)
             }
         })
@@ -168,7 +168,7 @@ export async function closeSocket () {
 export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
-      const errorMessage = USER_MESSAGE.ws_not_available(retries)
+      const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
       return sendNotification(jobs.Request.internalError, errorMessage)
     }
     setTimeout(() => {
@@ -179,7 +179,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
     delete sentMessagesMap[job.id]
-    sendNotification(jobs.Request.internalError, USER_MESSAGE.job_timed_out(MESSAGE_TIMEOUT_SECONDS))
+    sendNotification(jobs.Request.internalError, USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS))
     setTimeout(queue.processQueue, 0)
   }, (MESSAGE_TIMEOUT_SECONDS * 1000))
   // send job as string

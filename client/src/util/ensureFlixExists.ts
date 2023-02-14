@@ -13,7 +13,7 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
     try {
       return await downloadFunc()
     } catch (e) {
-      const {msg, option1, option2} = USER_MESSAGE.failed_to_download_offer_retry(e.message)
+      const {msg, option1, option2} = USER_MESSAGE.ASK_DOWNLOAD_RETRY(e.message)
       const selected = await vscode.window.showErrorMessage(msg, {}, {title: option1, retry: true, }, { title: option2, })
 
       if (selected?.retry) {
@@ -49,14 +49,14 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
         const flixRelease = await fetchRelease();
         // Give the user the option to update if there's a newer version available
         if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
-          const { msg, option1, option2 } = USER_MESSAGE.offer_new_version(flixRelease.name)
+          const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(flixRelease.name)
           const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2);
           if (updateResponse === 'Download') {
             await downloadWithRetryDialog(async () => {
               await download({
                 url: flixRelease.downloadUrl,
                 dest: filename,
-                progressTitle: USER_MESSAGE.downloading_flix_compiler,
+                progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
                 overwrite: true,
               });
               await setInstalledFlixVersion(flixRelease);
@@ -82,7 +82,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     await download({
       url: flixRelease.downloadUrl,
       dest: filename,
-      progressTitle: USER_MESSAGE.downloading_flix_compiler,
+      progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
       overwrite: true
     })
     await setInstalledFlixVersion(flixRelease);

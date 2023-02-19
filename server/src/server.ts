@@ -84,6 +84,8 @@ connection.onDocumentSymbol(handlers.handleDocumentSymbols)
 // Find WorkspaceSymbols information.
 connection.onWorkspaceSymbol(handlers.handleWorkspaceSymbols)
 
+connection.onCodeAction(handlers.handleCodeAction)
+
 // Semantic tokens
 connection.languages.semanticTokens.on(handlers.handleSemanticTokens)
 

@@ -55,6 +55,7 @@ export function handleInitialize (_params: InitializeParams) {
         prepareProvider: false
       },
       documentSymbolProvider: true,
+      codeActionProvider: true,
       workspaceSymbolProvider: true,
       implementationProvider: true,
       semanticTokensProvider: {
@@ -213,6 +214,11 @@ function makeRenameJob (params: any) {
  * @function 
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
+
+/**
+ * @function 
+ */
+export const handleCodeAction = makePositionalHandler(jobs.Request.lspCodeAction);
 
 /**
  * @function

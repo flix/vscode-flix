@@ -15,6 +15,7 @@
  */
 
 import * as vscode from 'vscode'
+import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
@@ -36,7 +37,8 @@ let resolversToCleanUp = {
 export function ensureCleanupEventually (resolver, timeout = 180) {
   const index = `${indexCounter++}`
   const timer = setTimeout(() => {
-    vscode.window.showErrorMessage(`Timeout after ${timeout}ms`)
+    const msg = USER_MESSAGE.TIMEOUT(timeout)
+    vscode.window.showErrorMessage(msg)
     resolver()
   }, timeout * 1000)
   resolversToCleanUp[index] = {

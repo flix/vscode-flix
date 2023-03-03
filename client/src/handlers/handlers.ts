@@ -7,6 +7,7 @@ import * as timers from '../services/timers'
 import eventEmitter from '../services/eventEmitter'
 import ensureFlixExists from './../util/ensureFlixExists'
 import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN, FPKG_GLOB_PATTERN } from './../extension'
+import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
@@ -108,9 +109,10 @@ function passCommandToTerminal(cmd:string[], terminal: vscode.Terminal) {
  * @return A promise that resolves to a string the user provided or to `undefined` in case of dismissal.
 */
 async function takeInputFromUser() {
+    const { prompt, placeHolder } = USER_MESSAGE.ASK_PROGRAM_ARGS()
     const input = await vscode.window.showInputBox({
-        prompt: "Enter arguments separated by spaces",
-        placeHolder: "arg0 arg1 arg2 ...",
+        prompt,
+        placeHolder,
 		ignoreFocusOut: true
     })
     return input
@@ -124,9 +126,7 @@ async function handleUnsavedFiles() {
             unsaved.push(textDocument)
     }
     if (unsaved.length != 0) {
-        const msg = "The workspace contains unsaved files. Do you want to save?"
-        const option1 = 'Run without saving'
-        const option2 = 'Save all and run'
+        const {msg, option1, option2} = USER_MESSAGE.ASK_SAVE_CHANGED_FILES()
         const action = await vscode.window.showWarningMessage(msg, option1, option2)
         if(action == option2)
             await vscode.workspace.saveAll(false)

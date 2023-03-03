@@ -119,6 +119,10 @@ export function handleRemJar ({ uri }: UriInput) {
   engine.remJar(uri)
 }
 
+export function handleShowAst () {
+    engine.showAst()
+}
+
 export function handleExit () {
   engine.stop()
 }

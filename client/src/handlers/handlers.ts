@@ -520,3 +520,20 @@ export function cmdTests(
             FLIX_TERMINAL.sendText(`:test`)
         }
 }
+
+/**
+ * show the AST for the specific phase
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function showAst(
+    client: LanguageClient
+    ) {
+        return async function handler () {
+            client.sendNotification(jobs.Request.apiShowAst)
+        }
+}

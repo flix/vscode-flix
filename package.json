@@ -58,7 +58,11 @@
       {
         "command": "flix.cmdTests",
         "title": "Flix: test"
-      }
+      },
+      {
+		"command": "flix.showAst",
+		"title": "Show AST"
+	  }
     ],
     "languages": [
       {
@@ -120,7 +124,15 @@
         "editor.tabSize": 4,
         "editor.semanticHighlighting.enabled": true
       }
-    }
+    },
+    "menus": {
+        "editor/context": [
+            {
+              "command": "flix.showAst",
+              "group": "3_flix"
+            }
+          ]
+      }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

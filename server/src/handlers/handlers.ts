@@ -120,8 +120,8 @@ export function handleRemJar ({ uri }: UriInput) {
   engine.remJar(uri)
 }
 
-export function handleShowAst () {
-    engine.showAst()
+export function handleShowAst (phase: string) {
+    engine.showAst(phase)
 }
 
 export function handleExit () {

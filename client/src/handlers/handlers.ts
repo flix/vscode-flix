@@ -522,7 +522,7 @@ export function cmdTests(
 }
 
 /**
- * show the AST for the specific phase
+ * show typed ast
  * 
  * @param context vscode.ExtensionContext
  * 
@@ -530,10 +530,27 @@ export function cmdTests(
  * 
  * @returns function handler
  */
-export function showAst(
+export function showTypedAst(
     client: LanguageClient
     ) {
         return async function handler () {
-            client.sendNotification(jobs.Request.apiShowAst)
+            client.sendNotification(jobs.Request.apiShowAst, "TypedAst")
+        }
+}
+
+/**
+ * show parsed ast
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @returns function handler
+ */
+export function showParsedAst(
+    client: LanguageClient
+    ) {
+        return async function handler () {
+            client.sendNotification(jobs.Request.apiShowAst, "ParsedAst")
         }
 }

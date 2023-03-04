@@ -60,8 +60,12 @@
         "title": "Flix: test"
       },
       {
-		"command": "flix.showAst",
-		"title": "Show AST"
+		"command": "flix.showTypedAst",
+		"title": "Typed Ast"
+	  },
+      {
+		"command": "flix.showParsedAst",
+		"title": "Parsed Ast"
 	  }
     ],
     "languages": [
@@ -127,12 +131,28 @@
     },
     "menus": {
         "editor/context": [
-            {
-              "command": "flix.showAst",
-              "group": "3_flix"
-            }
-          ]
-      }
+          {
+            "submenu": "flix.showAstMenu",
+            "group": "3_flix"
+          }
+        ],
+        "flix.showAstMenu": [
+          {
+            "command": "flix.showTypedAst",
+            "group": "1_flix@1"
+          },
+          {
+            "command": "flix.showParsedAst",
+            "group": "1_flix@2"
+          } 
+        ]
+    },
+    "submenus": [
+        {
+            "id": "flix.showAstMenu",
+            "label": "Show Ast"
+        }
+    ] 
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

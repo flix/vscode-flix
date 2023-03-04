@@ -240,9 +240,10 @@ export function remJar (uri: string) {
   queue.enqueue(job)
 }
 
-export function showAst () {
+export function showAst (phase: string) {
     const job: jobs.Job = {
       request: jobs.Request.apiShowAst,
+      phase
     }
     queue.enqueue(job)
   }

@@ -73,6 +73,7 @@ export interface Job {
   position?: Position
   projectRootUri?: string
   newName?: string
+  phase?: string
 }
 
 export interface EnqueuedJob extends Job {

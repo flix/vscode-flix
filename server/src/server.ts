@@ -46,7 +46,7 @@ connection.onNotification(jobs.Request.apiAddJar, handlers.handleAddJar)
 connection.onNotification(jobs.Request.apiRemJar, handlers.handleRemJar)
 
 // Show ast
-connection.onNotification(jobs.Request.apiShowAst, handlers.handleShowAst)
+connection.onNotification(jobs.Request.lspShowAst, handlers.handleShowAst)
 
 // cmd/*
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)

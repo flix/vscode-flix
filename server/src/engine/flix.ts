@@ -242,7 +242,7 @@ export function remJar (uri: string) {
 
 export function showAst (phase: string) {
     const job: jobs.Job = {
-      request: jobs.Request.apiShowAst,
+      request: jobs.Request.lspShowAst,
       phase
     }
     queue.enqueue(job)

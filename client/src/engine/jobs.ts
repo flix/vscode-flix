@@ -32,7 +32,6 @@ export enum Request {
   apiRemJar = 'api/remJar',
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
-  apiShowAst = 'api/showAst',
 
   cmdRunTests = 'cmd/runTests',
 
@@ -47,6 +46,7 @@ export enum Request {
   lspRename = 'lsp/rename',
   lspDocumentSymbols = 'lsp/documentSymbols',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
+  lspShowAst = "lsp/showAst",
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request

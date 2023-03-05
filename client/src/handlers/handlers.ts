@@ -534,7 +534,7 @@ export function showTypedAst(
     client: LanguageClient
     ) {
         return async function handler () {
-            client.sendNotification(jobs.Request.apiShowAst, "TypedAst")
+            client.sendNotification(jobs.Request.lspShowAst, "TypedAst")
         }
 }
 
@@ -551,6 +551,6 @@ export function showParsedAst(
     client: LanguageClient
     ) {
         return async function handler () {
-            client.sendNotification(jobs.Request.apiShowAst, "ParsedAst")
+            client.sendNotification(jobs.Request.lspShowAst, "ParsedAst")
         }
 }

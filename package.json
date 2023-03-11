@@ -133,7 +133,8 @@
         "editor/context": [
           {
             "submenu": "flix.showAstMenu",
-            "group": "3_flix"
+            "group": "3_flix",
+            "when": "resourceLangId == flix"
           }
         ],
         "flix.showAstMenu": [

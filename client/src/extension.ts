@@ -64,8 +64,9 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
 
 async function handleShowAst ({ status, result }) {
     if (status === 'success') {
-        let newDocument = await vscode.window.showTextDocument(result, { preview: false });
-        newDocument.edit((editBuilder) => editBuilder.insert(new vscode.Position(0,0), result.text))
+        const newDocument = await vscode.window.showTextDocument(result, { preview: false });
+        const content: string = result.title + "\n\n" + result.text
+        newDocument.edit((editBuilder) => editBuilder.insert(new vscode.Position(0,0), content))
     } else {
         const msg = USER_MESSAGE.CANT_SHOW_AST()
         vscode.window.showInformationMessage(msg)

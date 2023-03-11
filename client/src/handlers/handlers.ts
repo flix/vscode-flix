@@ -526,16 +526,12 @@ export function cmdTests(
  * 
  * @param context vscode.ExtensionContext
  * 
- * @param launchOptions LaunchOptions
- * 
  * @returns function handler
  */
-export function showTypedAst(
-    client: LanguageClient
-    ) {
-        return async function handler () {
-            client.sendNotification(jobs.Request.lspShowAst, "TypedAst")
-        }
+export function showTypedAst(client: LanguageClient) {
+    return async function handler () {
+        client.sendNotification(jobs.Request.lspShowAst, "TypedAst")
+    }
 }
 
 /**
@@ -543,14 +539,10 @@ export function showTypedAst(
  * 
  * @param context vscode.ExtensionContext
  * 
- * @param launchOptions LaunchOptions
- * 
  * @returns function handler
  */
-export function showParsedAst(
-    client: LanguageClient
-    ) {
-        return async function handler () {
-            client.sendNotification(jobs.Request.lspShowAst, "ParsedAst")
-        }
+export function showParsedAst(client: LanguageClient) {
+    return async function handler () {
+        client.sendNotification(jobs.Request.lspShowAst, "ParsedAst")
+    }
 }

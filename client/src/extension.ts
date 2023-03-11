@@ -62,6 +62,16 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
   }
 }
 
+async function handleShowAst ({ status, result }) {
+    if (status === 'success') {
+        let test = await vscode.window.showTextDocument(result, { preview: false });
+        test.edit((editBuilder) => editBuilder.insert(new vscode.Position(0,0), result.text))
+    } else {
+        const msg = USER_MESSAGE.CANT_SHOW_AST()
+        vscode.window.showInformationMessage(msg)
+    }
+  }
+
 function getUserConfiguration () {
   return vscode.workspace.getConfiguration('flix')
 }
@@ -237,6 +247,8 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
+
+  client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 
 }
 

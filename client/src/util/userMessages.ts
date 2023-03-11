@@ -41,6 +41,10 @@ export class USER_MESSAGE {
         }
     }
 
+    static CANT_SHOW_AST() {
+        return 'Failed to show the AST for this file'
+    }
+
     static INFORM_DOWNLOAD_FLIX() {
         return  'Downloading Flix Compiler'
     }

@@ -240,14 +240,6 @@ export function remJar (uri: string) {
   queue.enqueue(job)
 }
 
-export function showAst (phase: string) {
-    const job: jobs.Job = {
-      request: jobs.Request.lspShowAst,
-      phase
-    }
-    queue.enqueue(job)
-  }
-
 export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: any) {
   const job: jobs.Job = {
     request,

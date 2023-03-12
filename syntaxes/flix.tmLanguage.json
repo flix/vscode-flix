@@ -133,7 +133,7 @@
                 },
                 {
                     "name": "keyword.expression.cast.flix",
-                    "match": "\\b(cast|upcast|supercast|as)\\b"
+                    "match": "\\b(checked_cast|checked_ecast|unchecked_cast|masked_cast|as)\\b"
                 },
                 {
                     "name": "keyword.expression.discard.flix",

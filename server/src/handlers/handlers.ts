@@ -316,6 +316,8 @@ export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
   if (status !== 'success') {
-    _.each(sendDiagnostics, result)
+    const didCrash = _.isEqual(result, {})
+    if (didCrash) sendNotification(jobs.Request.internalError, USER_MESSAGE.COMPILER_CRASHED())
+    else  _.each(sendDiagnostics, result)
   }
 }

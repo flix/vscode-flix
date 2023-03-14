@@ -1,5 +1,9 @@
 export class USER_MESSAGE {
 
+    static COMPILER_CRASHED() { 
+        return 'The flix compiler crashed. See the crash report for details'
+    }
+
     static CONNECTION_ESTABLISHED(version:any, engine:any) { 
         const { major, minor, revision } = version
         return `Flix ${major}.${minor}.${revision} Ready! (Extension: ${engine.getExtensionVersion()}) (Using ${engine.getFlixFilename()})`

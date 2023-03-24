@@ -218,7 +218,14 @@ export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocum
 /**
  * @function 
  */
-export const handleCodeAction = makePositionalHandler(jobs.Request.lspCodeAction);
+export const handleCodeAction = makePositionalHandler(jobs.Request.lspCodeAction, hasErrorsHandlerForCommands, makeCodeActionResponseHandler);
+
+function makeCodeActionResponseHandler (promiseResolver: Function) {
+    return function responseHandler ({ status, result }: any) {
+      sendNotification(jobs.Request.lspCodeAction, { status, result })
+      promiseResolver()
+    }
+}
 
 /**
  * @function

@@ -57,7 +57,7 @@
                 },
                 {
                     "name": "constant.language.effect.flix",
-                    "match": "\\b(Pure|Impure|Read|Write)\\b"
+                    "match": "\\b(Read|Write)\\b"
                 }
             ]
         },
@@ -76,12 +76,24 @@
                     "match": "\\b(do)\\b"
                 },
                 {
+                    "name": "keyword.control.for.flix",
+                    "match": "\\b(for)\\b"
+                },
+                {
+                    "name": "keyword.control.applicativefor.flix",
+                    "match": "\\b(forA)\\b"
+                },
+                {
+                    "name": "keyword.control.monadicfor.flix",
+                    "match": "\\b(forM)\\b"
+                },
+                {
                     "name": "keyword.control.foreach.flix",
                     "match": "\\b(foreach)\\b"
                 },
                 {
-                    "name": "keyword.control.foryield.flix",
-                    "match": "\\b(for|yield)\\b"
+                    "name": "keyword.control.yield.flix",
+                    "match": "\\b(yield)\\b"
                 },
                 {
                     "name": "keyword.control.if.flix",
@@ -121,7 +133,7 @@
                 },
                 {
                     "name": "keyword.expression.cast.flix",
-                    "match": "\\b(cast|upcast|supercast|as)\\b"
+                    "match": "\\b(checked_cast|checked_ecast|unchecked_cast|masked_cast|as)\\b"
                 },
                 {
                     "name": "keyword.expression.discard.flix",
@@ -158,10 +170,6 @@
                 {
                     "name": "keyword.expression.references.flix",
                     "match": "\\b(ref|deref)\\b"
-                },
-                {
-                    "name": "keyword.expression.reify.flix",
-                    "match": "\\b(reify|reifyBool|reifyType)\\b"
                 },
                 {
                     "name": "keyword.use.flix",
@@ -275,15 +283,7 @@
                 },
                 {
                     "name": "storage.type.annotation.flix",
-                    "match": "@Space"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
                     "match": "@Test"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Time"
                 },
                 {
                     "name": "storage.type.annotation.flix",

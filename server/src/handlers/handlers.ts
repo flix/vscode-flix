@@ -25,6 +25,7 @@ import * as socket from '../engine/socket'
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
 import { getProjectRootUri } from '../engine'
+import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
@@ -158,7 +159,7 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
       if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
-        sendNotification(jobs.Request.internalMessage, `Source for: '${targetUri}' is unavailable.`)
+        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri))
       }
     }
     promiseResolver()
@@ -310,11 +311,10 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
     if (status === 'success') {
-      const { major, minor, revision } = result
-      const message = `Flix ${major}.${minor}.${revision} Ready! (Extension: ${engine.getExtensionVersion()}) (Using ${engine.getFlixFilename()})`
+      const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {
-      sendNotification(jobs.Request.internalError, 'Failed starting Flix')
+      sendNotification(jobs.Request.internalError, USER_MESSAGE.FAILED_TO_START())
     }
     promiseResolver()
   }

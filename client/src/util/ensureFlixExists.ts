@@ -4,6 +4,7 @@ import * as vscode from 'vscode'
 
 import { download, fetchRelease, firstNewerThanSecond, FlixRelease } from '../services/releases'
 import { getInstalledFlixVersion, setInstalledFlixVersion } from '../services/state'
+import { USER_MESSAGE } from './userMessages'
 
 const FLIX_JAR = 'flix.jar'
 
@@ -12,12 +13,8 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
     try {
       return await downloadFunc()
     } catch (e) {
-      const selected = await vscode.window.showErrorMessage("Failed to download: " + e.message, {}, {
-        title: "Retry download",
-        retry: true,
-      }, {
-        title: "Dismiss",
-      })
+      const {msg, option1, option2} = USER_MESSAGE.ASK_DOWNLOAD_RETRY(e.message)
+      const selected = await vscode.window.showErrorMessage(msg, {}, {title: option1, retry: true, }, { title: option2, })
 
       if (selected?.retry) {
         continue
@@ -52,17 +49,14 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
         const flixRelease = await fetchRelease();
         // Give the user the option to update if there's a newer version available
         if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
-          const updateResponse = await vscode.window.showInformationMessage(
-            `A new version of the Flix compiler (${flixRelease.name}) is available. Download?`,
-            'Download',
-            'Skip'
-          );
+          const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(flixRelease.name)
+          const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2);
           if (updateResponse === 'Download') {
             await downloadWithRetryDialog(async () => {
               await download({
                 url: flixRelease.downloadUrl,
                 dest: filename,
-                progressTitle: 'Downloading Flix Compiler',
+                progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
                 overwrite: true,
               });
               await setInstalledFlixVersion(flixRelease);
@@ -88,7 +82,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
     await download({
       url: flixRelease.downloadUrl,
       dest: filename,
-      progressTitle: 'Downloading Flix Compiler',
+      progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
       overwrite: true
     })
     await setInstalledFlixVersion(flixRelease);

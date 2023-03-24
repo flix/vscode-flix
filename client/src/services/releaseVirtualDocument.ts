@@ -15,6 +15,7 @@
  */
 
 import * as vscode from 'vscode';
+import { USER_MESSAGE } from '../util/userMessages';
 import { FlixRelease } from './releases';
 import { getInstalledFlixVersion } from './state';
 
@@ -34,12 +35,11 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
       const id = new Number(uri.path.split('/')[0]);
       const installedVersion = getInstalledFlixVersion();
       if (id == installedVersion.id) {
-        return `# New Flix Release!\n` + 
-            `## Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n`
-            + `${installedVersion.description}`;
+        const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion);
+        return msg;
       } else {
-        return 'Unable to get latest changelog. ' + 
-            'Please visit https://github.com/flix/flix/releases for more information on the available flix releases.';
+        const msg = USER_MESSAGE.INFORM_NO_CHANGELOG();
+        return msg;
       }
     }
   })();

@@ -122,10 +122,11 @@ export function handleRemJar ({ uri }: UriInput) {
 
 export const handleShowAst = enqueueUnlessHasErrors(makeShowAstJob, makeShowAstResponseHandler, hasErrorsHandlerForCommands)
 
-function makeShowAstJob (phase: string) {
+function makeShowAstJob (params: any) {
     return {
         request: jobs.Request.lspShowAst,
-        phase
+        uri: params.uri, 
+        phase: params.phase
     }
 }
 

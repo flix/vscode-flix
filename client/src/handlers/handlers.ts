@@ -530,7 +530,12 @@ export function cmdTests(
  */
 export function showTypedAst(client: LanguageClient) {
     return async function handler () {
-        client.sendNotification(jobs.Request.lspShowAst, "TypedAst")
+        client.sendNotification(
+            jobs.Request.lspShowAst, 
+            { 
+                uri: vscode.window.activeTextEditor.document.uri.fsPath, 
+                phase: "TypedAst" 
+            })
     }
 }
 
@@ -543,6 +548,11 @@ export function showTypedAst(client: LanguageClient) {
  */
 export function showParsedAst(client: LanguageClient) {
     return async function handler () {
-        client.sendNotification(jobs.Request.lspShowAst, "ParsedAst")
+        client.sendNotification(
+            jobs.Request.lspShowAst, 
+            { 
+                uri: vscode.window.activeTextEditor.document.uri.fsPath, 
+                phase: "ParsedAst" 
+            })
     }
 }

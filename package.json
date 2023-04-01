@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "0.97.0",
+  "version": "0.98.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -60,13 +60,13 @@
         "title": "Flix: test"
       },
       {
-		"command": "flix.showTypedAst",
-		"title": "Typed Ast"
-	  },
+        "command": "flix.showTypedAst",
+        "title": "Typed Ast"
+      },
       {
-		"command": "flix.showParsedAst",
-		"title": "Parsed Ast"
-	  }
+        "command": "flix.showParsedAst",
+        "title": "Parsed Ast"
+      }
     ],
     "languages": [
       {
@@ -130,30 +130,30 @@
       }
     },
     "menus": {
-        "editor/context": [
-          {
-            "submenu": "flix.showAstMenu",
-            "group": "3_flix",
-            "when": "resourceLangId == flix"
-          }
-        ],
-        "flix.showAstMenu": [
-          {
-            "command": "flix.showTypedAst",
-            "group": "1_flix@1"
-          },
-          {
-            "command": "flix.showParsedAst",
-            "group": "1_flix@2"
-          } 
-        ]
+      "editor/context": [
+        {
+          "submenu": "flix.showAstMenu",
+          "group": "3_flix",
+          "when": "resourceLangId == flix"
+        }
+      ],
+      "flix.showAstMenu": [
+        {
+          "command": "flix.showTypedAst",
+          "group": "1_flix@1"
+        },
+        {
+          "command": "flix.showParsedAst",
+          "group": "1_flix@2"
+        }
+      ]
     },
     "submenus": [
-        {
-            "id": "flix.showAstMenu",
-            "label": "Show Ast"
-        }
-    ] 
+      {
+        "id": "flix.showAstMenu",
+        "label": "Show Ast"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

@@ -48,6 +48,7 @@ export enum Request {
   lspDocumentSymbols = 'lsp/documentSymbols',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspSemanticTokens = 'lsp/semanticTokens',
+  lspShowAst = "lsp/showAst",
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request
@@ -72,6 +73,7 @@ export interface Job {
   position?: Position
   projectRootUri?: string
   newName?: string
+  phase?: string
 }
 
 export interface EnqueuedJob extends Job {

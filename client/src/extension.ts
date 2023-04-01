@@ -62,6 +62,17 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
   }
 }
 
+async function handleShowAst ({ status, result }) {
+    if (status === 'success') {
+        const newDocument = await vscode.window.showTextDocument(result, { preview: false });
+        const content: string = result.title + "\n\n" + result.text
+        newDocument.edit((editBuilder) => editBuilder.insert(new vscode.Position(0,0), content))
+    } else {
+        const msg = USER_MESSAGE.CANT_SHOW_AST()
+        vscode.window.showInformationMessage(msg)
+    }
+  }
+
 function getUserConfiguration () {
   return vscode.workspace.getConfiguration('flix')
 }
@@ -124,6 +135,8 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
   registerCommand('flix.cmdBenchmark', handlers.cmdBenchmark(context, launchOptions))
   registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.showTypedAst', handlers.showTypedAst(client))
+  registerCommand('flix.showParsedAst', handlers.showParsedAst(client))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
   
@@ -235,6 +248,8 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
+
+  client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 
 }
 

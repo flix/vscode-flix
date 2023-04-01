@@ -120,6 +120,23 @@ export function handleRemJar ({ uri }: UriInput) {
   engine.remJar(uri)
 }
 
+export const handleShowAst = enqueueUnlessHasErrors(makeShowAstJob, makeShowAstResponseHandler, hasErrorsHandlerForCommands)
+
+function makeShowAstJob (params: any) {
+    return {
+        request: jobs.Request.lspShowAst,
+        uri: params.uri, 
+        phase: params.phase
+    }
+}
+
+function makeShowAstResponseHandler (promiseResolver: Function) {
+    return function responseHandler ({ status, result }: any) {
+      sendNotification(jobs.Request.lspShowAst, { status, result })
+      promiseResolver()
+    }
+}
+
 export function handleExit () {
   engine.stop()
 }

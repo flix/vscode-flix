@@ -45,6 +45,9 @@ connection.onNotification(jobs.Request.apiAddJar, handlers.handleAddJar)
 // A jar has been removed
 connection.onNotification(jobs.Request.apiRemJar, handlers.handleRemJar)
 
+// Show ast
+connection.onNotification(jobs.Request.lspShowAst, handlers.handleShowAst)
+
 // cmd/*
 connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
 

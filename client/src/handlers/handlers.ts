@@ -520,3 +520,39 @@ export function cmdTests(
             FLIX_TERMINAL.sendText(`:test`)
         }
 }
+
+/**
+ * show typed ast
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @returns function handler
+ */
+export function showTypedAst(client: LanguageClient) {
+    return async function handler () {
+        client.sendNotification(
+            jobs.Request.lspShowAst, 
+            { 
+                uri: vscode.window.activeTextEditor.document.uri.fsPath, 
+                phase: "TypedAst" 
+            })
+    }
+}
+
+/**
+ * show parsed ast
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @returns function handler
+ */
+export function showParsedAst(client: LanguageClient) {
+    return async function handler () {
+        client.sendNotification(
+            jobs.Request.lspShowAst, 
+            { 
+                uri: vscode.window.activeTextEditor.document.uri.fsPath, 
+                phase: "ParsedAst" 
+            })
+    }
+}

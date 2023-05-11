@@ -43,9 +43,6 @@ export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspac
 
 let outputChannel: vscode.OutputChannel
 
-// flag to keep track of whether errors were present last time we ran diagnostics
-let diagnosticsErrors = false
-
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
  *
@@ -78,22 +75,14 @@ function getUserConfiguration () {
 }
 
 function handlePrintDiagnostics ({ status, result }) {
-  if (status === 'success') {
-    if (diagnosticsErrors) {
-      outputChannel.clear()
-      diagnosticsErrors = false
-    }
-  } else {
     outputChannel.clear()
-    diagnosticsErrors = true
     for (const res of result) {
-      for (const diag of res.diagnostics) {
-        if (diag.severity <= 2) {
-            outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+        for (const diag of res.diagnostics) {
+            if (diag.severity <= 2) {
+                outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+            }
         }
-      }
     }
-  }
 }
 
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {

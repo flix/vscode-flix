@@ -141,9 +141,7 @@ export function clearDiagnostics () {
  */
 export function sendDiagnostics (params: PublishDiagnosticsParams) {
   params.diagnostics.forEach(diagnostic => {
-      if (diagnostic.severity && diagnostic.severity <= 2) {
-        fileUrisWithErrors.add(params.uri)
-      }
+    fileUrisWithErrors.add(params.uri)
   });
   connection.sendDiagnostics(params)
 }

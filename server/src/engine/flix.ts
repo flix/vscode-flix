@@ -113,7 +113,7 @@ export async function start (input: StartEngineInput) {
     sendNotification(jobs.Request.internalError, USER_MESSAGE.JAVA_NOT_FOUND())
     return
   }
-  
+
   if (majorVersion! < 11) {
     sendNotification(jobs.Request.internalError, USER_MESSAGE.JAVA_WRONG_VERSION(versionString))
     return
@@ -215,7 +215,7 @@ export function addPkg (uri: string) {
   }
   queue.enqueue(job)
 }
-  
+
 export function remPkg (uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemPkg,
@@ -231,7 +231,7 @@ export function addJar (uri: string) {
   }
   queue.enqueue(job)
 }
-  
+
 export function remJar (uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemJar,

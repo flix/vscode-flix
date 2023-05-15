@@ -75,10 +75,8 @@ export async function openFlixReleaseOverview(flixRelease: FlixRelease) {
 }
 
 /**
- * Register the provider.  
+ * Register the provider.
  */
  export function registerFlixReleaseDocumentProvider({ subscriptions }: vscode.ExtensionContext) {
     subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(scheme, flixReleaseDocumentProvider));
 }
-
-

@@ -72,7 +72,7 @@ export default async function ensureFlixExists ({ globalStoragePath, workspaceFo
   }
   // 3. Otherwise download `FLIX_URL` into `globalStoragePath` (create folder if necessary)
   const filename = path.join(globalStoragePath, FLIX_JAR)
-    
+
   if (!fs.existsSync(globalStoragePath)) {
     fs.mkdirSync(globalStoragePath)
   }

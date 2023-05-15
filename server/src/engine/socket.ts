@@ -90,7 +90,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
     webSocketOpen = true
     onOpen && setTimeout(onOpen!, 0)
   })
-  
+
   webSocket.on('close', () => {
     webSocketOpen = false
     if (lastManualStopTimestamp + 15000 < Date.now()) {
@@ -103,7 +103,7 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
             }
         })
         return
-    } 
+    }
     onClose && setTimeout(onClose!, 0)
   })
 

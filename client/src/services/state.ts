@@ -24,7 +24,7 @@ export default function initialise (context: vscode.ExtensionContext) {
 }
 
 enum StateKeys {
-  installedFlixVersion = 'installedFlixVersion' 
+  installedFlixVersion = 'installedFlixVersion'
 }
 
 export function getInstalledFlixVersion (): FlixRelease {

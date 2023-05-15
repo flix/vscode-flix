@@ -124,8 +124,11 @@ export function sendNotification (notificationType: string, payload?: any) {
 // VS Code remembers files with errors and won't clear them itself.
 const fileUrisWithErrors: Set<string> = new Set()
 
+// A Boolean of whether the program contains errors.
+var programHasError:Boolean = false
+
 export function hasErrors () {
-  return fileUrisWithErrors.size > 0
+  return programHasError
 }
 
 /**
@@ -134,6 +137,7 @@ export function hasErrors () {
 export function clearDiagnostics () {
   fileUrisWithErrors.forEach((uri: string) => sendDiagnostics({ uri, diagnostics: [] }))
   fileUrisWithErrors.clear()
+  programHasError = false
 }
 
 /**
@@ -141,6 +145,9 @@ export function clearDiagnostics () {
  */
 export function sendDiagnostics (params: PublishDiagnosticsParams) {
   params.diagnostics.forEach(diagnostic => {
+    if (diagnostic.severity && diagnostic.severity < 3) {
+        programHasError = true;
+    }
     fileUrisWithErrors.add(params.uri)
   });
   connection.sendDiagnostics(params)

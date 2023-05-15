@@ -3,7 +3,7 @@
   "description": "Flix Language Server Extension",
   "author": "Flix",
   "license": "Apache-2.0",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/flix/vscode-flix"
@@ -207,80 +207,80 @@
       ],
       "flix.showAstMenu": [
         {
-            "command": "flix.showParserAst",
-            "group": "1_flix@01"
+          "command": "flix.showParserAst",
+          "group": "1_flix@01"
         },
         {
-            "command": "flix.showWeederAst",
-            "group": "1_flix@02"
+          "command": "flix.showWeederAst",
+          "group": "1_flix@02"
         },
         {
-            "command": "flix.showKinderAst",
-            "group": "1_flix@03"
+          "command": "flix.showKinderAst",
+          "group": "1_flix@03"
         },
         {
-            "command": "flix.showResolverAst",
-            "group": "1_flix@04"
+          "command": "flix.showResolverAst",
+          "group": "1_flix@04"
         },
         {
-            "command": "flix.showTyperAst",
-            "group": "1_flix@05"
+          "command": "flix.showTyperAst",
+          "group": "1_flix@05"
         },
         {
-            "command": "flix.showDocumentorAst",
-            "group": "1_flix@06"
+          "command": "flix.showDocumentorAst",
+          "group": "1_flix@06"
         },
         {
-            "command": "flix.showLoweringAst",
-            "group": "1_flix@07"
+          "command": "flix.showLoweringAst",
+          "group": "1_flix@07"
         },
         {
-            "command": "flix.showEarlyTreeShakerAst",
-            "group": "1_flix@08"
+          "command": "flix.showEarlyTreeShakerAst",
+          "group": "1_flix@08"
         },
         {
-            "command": "flix.showMonomorphAst",
-            "group": "1_flix@09"
+          "command": "flix.showMonomorphAst",
+          "group": "1_flix@09"
         },
         {
-            "command": "flix.showSimplifierAst",
-            "group": "1_flix@10"
+          "command": "flix.showSimplifierAst",
+          "group": "1_flix@10"
         },
         {
-            "command": "flix.showClosureConvAst",
-            "group": "1_flix@11"
+          "command": "flix.showClosureConvAst",
+          "group": "1_flix@11"
         },
         {
-            "command": "flix.showLambdaLiftAst",
-            "group": "1_flix@12"
+          "command": "flix.showLambdaLiftAst",
+          "group": "1_flix@12"
         },
         {
-            "command": "flix.showTailrecAst",
-            "group": "1_flix@13"
+          "command": "flix.showTailrecAst",
+          "group": "1_flix@13"
         },
         {
-            "command": "flix.showOptimizerAst",
-            "group": "1_flix@14"
+          "command": "flix.showOptimizerAst",
+          "group": "1_flix@14"
         },
         {
-            "command": "flix.showLateTreeShakerAst",
-            "group": "1_flix@15"
+          "command": "flix.showLateTreeShakerAst",
+          "group": "1_flix@15"
         },
         {
-            "command": "flix.showReducerAst",
-            "group": "1_flix@16"
+          "command": "flix.showReducerAst",
+          "group": "1_flix@16"
         },
         {
-            "command": "flix.showVarNumberingAst",
-            "group": "1_flix@17"
+          "command": "flix.showVarNumberingAst",
+          "group": "1_flix@17"
         },
         {
-            "command": "flix.showMonoTyperAst",
-            "group": "1_flix@18"
+          "command": "flix.showMonoTyperAst",
+          "group": "1_flix@18"
         },
         {
-            "command": "flix.showEraserAst",
-            "group": "1_flix@19"
+          "command": "flix.showEraserAst",
+          "group": "1_flix@19"
         }
       ]
     },

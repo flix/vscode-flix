@@ -61,9 +61,9 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
 
 async function handleShowAst ({ status, result }) {
     if (status === 'success') {
-        const newDocument = await vscode.window.showTextDocument(result, { preview: false });
-        const content: string = result.title + "\n\n" + result.text
-        newDocument.edit((editBuilder) => editBuilder.insert(new vscode.Position(0,0), content))
+        const content: string = "// " + result.title + "\n\n" + result.text
+        const document = await vscode.workspace.openTextDocument({content: content, language: "flix"});
+        const editor = vscode.window.showTextDocument(document)
     } else {
         const msg = USER_MESSAGE.CANT_SHOW_AST()
         vscode.window.showInformationMessage(msg)

@@ -28,7 +28,7 @@ with its overall contribution.
 
 - This is the repository for Flix Visual Studio Code plugin. Not for the Flix
   compiler itself. Issues should be filed against the appropriate repository. If
-  in doubt, please use the main Flix repository for reporting bugs. 
+  in doubt, please use the main Flix repository for reporting bugs.
 
 ## Known Issues
 
@@ -37,4 +37,4 @@ with its overall contribution.
     a `.flix` extension
 - While our long-term goal is full LSP support, we are not yet ready to
   test/support clients other than Visual Studio Code. If you want to add support
-  for editor X please reach out to us. 
+  for editor X please reach out to us.

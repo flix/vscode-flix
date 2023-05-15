@@ -1,19 +1,19 @@
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/flix/flix/master/docs/logo.png" height="91px" 
-    alt="The Flix Programming Language" 
+    <img src="https://raw.githubusercontent.com/flix/flix/master/docs/logo.png" height="91px"
+    alt="The Flix Programming Language"
     title="The Flix Programming Language">
 </p>
 
 # Flix for Visual Studio Code
 
 The official Visual Studio Code extension for the [Flix Programming Language
-(flix.dev)](https://flix.dev/). 
+(flix.dev)](https://flix.dev/).
 
 Flix is a next-generation reliable, safe, concise, and functional-first
 programming language.
 
 Flix aims to have world-class Visual Studio Code support and our extension is
-based on the real Flix compiler infrastructure. 
+based on the real Flix compiler infrastructure.
 
 ## Features
 
@@ -21,7 +21,7 @@ based on the real Flix compiler infrastructure.
     - Code highlighting for *.flix files. This work best with the [official vscode theme](https://marketplace.visualstudio.com/items?itemName=flix.flixify-dark).
 
 * __Diagnostics__
-    - Compiler error messages. 
+    - Compiler error messages.
 
 * __Auto-complete__
     - Auto-complete as you type.
@@ -76,13 +76,13 @@ based on the real Flix compiler infrastructure.
 Alternative (for advanced users):
 
 - Upon startup, the extension with look for a `flix.jar` compiler in the project
-  root and use that if available. 
+  root and use that if available.
     - This can be used to run a nightly (or custom-built) version of the compiler.
 
 ## Requirements
 
 - Requires Java 11 (or later).
-    - Ensure that the `java` command is on your path. 
+    - Ensure that the `java` command is on your path.
 
 ## For Developers
 

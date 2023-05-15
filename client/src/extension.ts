@@ -115,7 +115,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   //registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   //registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   //registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  
+
   //registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
   registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
   registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
@@ -128,7 +128,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.showParsedAst', handlers.showParsedAst(client))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
-  
+
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -150,7 +150,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiAddPkg, { uri })
   })
-  
+
   // watch for changes on the file system (delete, create .jar files)
   pkgWatcher = vscode.workspace.createFileSystemWatcher(JAR_GLOB_PATTERN)
   pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -187,7 +187,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   // clear outputs
   outputChannel.clear()
-  
+
   // show default output channel without changing focus
   outputChannel.show(true)
 
@@ -220,7 +220,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
-    
+
     // start the Flix runner (but only after the Flix LSP instance has started.)
     handlers.createSharedRepl(context, launchOptions)
   })

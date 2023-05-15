@@ -44,7 +44,7 @@ export function handleInitialize (_params: InitializeParams) {
       documentHighlightProvider: true,
       completionProvider: {
         triggerCharacters: [".", "/", "?"]
-      }, 
+      },
       hoverProvider: true,
       inlayHintProvider: true,
       definitionProvider: true,
@@ -125,7 +125,7 @@ export const handleShowAst = enqueueUnlessHasErrors(makeShowAstJob, makeShowAstR
 function makeShowAstJob (params: any) {
     return {
         request: jobs.Request.lspShowAst,
-        uri: params.uri, 
+        uri: params.uri,
         phase: params.phase
     }
 }
@@ -228,7 +228,7 @@ function makeRenameJob (params: any) {
 }
 
 /**
- * @function 
+ * @function
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
 
@@ -269,12 +269,12 @@ function prettyPrintTestResults (result: any) {
   printHorizontalRuler()
   for (const test of result) {
     console.log(
-      test.outcome === 'success' 
-        ? String.fromCodePoint(0x2705) 
+      test.outcome === 'success'
+        ? String.fromCodePoint(0x2705)
         : String.fromCodePoint(0x274C),
       test.name,
-      test.outcome === 'success' 
-        ? '' 
+      test.outcome === 'success'
+        ? ''
         : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`
     )
   }

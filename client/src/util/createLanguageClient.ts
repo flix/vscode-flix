@@ -39,7 +39,7 @@ export default function createLanguageClient ({ context, outputChannel }) {
     },
     outputChannel
   }
-  
+
   // Create the language client and start the client.
   return new LanguageClient(
     'flixLanguageServer',

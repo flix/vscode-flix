@@ -523,37 +523,20 @@ export function cmdTests(
 }
 
 /**
- * show typed ast
+ * show the ast of a given phase
  *
  * @param context vscode.ExtensionContext
+ * @param phase   the name of the phase
  *
  * @returns function handler
  */
-export function showTypedAst(client: LanguageClient) {
+export function showAst(client: LanguageClient, phase: String) {
     return async function handler () {
         client.sendNotification(
             jobs.Request.lspShowAst,
             {
                 uri: vscode.window.activeTextEditor.document.uri.fsPath,
-                phase: "TypedAst"
-            })
-    }
-}
-
-/**
- * show parsed ast
- *
- * @param context vscode.ExtensionContext
- *
- * @returns function handler
- */
-export function showParsedAst(client: LanguageClient) {
-    return async function handler () {
-        client.sendNotification(
-            jobs.Request.lspShowAst,
-            {
-                uri: vscode.window.activeTextEditor.document.uri.fsPath,
-                phase: "ParsedAst"
+                phase: phase
             })
     }
 }

@@ -43,6 +43,8 @@ export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspac
 
 let outputChannel: vscode.OutputChannel
 
+let clearOutputEnabled = true
+
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
  *
@@ -75,7 +77,7 @@ function getUserConfiguration () {
 }
 
 function handlePrintDiagnostics ({ status, result }) {
-    outputChannel.clear()
+    if (clearOutputEnabled) outputChannel.clear()
     for (const res of result) {
         for (const diag of res.diagnostics) {
             if (diag.severity <= 2) {
@@ -145,6 +147,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.showEraserAst', handlers.showAst(client, "Eraser"))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
+  registerCommand('flix.toggleClearOutput', () => clearOutputEnabled = !clearOutputEnabled)
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

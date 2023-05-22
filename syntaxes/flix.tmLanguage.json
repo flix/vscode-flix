@@ -280,10 +280,6 @@
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@Test"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Unsafe"
                 }
             ]
         },

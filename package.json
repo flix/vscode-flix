@@ -162,37 +162,44 @@
         "flix.compileOnSave.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Run the compiler on save"
+          "description": "Run the compiler on save",
+          "order": 1
         },
         "flix.compileOnChange.delay": {
           "type": "number",
           "default": 150,
-          "description": "Specify delay in ms"
+          "description": "Specify delay in ms",
+          "order": 2
         },
         "flix.compileOnChange.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Run the compiler on every change"
-        },
-        "flix.clearOutput.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Continuously clear the output window when changes are made"
+          "description": "Run the compiler on every change",
+          "order": 3
         },
         "flix.explain.enabled": {
           "type": "boolean",
           "default": false,
-          "description": "Enable detailed compiler error messages"
+          "description": "Enable detailed compiler error messages",
+          "order": 4
+        },
+        "flix.clearOutput.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Continuously clear the output window when changes are made",
+          "order": 5
         },
         "flix.extraJvmArgs": {
           "type": "string",
           "default": "",
-          "description": "Additional JVM arguments separated by spaces"
+          "description": "Additional JVM arguments separated by spaces",
+          "order": 6
         },
         "flix.extraFlixArgs": {
           "type": "string",
           "default": "",
-          "description": "Additional Flix compiler options separated by spaces"
+          "description": "Additional Flix compiler options separated by spaces",
+          "order": 7
         }
       }
     },

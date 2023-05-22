@@ -54,10 +54,6 @@
                 {
                     "name": "constant.language.null.flix",
                     "match": "\\b(null)\\b"
-                },
-                {
-                    "name": "constant.language.effect.flix",
-                    "match": "\\b(Read|Write)\\b"
                 }
             ]
         },

@@ -75,7 +75,9 @@ function getUserConfiguration () {
 }
 
 function handlePrintDiagnostics ({ status, result }) {
-    outputChannel.clear()
+    if (getUserConfiguration().clearOutput.enabled)
+        outputChannel.clear()
+        
     for (const res of result) {
         for (const diag of res.diagnostics) {
             if (diag.severity <= 2) {

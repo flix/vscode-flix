@@ -174,6 +174,11 @@
           "default": true,
           "description": "Run the compiler on every change"
         },
+        "flix.clearOutput.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Continuously clear the output window when changes are made"
+        },
         "flix.explain.enabled": {
           "type": "boolean",
           "default": false,

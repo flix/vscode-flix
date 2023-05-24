@@ -11,7 +11,7 @@ import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
-let FLIX_TERMINAL: vscode.Terminal = undefined
+let FLIX_TERMINAL: vscode.Terminal | undefined = undefined
 
 let countTerminals:number = 0
 
@@ -25,7 +25,7 @@ export function makeHandleRunJob (
 }
 
 /**
- * Creates a persistent shared repl.
+ * Creates a persistent shared repl if one does not already exist.
  */
 export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
     const activeTerminals = vscode.window.terminals
@@ -34,16 +34,25 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
             FLIX_TERMINAL = element
         }
     }
+
     if (FLIX_TERMINAL === undefined) {
         FLIX_TERMINAL = vscode.window.createTerminal("REPL")
+
+        let cmd = await getJVMCmd(context, launchOptions)
+        cmd.push('repl')
+        if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
+            cmd.push("--explain")
+        }
+        cmd.push(...getExtraFlixArgs())
+        FLIX_TERMINAL.sendText(quote(cmd))
     }
-    let cmd = await getJVMCmd(context, launchOptions)
-    cmd.push('repl')
-    if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
-        cmd.push("--explain")
-    }
-    cmd.push(...getExtraFlixArgs())
-    FLIX_TERMINAL.sendText(quote(cmd))
+
+    vscode.window.onDidCloseTerminal(
+        terminal => {
+            if (terminal.name == FLIX_TERMINAL.name)
+                FLIX_TERMINAL = undefined
+        }
+    )
 }
 
 /**
@@ -232,7 +241,10 @@ export function runMain(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:eval ${entryPoint}()`)
         }
@@ -254,6 +266,7 @@ export function runMainWithArgs(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
+            await createSharedRepl(context, launchOptions)
             let input = await takeInputFromUser()
             if(input != undefined) {
                 let args = input.split(" ").map(s => `"${s}"`)
@@ -375,7 +388,10 @@ function getTerminal(name: string) {
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:init`)
         }
@@ -396,7 +412,10 @@ export function cmdCheck(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:check`)
         }
@@ -416,7 +435,10 @@ export function cmdBuild(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:build`)
         }
@@ -436,7 +458,10 @@ export function cmdBuildJar(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:jar`)
         }
@@ -456,7 +481,10 @@ export function cmdBuildPkg(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:pkg`)
         }
@@ -476,7 +504,10 @@ export function cmdRunProject(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:eval main()`)
         }
@@ -496,7 +527,10 @@ export function cmdBenchmark(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:bench`)
         }
@@ -516,7 +550,10 @@ export function cmdTests(
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
-            await handleUnsavedFiles()
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                createSharedRepl(context, launchOptions),
+            ])
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:test`)
         }

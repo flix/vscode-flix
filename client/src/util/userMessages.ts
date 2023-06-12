@@ -1,7 +1,7 @@
 import { FlixRelease } from '../services/releases'
 
 export class USER_MESSAGE {
-    
+
     static ASK_DOWNLOAD_NEW_FLIX(releaseName:string) {
         return {
             msg: `A new version of the Flix compiler (${releaseName}) is available. Download?`,
@@ -23,7 +23,7 @@ export class USER_MESSAGE {
             prompt: 'Enter arguments separated by spaces',
             placeHolder: 'arg0 arg1 arg2 ...',
         }
-    } 
+    }
 
     static ASK_RELOAD_TOML() {
         return {
@@ -41,6 +41,10 @@ export class USER_MESSAGE {
         }
     }
 
+    static CANT_SHOW_AST() {
+        return 'Failed to show the AST for this file'
+    }
+
     static INFORM_DOWNLOAD_FLIX() {
         return  'Downloading Flix Compiler'
     }
@@ -48,19 +52,19 @@ export class USER_MESSAGE {
     static INFORM_NO_CHANGELOG() {
         return 'Unable to get latest changelog.\n'
         + 'Please visit https://github.com/flix/flix/releases for more information on the available flix releases.'
-    } 
+    }
 
     static INFORM_STARTING_FLIX() {
         return 'Starting Flix'
     }
 
-    static SHOW_CHANGELOG(installedVersion:FlixRelease) { 
-        return `# New Flix Release!\n` 
+    static SHOW_CHANGELOG(installedVersion:FlixRelease) {
+        return `# New Flix Release!\n`
         + `## Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n`
         + `${installedVersion.description}`
     }
 
-    static TIMEOUT(timeMS:number) { 
-        return `Timeout after ${timeMS}ms` 
+    static TIMEOUT(timeMS:number) {
+        return `Timeout after ${timeMS}ms`
     }
 }

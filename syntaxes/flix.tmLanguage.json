@@ -54,10 +54,6 @@
                 {
                     "name": "constant.language.null.flix",
                     "match": "\\b(null)\\b"
-                },
-                {
-                    "name": "constant.language.effect.flix",
-                    "match": "\\b(Read|Write)\\b"
                 }
             ]
         },
@@ -129,7 +125,7 @@
                 },
                 {
                     "name": "keyword.declaration.flix",
-                    "match": "\\b(eff|def|law|enum|case|type|rel|lat|alias|class|instance|with|without|opaque|mod|new)\\b"
+                    "match": "\\b(eff|def|law|enum|case|type|rel|lat|alias|class|instance|with|without|opaque|mod)\\b"
                 },
                 {
                     "name": "keyword.expression.cast.flix",
@@ -149,7 +145,7 @@
                 },
                 {
                     "name": "keyword.expression.hole.flix",
-                    "match": "(\\?\\?\\?|\\?[a-z0-9]+)"
+                    "match": "(\\?\\?\\?|\\?[a-zA-Z0-9]+)"
                 },
                 {
                     "name": "keyword.expression.import.flix",
@@ -284,10 +280,6 @@
                 {
                     "name": "storage.type.annotation.flix",
                     "match": "@Test"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Unsafe"
                 }
             ]
         },

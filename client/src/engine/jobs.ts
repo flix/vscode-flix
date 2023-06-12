@@ -47,6 +47,7 @@ export enum Request {
   lspDocumentSymbols = 'lsp/documentSymbols',
   lspCodeAction = 'lsp/codeAction',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
+  lspShowAst = "lsp/showAst",
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request

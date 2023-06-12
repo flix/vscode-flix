@@ -42,12 +42,13 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
     if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
         cmd.push("--explain")
     }
+    cmd.push(...getExtraFlixArgs())
     FLIX_TERMINAL.sendText(quote(cmd))
 }
 
 /**
  * returns an active terminal with prefix name `flix`.
- * 
+ *
  * If not any active terminal with prefix name `flix`, it creates a new terminal with name `flix`.
  *
  * @return vscode.Terminal
@@ -65,7 +66,7 @@ function getFlixTerminal() {
 
 /**
  * returns an new active terminal with prefix name `flix`.
- * 
+ *
  * If not any active terminal with prefix name `flix`, it creates a new terminal with name `flix` and returns it.
  *
  * If there are already `n` active terminals exist with prefix name `flix`, it creates a new terminal with name `flix n+1`
@@ -92,7 +93,7 @@ function getExtraFlixArgs() {
  *
  * @param cmd string (a terminal command) to pass to the terminal.
  *
- * @param terminal vscode.Terminal 
+ * @param terminal vscode.Terminal
  *
  * @return void
 */
@@ -135,7 +136,7 @@ async function handleUnsavedFiles() {
 
 /**
  * combines the paths of all flix files present in the current directory of vscode window.
- * 
+ *
  * gets an array of vscode.Uri for all flix files using `vscode.workspace.findFiles` function
  *
  * @return string of format "\<path_to_first_file\>" "\<path_to_second_file\>" ..........
@@ -152,7 +153,7 @@ async function getFiles() {
 
 /**
  * sends a java command to compile and run flix program of vscode window to the terminal.
- * 
+ *
  * @param terminal vscode.Terminal
  * @param args string
  * @param context vscode.ExtensionContext
@@ -161,7 +162,7 @@ async function getFiles() {
 async function passArgs (
     terminal:vscode.Terminal,
     args: string,
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions,
     entryPoint?: string
     ) {
@@ -172,16 +173,16 @@ async function passArgs (
             cmd.push(args)
         }
         cmd.push(...getExtraFlixArgs())
-        passCommandToTerminal(cmd, terminal)  
+        passCommandToTerminal(cmd, terminal)
 }
 
 /**
  * It takes context and launchOptions as arguments and finds the path of `flix.jar`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LauchOptions
- * 
+ *
  * @returns string (path of `flix.jar`)
  */
 async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: LaunchOptions) {
@@ -198,7 +199,7 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
  * @returns string[]
  */
  async function getJVMCmd(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions,
     entryPoint?: string
     ) {
@@ -217,17 +218,17 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
 
 /**
  * Run main without any custom arguments
- * 
+ *
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to an existing (if already exists else new) terminal.
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @return function handler
 */
 export function runMain(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
@@ -239,17 +240,17 @@ export function runMain(
 
 /**
  * Run main with user provided arguments
- * 
+ *
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files> --args <arguments>` to an existing (if already exists else new) terminal.
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @return function handler
 */
 export function runMainWithArgs(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
@@ -264,17 +265,17 @@ export function runMainWithArgs(
 
 /**
  * Run main without any custom arguments in a new terminal
- * 
+ *
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to a new terminal.
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @return function handler
 */
 export function runMainNewTerminal(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
@@ -289,17 +290,17 @@ export function runMainNewTerminal(
 
 /**
  * Run main with user provided arguments in a new terminal
- * 
+ *
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files> --args <arguments>` to a new terminal.
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @return function handler
 */
 export function runMainNewTerminalWithArgs(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler (entryPoint) {
@@ -313,10 +314,10 @@ export function runMainNewTerminalWithArgs(
 }
 
 export function makeHandleRunJobWithProgress (
-  client: LanguageClient, 
-  outputChannel: vscode.OutputChannel, 
-  request: jobs.Request, 
-  title: string, 
+  client: LanguageClient,
+  outputChannel: vscode.OutputChannel,
+  request: jobs.Request,
+  title: string,
   timeout: number = 180
 ) {
   return function handler () {
@@ -329,7 +330,7 @@ export function makeHandleRunJobWithProgress (
         client.sendNotification(request)
 
         const cancelCleanup = timers.ensureCleanupEventually(reject, timeout)
-  
+
         eventEmitter.on(jobs.Request.internalFinishedJob, function readyHandler () {
           cancelCleanup()
           outputChannel.show()
@@ -343,9 +344,9 @@ export function makeHandleRunJobWithProgress (
 
 /**
  * Returns a terminal with the given name (new if already not exists)
- * 
+ *
  * @param name name of the terminal
- * 
+ *
  * @returns vscode.Terminal
  */
 
@@ -362,15 +363,15 @@ function getTerminal(name: string) {
 
 /**
  * creates a new project in the current directory using command `java -jar flix.jar init`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
  export function cmdInit(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -382,16 +383,16 @@ function getTerminal(name: string) {
 
 /**
  * checks the current project for errors using command `java -jar flix.jar check`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 
 export function cmdCheck(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -403,15 +404,15 @@ export function cmdCheck(
 
 /**
  * builds (i.e. compiles) the current project using command `java -jar flix.jar build`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdBuild(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -423,15 +424,15 @@ export function cmdBuild(
 
 /**
  * builds a jar-file from the current project using command `java -jar flix.jar build-jar`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdBuildJar(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -443,15 +444,15 @@ export function cmdBuildJar(
 
 /**
  * builds a fpkg-file from the current project using command `java -jar flix.jar build-pkg`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdBuildPkg(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -463,15 +464,15 @@ export function cmdBuildPkg(
 
 /**
  * runs main for the current project using command `java -jar flix.jar run`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdRunProject(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -483,15 +484,15 @@ export function cmdRunProject(
 
 /**
  * runs the benchmarks for the current project using command `java -jar flix.jar benchmark`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdBenchmark(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -503,15 +504,15 @@ export function cmdBenchmark(
 
 /**
  * runs all the tests for the current project using command `java -jar flix.jar test`
- * 
+ *
  * @param context vscode.ExtensionContext
- * 
+ *
  * @param launchOptions LaunchOptions
- * 
+ *
  * @returns function handler
  */
 export function cmdTests(
-    context: vscode.ExtensionContext, 
+    context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
         return async function handler () {
@@ -519,4 +520,23 @@ export function cmdTests(
             FLIX_TERMINAL.show()
             FLIX_TERMINAL.sendText(`:test`)
         }
+}
+
+/**
+ * show the ast of a given phase
+ *
+ * @param context vscode.ExtensionContext
+ * @param phase   the name of the phase
+ *
+ * @returns function handler
+ */
+export function showAst(client: LanguageClient, phase: String) {
+    return async function handler () {
+        client.sendNotification(
+            jobs.Request.lspShowAst,
+            {
+                uri: vscode.window.activeTextEditor.document.uri.fsPath,
+                phase: phase
+            })
+    }
 }

@@ -44,9 +44,6 @@ export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspac
 
 let outputChannel: vscode.OutputChannel
 
-// flag to keep track of whether errors were present last time we ran diagnostics
-let diagnosticsErrors = false
-
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
  *
@@ -63,27 +60,33 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
   }
 }
 
+async function handleShowAst ({ status, result }) {
+    if (status === 'success') {
+        const content: string = "// " + result.title + "\n\n" + result.text
+        const document = await vscode.workspace.openTextDocument({content: content, language: "flix"});
+        const editor = vscode.window.showTextDocument(document)
+    } else {
+        const msg = USER_MESSAGE.CANT_SHOW_AST()
+        vscode.window.showInformationMessage(msg)
+    }
+  }
+
 function getUserConfiguration () {
   return vscode.workspace.getConfiguration('flix')
 }
 
 function handlePrintDiagnostics ({ status, result }) {
-  if (status === 'success') {
-    if (diagnosticsErrors) {
-      outputChannel.clear()
-      diagnosticsErrors = false
+    if (getUserConfiguration().clearOutput.enabled) {
+        outputChannel.clear()
     }
-  } else {
-    outputChannel.clear()
-    diagnosticsErrors = true
+        
     for (const res of result) {
-      for (const diag of res.diagnostics) {
-        if (diag.severity <= 2) {
-            outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+        for (const diag of res.diagnostics) {
+            if (diag.severity <= 2) {
+                outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
+            }
         }
-      }
     }
-  }
 }
 
 let codeActionsFound = false
@@ -129,7 +132,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   //registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
   //registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
   //registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
-  
+
   //registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
   registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
   registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
@@ -138,9 +141,28 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
   registerCommand('flix.cmdBenchmark', handlers.cmdBenchmark(context, launchOptions))
   registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.showParserAst', handlers.showAst(client, "Parser"))
+  registerCommand('flix.showWeederAst', handlers.showAst(client, "Weeder"))
+  registerCommand('flix.showKinderAst', handlers.showAst(client, "Kinder"))
+  registerCommand('flix.showResolverAst', handlers.showAst(client, "Resolver"))
+  registerCommand('flix.showTyperAst', handlers.showAst(client, "Typer"))
+  registerCommand('flix.showDocumentorAst', handlers.showAst(client, "Documentor"))
+  registerCommand('flix.showLoweringAst', handlers.showAst(client, "Lowering"))
+  registerCommand('flix.showEarlyTreeShakerAst', handlers.showAst(client, "EarlyTreeShaker"))
+  registerCommand('flix.showMonomorphAst', handlers.showAst(client, "Monomorph"))
+  registerCommand('flix.showSimplifierAst', handlers.showAst(client, "Simplifier"))
+  registerCommand('flix.showClosureConvAst', handlers.showAst(client, "ClosureConv"))
+  registerCommand('flix.showLambdaLiftAst', handlers.showAst(client, "LambdaLift"))
+  registerCommand('flix.showTailrecAst', handlers.showAst(client, "Tailrec"))
+  registerCommand('flix.showOptimizerAst', handlers.showAst(client, "Optimizer"))
+  registerCommand('flix.showLateTreeShakerAst', handlers.showAst(client, "LateTreeShaker"))
+  registerCommand('flix.showReducerAst', handlers.showAst(client, "Reducer"))
+  registerCommand('flix.showVarNumberingAst', handlers.showAst(client, "VarNumbering"))
+  registerCommand('flix.showMonoTyperAst', handlers.showAst(client, "MonoTyper"))
+  registerCommand('flix.showEraserAst', handlers.showAst(client, "Eraser"))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
-  
+
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -162,7 +184,7 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiAddPkg, { uri })
   })
-  
+
   // watch for changes on the file system (delete, create .jar files)
   pkgWatcher = vscode.workspace.createFileSystemWatcher(JAR_GLOB_PATTERN)
   pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -199,7 +221,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   // clear outputs
   outputChannel.clear()
-  
+
   // show default output channel without changing focus
   outputChannel.show(true)
 
@@ -232,7 +254,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalReady, function handler () {
     // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
-    
+
     // start the Flix runner (but only after the Flix LSP instance has started.)
     handlers.createSharedRepl(context, launchOptions)
   })
@@ -251,6 +273,8 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
 
   client.onNotification(jobs.Request.lspCodeAction, handleCodeAction)
+
+  client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 
 }
 

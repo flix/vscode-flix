@@ -13,7 +13,6 @@ import initialiseState from './services/state'
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
-import codeActions from './services/codeActions'
 import { USER_MESSAGE } from './util/userMessages'
 
 const _ = require('lodash/fp')
@@ -86,19 +85,6 @@ function handlePrintDiagnostics ({ status, result }) {
                 outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
             }
         }
-    }
-}
-
-let codeActionsFound = false
-
-function handleCodeAction({status, result}) {
-    // Constructor call changes depending on which properties we need for our code actions
-    const codeAction = new codeActions(result.kind, result.edit.newText);
-
-    // Registers the code actions the first time we get a response from the server
-    if (!codeActionsFound) {
-        vscode.languages.registerCodeActionsProvider('flix', codeAction);
-        codeActionsFound = true
     }
 }
 
@@ -271,8 +257,6 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
-
-  client.onNotification(jobs.Request.lspCodeAction, handleCodeAction)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 

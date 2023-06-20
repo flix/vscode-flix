@@ -45,7 +45,6 @@ export enum Request {
   lspUses = 'lsp/uses',
   lspRename = 'lsp/rename',
   lspDocumentSymbols = 'lsp/documentSymbols',
-  lspCodeAction = 'lsp/codeAction',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspShowAst = "lsp/showAst",
 

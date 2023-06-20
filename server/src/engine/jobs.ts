@@ -68,13 +68,7 @@ export interface Position {
 
 export interface Job {
   request: Request
-  uri?: string
-  src?: string
-  base64?: string
-  position?: Position
-  projectRootUri?: string
-  newName?: string
-  phase?: string
+  [param: string]: any;
 }
 
 export interface EnqueuedJob extends Job {

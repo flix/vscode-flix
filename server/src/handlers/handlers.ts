@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { InitializeParams, InitializeResult, InlayHintParams, ServerRequestHandler, TextDocumentSyncKind } from 'vscode-languageserver'
+import { CodeActionKind, InitializeParams, InitializeResult, InlayHintParams, ServerRequestHandler, TextDocumentSyncKind } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
@@ -233,16 +233,15 @@ function makeRenameJob (params: any) {
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
 
-/**
- * @function 
- */
-export const handleCodeAction = makePositionalHandler(jobs.Request.lspCodeAction, hasErrorsHandlerForCommands, makeCodeActionResponseHandler);
+export function handleCodeAction(params: any): Promise<any> {
+    const uri = params.textDocument ? params.textDocument.uri : undefined
+    const range = params.range
+    const context = params.context
 
-function makeCodeActionResponseHandler (promiseResolver: Function) {
-    return function responseHandler ({ status, result }: any) {
-      sendNotification(jobs.Request.lspCodeAction, { status, result })
-      promiseResolver()
-    }
+    return new Promise(function (resolve) {
+        const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspCodeAction, { uri, range, context })
+        socket.eventEmitter.once(job.id, ({ status, result }) => resolve(result))
+    })
 }
 
 /**

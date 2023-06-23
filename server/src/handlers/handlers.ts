@@ -56,6 +56,7 @@ export function handleInitialize (_params: InitializeParams) {
         prepareProvider: false
       },
       documentSymbolProvider: true,
+      codeActionProvider: true,
       workspaceSymbolProvider: true,
       implementationProvider: true,
       semanticTokensProvider: {
@@ -231,6 +232,17 @@ function makeRenameJob (params: any) {
  * @function
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
+
+export function handleCodeAction(params: any): Promise<any> {
+    const uri = params.textDocument ? params.textDocument.uri : undefined
+    const range = params.range
+    const context = params.context
+
+    return new Promise(function (resolve) {
+        const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspCodeAction, { uri, range, context })
+        socket.eventEmitter.once(job.id, ({ status, result }) => resolve(result))
+    })
+}
 
 /**
  * @function

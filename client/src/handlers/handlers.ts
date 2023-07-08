@@ -511,22 +511,6 @@ export function cmdRunProject(
 }
 
 /**
- * runs the benchmarks for the current project using command `java -jar flix.jar benchmark`
- *
- * @param context vscode.ExtensionContext
- *
- * @param launchOptions LaunchOptions
- *
- * @returns function handler
- */
-export function cmdBenchmark(
-    context: vscode.ExtensionContext,
-    launchOptions: LaunchOptions = defaultLaunchOptions
-    ) {
-        return runCmd(context, launchOptions, ":bench")
-}
-
-/**
  * runs all the tests for the current project using command `java -jar flix.jar test`
  *
  * @param context vscode.ExtensionContext

@@ -46,6 +46,7 @@ export enum Request {
   lspUses = 'lsp/uses',
   lspRename = 'lsp/rename',
   lspDocumentSymbols = 'lsp/documentSymbols',
+  lspCodeAction = 'lsp/codeAction',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspSemanticTokens = 'lsp/semanticTokens',
   lspShowAst = "lsp/showAst",
@@ -67,13 +68,7 @@ export interface Position {
 
 export interface Job {
   request: Request
-  uri?: string
-  src?: string
-  base64?: string
-  position?: Position
-  projectRootUri?: string
-  newName?: string
-  phase?: string
+  [param: string]: any;
 }
 
 export interface EnqueuedJob extends Job {

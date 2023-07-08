@@ -52,10 +52,6 @@
         "title": "Flix: run"
       },
       {
-        "command": "flix.cmdBenchmark",
-        "title": "Flix: benchmark"
-      },
-      {
         "command": "flix.cmdTests",
         "title": "Flix: test"
       },

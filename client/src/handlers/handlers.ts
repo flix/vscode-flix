@@ -11,7 +11,7 @@ import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
-let FLIX_TERMINAL: vscode.Terminal = undefined
+let FLIX_TERMINAL: vscode.Terminal | undefined = undefined
 
 let countTerminals:number = 0
 
@@ -25,25 +25,43 @@ export function makeHandleRunJob (
 }
 
 /**
- * Creates a persistent shared repl.
+ * Creates a persistent shared repl if one does not already exist.
+ * 
+ * @return boolean indicatng whether a new terminal was created
  */
 export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-    const activeTerminals = vscode.window.terminals
-    for (const element of activeTerminals) {
-        if(element.name.substring(0, 4) == `REPL`) {
-            FLIX_TERMINAL = element
+    let missing = FLIX_TERMINAL === undefined
+
+    if (missing) {
+        const activeTerminals = vscode.window.terminals
+        for (const element of activeTerminals) {
+            if(element.name.substring(0, 4) == `REPL`) {
+                FLIX_TERMINAL = element
+                missing = false
+            }
         }
     }
-    if (FLIX_TERMINAL === undefined) {
+
+    if (missing) {
         FLIX_TERMINAL = vscode.window.createTerminal("REPL")
+
+        let cmd = await getJVMCmd(context, launchOptions)
+        cmd.push('repl')
+        if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
+            cmd.push("--explain")
+        }
+        cmd.push(...getExtraFlixArgs())
+        FLIX_TERMINAL.sendText(quote(cmd))
     }
-    let cmd = await getJVMCmd(context, launchOptions)
-    cmd.push('repl')
-    if(vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
-        cmd.push("--explain")
-    }
-    cmd.push(...getExtraFlixArgs())
-    FLIX_TERMINAL.sendText(quote(cmd))
+
+    vscode.window.onDidCloseTerminal(
+        terminal => {
+            if (terminal.name == FLIX_TERMINAL.name)
+                FLIX_TERMINAL = undefined
+        }
+    )
+
+    return missing
 }
 
 /**
@@ -217,6 +235,45 @@ async function getFlixFilename(context:vscode.ExtensionContext, launchOptions: L
 
 
 /**
+ * Run the given command in an existing (if already exists else new) terminal.
+ * 
+ * @param context vscode.ExtensionContext
+ * 
+ * @param launchOptions LaunchOptions
+ * 
+ * @param cmd string | ((...args: A) => string) | ((...args: A) => Promise<string>)
+ * 
+ * Either a string or an (optionally async) function returning a string.
+ * 
+ * @returns function handler
+ */
+function runCmd<A extends unknown[]>(
+    context: vscode.ExtensionContext,
+    launchOptions: LaunchOptions = defaultLaunchOptions,
+    cmd: string | ((...args: A) => string) | ((...args: A) => Promise<string>),
+    ) {
+        return async (...args: A) => {
+            async function prepareRepl() {
+                const newRepl = await createSharedRepl(context, launchOptions)
+                FLIX_TERMINAL.show()
+
+                // Wait for the REPL to start up and become responsive
+                if (newRepl) await new Promise(r => setTimeout(r, 2000))
+            }
+
+            await Promise.allSettled([
+                handleUnsavedFiles(),
+                prepareRepl(),
+            ])
+
+            if (typeof cmd === "string") 
+                FLIX_TERMINAL.sendText(cmd)
+            else
+                FLIX_TERMINAL.sendText(await cmd(...args)) 
+        } 
+}
+
+/**
  * Run main without any custom arguments
  *
  * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to an existing (if already exists else new) terminal.
@@ -231,11 +288,7 @@ export function runMain(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler (entryPoint) {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:eval ${entryPoint}()`)
-        }
+        return runCmd(context, launchOptions, (entryPoint: string) => `:eval ${entryPoint}()`)
 }
 
 /**
@@ -253,14 +306,13 @@ export function runMainWithArgs(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler (entryPoint) {
-            let input = await takeInputFromUser()
-            if(input != undefined) {
-                let args = input.split(" ").map(s => `"${s}"`)
-                FLIX_TERMINAL.show()
-                FLIX_TERMINAL.sendText(`:eval ${entryPoint}(${args.join(", ")})`)
-            }
-        }
+        return runCmd(context, launchOptions, async (entryPoint: string) => {
+            const input = await takeInputFromUser()
+            if (input === undefined) return ""
+
+            const args = input.split(" ").map(s => `"${s}"`)
+            return `:eval ${entryPoint}(${args.join(", ")})`
+        })
 }
 
 /**
@@ -374,11 +426,7 @@ function getTerminal(name: string) {
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:init`)
-        }
+        return runCmd(context, launchOptions, ":init")
 }
 
 /**
@@ -395,11 +443,7 @@ export function cmdCheck(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:check`)
-        }
+        return runCmd(context, launchOptions, ":check")
 }
 
 /**
@@ -415,11 +459,7 @@ export function cmdBuild(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:build`)
-        }
+        return runCmd(context, launchOptions, ":build")
 }
 
 /**
@@ -435,11 +475,7 @@ export function cmdBuildJar(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:jar`)
-        }
+        return runCmd(context, launchOptions, ":jar")
 }
 
 /**
@@ -455,11 +491,7 @@ export function cmdBuildPkg(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:pkg`)
-        }
+        return runCmd(context, launchOptions, ":pkg")
 }
 
 /**
@@ -475,11 +507,7 @@ export function cmdRunProject(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:eval main()`)
-        }
+        return runCmd(context, launchOptions, ":eval main()")
 }
 
 /**
@@ -495,11 +523,7 @@ export function cmdTests(
     context: vscode.ExtensionContext,
     launchOptions: LaunchOptions = defaultLaunchOptions
     ) {
-        return async function handler () {
-            await handleUnsavedFiles()
-            FLIX_TERMINAL.show()
-            FLIX_TERMINAL.sendText(`:test`)
-        }
+        return runCmd(context, launchOptions, ":test")
 }
 
 /**

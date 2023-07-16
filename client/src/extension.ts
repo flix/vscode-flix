@@ -14,6 +14,7 @@ import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
 import { USER_MESSAGE } from './util/userMessages'
+import statusCodes from './util/statusCodes'
 
 const _ = require('lodash/fp')
 
@@ -60,7 +61,7 @@ function makeHandleRestartClient (context: vscode.ExtensionContext, launchOption
 }
 
 async function handleShowAst ({ status, result }) {
-    if (status === 'success') {
+    if (status === statusCodes.OK) {
         const content: string = "// " + result.title + "\n\n" + result.text
         const document = await vscode.workspace.openTextDocument({content: content, language: "flix"});
         const editor = vscode.window.showTextDocument(document)

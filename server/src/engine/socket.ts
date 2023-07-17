@@ -16,11 +16,12 @@
 
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { sendNotification } from '../server'
+import { clearDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
-import { lspCheckResponseHandler } from '../handlers'
+import { handleCrash, lspCheckResponseHandler } from '../handlers'
 import { getPort } from 'portfinder';
 import { USER_MESSAGE } from '../util/userMessages'
+import statusCodes from '../util/statusCodes';
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -194,7 +195,10 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
 }
 
 function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
-  if (job.request === jobs.Request.lspCheck) {
+  if (flixResponse.status === statusCodes.COMPILER_ERROR) {
+    clearDiagnostics()
+    handleCrash(flixResponse)
+  } else if (job.request === jobs.Request.lspCheck) {
     lspCheckResponseHandler(flixResponse)
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)

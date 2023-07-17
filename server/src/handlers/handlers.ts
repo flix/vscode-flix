@@ -354,13 +354,16 @@ function makeVersionResponseHandler (promiseResolver: Function) {
 export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
+  _.each(sendDiagnostics, result)
+}
 
-  if (status === statusCodes.INVALID_REQUEST)
-    _.each(sendDiagnostics, result)
-  else if (status === statusCodes.COMPILER_ERROR) {
+/**
+ * Handle response where status is `statusCodes.COMPILER_ERROR`
+ */
+export function handleCrash({ status, result }: socket.FlixResponse) {
     const path = result?.reportPath as string
     sendNotification(jobs.Request.internalError, {
-        message: USER_MESSAGE.COMPILER_CRASHED(), 
+        message: USER_MESSAGE.COMPILER_CRASHED(path), 
         actions: [{ 
             title: "Open Report",
             command: { 
@@ -369,5 +372,4 @@ export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse
             },
         }],
     })
-  }
 }

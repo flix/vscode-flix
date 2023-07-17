@@ -89,6 +89,25 @@ function handlePrintDiagnostics ({ status, result }) {
     }
 }
 
+interface Action {
+    title: string
+    command: { 
+        type: "openFile",
+        path: string,
+    }
+}
+async function handleError({ message, actions }: { message: string, actions: Action[] }) {
+    const selection = await vscode.window.showErrorMessage(
+        message, 
+        ...actions.map(a => a.title),
+    )
+    const action = actions.find(a => a.title === selection)
+    if (action.command.type === "openFile") {
+        const uri = vscode.Uri.file(action.command.path)
+        vscode.window.showTextDocument(uri)
+    }
+}
+
 export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   // activate state
   initialiseState(context)
@@ -256,7 +275,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
 
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
-  client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
+  client.onNotification(jobs.Request.internalError, handleError)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 

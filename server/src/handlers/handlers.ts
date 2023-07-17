@@ -296,7 +296,10 @@ function prettyPrintTestResults (result: any) {
   const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
   const failingTests = totalTests - successfulTests
   if (failingTests > 0) {
-    sendNotification(jobs.Request.internalError, `Tests Failed (${failingTests}/${totalTests})`)
+    sendNotification(jobs.Request.internalError, {
+        message: `Tests Failed (${failingTests}/${totalTests})`,
+        actions: [],
+    })
   } else {
     sendNotification(jobs.Request.internalMessage, `Tests Passed (${successfulTests}/${totalTests})`)
   }
@@ -313,7 +316,10 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
 }
 
 function hasErrorsHandlerForCommands () {
-  sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
+  sendNotification(jobs.Request.internalError, {
+    message: 'Cannot run commands when errors are present.',
+    actions: [],
+  })
   sendNotification(jobs.Request.internalFinishedJob)
 }
 
@@ -331,7 +337,10 @@ function makeVersionResponseHandler (promiseResolver: Function) {
       const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {
-      sendNotification(jobs.Request.internalError, USER_MESSAGE.FAILED_TO_START())
+      sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.FAILED_TO_START(),
+        actions: [],
+    })
     }
     promiseResolver()
   }
@@ -345,5 +354,21 @@ function makeVersionResponseHandler (promiseResolver: Function) {
 export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
-  _.each(sendDiagnostics, result)
+
+  if (status === statusCodes.INVALID_REQUEST)
+    _.each(sendDiagnostics, result)
+  else if (status === statusCodes.COMPILER_ERROR) {
+    console.log("crashed")
+    const path = result?.reportPath as string
+    sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.COMPILER_CRASHED(), 
+        actions: [{ 
+            title: "Open Report",
+            command: { 
+                type: "openFile", 
+                path, 
+            },
+        }],
+    })
+  }
 }

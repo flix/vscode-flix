@@ -41,4 +41,8 @@ export class USER_MESSAGE {
         return `Could not send message after ${retries} retries. Websocket not available.`
     }
 
+    static COMPILER_CRASHED() {
+        return "The flix compiler crashed. See the crash report for details"
+    }
+
 }

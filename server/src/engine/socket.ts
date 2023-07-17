@@ -56,6 +56,7 @@ interface FlixResult {
     message: string
     tags: string[]
   }]
+  reportPath: string
 }
 
 export interface FlixResponse {
@@ -169,7 +170,10 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
       const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
-      return sendNotification(jobs.Request.internalError, errorMessage)
+      return sendNotification(jobs.Request.internalError, {
+        message: errorMessage,
+        actions: [],
+      })
     }
     setTimeout(() => {
       sendMessage(job, retries + 1)
@@ -179,7 +183,10 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
     delete sentMessagesMap[job.id]
-    sendNotification(jobs.Request.internalError, USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS))
+    sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
+        actions: [],
+    })
     setTimeout(queue.processQueue, 0)
   }, (MESSAGE_TIMEOUT_SECONDS * 1000))
   // send job as string

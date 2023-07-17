@@ -102,7 +102,7 @@ async function handleError({ message, actions }: { message: string, actions: Act
         ...actions.map(a => a.title),
     )
     const action = actions.find(a => a.title === selection)
-    if (action.command.type === "openFile") {
+    if (action?.command?.type === "openFile") {
         const uri = vscode.Uri.file(action.command.path)
         vscode.window.showTextDocument(uri)
     }

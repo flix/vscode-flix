@@ -21,7 +21,7 @@ import { EventEmitter } from 'events'
 import { handleCrash, lspCheckResponseHandler } from '../handlers'
 import { getPort } from 'portfinder';
 import { USER_MESSAGE } from '../util/userMessages'
-import statusCodes from '../util/statusCodes';
+import { StatusCode } from '../util/statusCodes';
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -62,7 +62,7 @@ interface FlixResult {
 
 export interface FlixResponse {
   id: string
-  status: string
+  status: StatusCode
   result?: FlixResult
 }
 
@@ -195,7 +195,7 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
 }
 
 function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
-  if (flixResponse.status === statusCodes.COMPILER_ERROR) {
+  if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)
   } else if (job.request === jobs.Request.lspCheck) {

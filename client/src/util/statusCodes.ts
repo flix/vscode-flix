@@ -1,21 +1,21 @@
 /**
  * Status codes for the compiler.
  */
-export default {
+export enum StatusCode {
       
     /**
      * Request was successfully processed.
      */
-    OK: "OK",
+    OK = "OK",
 
     /**
      * Request was invalid and could not be processed.
      */
-    INVALID_REQUEST: "INVALID_REQUEST",
+    INVALID_REQUEST = "INVALID_REQUEST",
 
     /**
      * The compiler has crashed.
      */
-    COMPILER_ERROR: "COMPILER_ERROR",
+    COMPILER_ERROR = "COMPILER_ERROR",
 
 };

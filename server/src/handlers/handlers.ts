@@ -26,7 +26,7 @@ import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
 import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
-import statusCodes from '../util/statusCodes'
+import { StatusCode } from '../util/statusCodes'
 
 const _ = require('lodash/fp')
 
@@ -173,7 +173,7 @@ export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto, 
 function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
     const targetUri = _.get('targetUri', result)
-    if (status === statusCodes.OK) {
+    if (status === StatusCode.Ok) {
       if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
@@ -333,7 +333,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
     // version is called on startup currently
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
-    if (status === statusCodes.OK) {
+    if (status === StatusCode.Ok) {
       const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {

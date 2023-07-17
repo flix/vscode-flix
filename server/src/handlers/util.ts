@@ -18,11 +18,11 @@ import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 import { hasErrors } from '../server'
-import statusCodes from '../util/statusCodes'
+import { StatusCode } from '../util/statusCodes'
 
 export function makeDefaultResponseHandler (promiseResolver: Function) {
   return function responseHandler ({ status, result }: socket.FlixResponse) {
-    if (status === statusCodes.OK) {
+    if (status === StatusCode.Ok) {
       promiseResolver(result)
     } else {
       promiseResolver()

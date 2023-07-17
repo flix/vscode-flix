@@ -358,7 +358,6 @@ export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse
   if (status === statusCodes.INVALID_REQUEST)
     _.each(sendDiagnostics, result)
   else if (status === statusCodes.COMPILER_ERROR) {
-    console.log("crashed")
     const path = result?.reportPath as string
     sendNotification(jobs.Request.internalError, {
         message: USER_MESSAGE.COMPILER_CRASHED(), 

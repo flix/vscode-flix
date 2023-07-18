@@ -46,7 +46,7 @@ export enum Request {
   lspRename = 'lsp/rename',
   lspDocumentSymbols = 'lsp/documentSymbols',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
-  lspShowAst = "lsp/showAst",
+  lspShowAst = 'lsp/showAst',
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request
@@ -55,5 +55,5 @@ export enum Request {
   internalError = 'ext/error', // Internal Extension Request
   internalFinishedJob = 'ext/finished', // Internal Extension Request
   internalDiagnostics = 'ext/diagnostics', // Internal Extension Request
-  internalReplaceConfiguration = 'ext/replaceConfiguration' // Internal Extension Request
+  internalReplaceConfiguration = 'ext/replaceConfiguration', // Internal Extension Request
 }

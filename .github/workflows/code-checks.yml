@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: npm install
     - name: Check code formatting
       run: prettier --check .
     - name: Run linter
       run: |
-        npm install
         npm install -g eslint-cli
         eslint .

@@ -25,29 +25,29 @@ interface JavaVersion {
 
 const unknownJavaVersion: JavaVersion = {
   majorVersion: undefined,
-  versionString: undefined
+  versionString: undefined,
 }
 
-const getMajorVersion = _.flow(
-  _.split('.'),
-  _.first,
-  _.parseInt(10)
-)
+const getMajorVersion = _.flow(_.split('.'), _.first, _.parseInt(10))
 
-export default async function javaMajorVersion (rootPath: string): Promise<JavaVersion> {
-  return new Promise((resolve) => {
-    ChildProcess.exec('java -cp . CheckJavaVersion', { cwd: path.join(rootPath, 'java') }, (error: any, stdout: any, stderror: any) => {
-      if (error) {
-        return resolve(unknownJavaVersion)
-      }
-      if (typeof stdout !== 'string') {
-        return resolve(unknownJavaVersion)
-      }
-      const majorVersion = getMajorVersion(stdout) || 0
-      return resolve({
-        majorVersion,
-        versionString: _.trim(stdout)
-      })
-    })
+export default async function javaMajorVersion(rootPath: string): Promise<JavaVersion> {
+  return new Promise(resolve => {
+    ChildProcess.exec(
+      'java -cp . CheckJavaVersion',
+      { cwd: path.join(rootPath, 'java') },
+      (error: any, stdout: any, stderror: any) => {
+        if (error) {
+          return resolve(unknownJavaVersion)
+        }
+        if (typeof stdout !== 'string') {
+          return resolve(unknownJavaVersion)
+        }
+        const majorVersion = getMajorVersion(stdout) || 0
+        return resolve({
+          majorVersion,
+          versionString: _.trim(stdout),
+        })
+      },
+    )
   })
 }

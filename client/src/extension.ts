@@ -22,7 +22,7 @@ export interface LaunchOptions {
 }
 
 export const defaultLaunchOptions: LaunchOptions = {
-  shouldUpdateFlix: false
+  shouldUpdateFlix: false,
 }
 
 let client: LanguageClient
@@ -48,51 +48,51 @@ let outputChannel: vscode.OutputChannel
  *
  * @param uri {vscode.Uri}
  */
-function vsCodeUriToUriString (uri: vscode.Uri) {
+function vsCodeUriToUriString(uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
 }
 
-function makeHandleRestartClient (context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
-  return async function handleRestartClient () {
+function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
+  return async function handleRestartClient() {
     callResolversAndEmptyList()
     await startSession(context, launchOptions, client)
   }
 }
 
-async function handleShowAst ({ status, result }) {
-    if (status === 'success') {
-        const content: string = "// " + result.title + "\n\n" + result.text
-        const document = await vscode.workspace.openTextDocument({content: content, language: "flix"});
-        const editor = vscode.window.showTextDocument(document)
-    } else {
-        const msg = USER_MESSAGE.CANT_SHOW_AST()
-        vscode.window.showInformationMessage(msg)
-    }
+async function handleShowAst({ status, result }) {
+  if (status === 'success') {
+    const content: string = '// ' + result.title + '\n\n' + result.text
+    const document = await vscode.workspace.openTextDocument({ content: content, language: 'flix' })
+    const editor = vscode.window.showTextDocument(document)
+  } else {
+    const msg = USER_MESSAGE.CANT_SHOW_AST()
+    vscode.window.showInformationMessage(msg)
   }
+}
 
-function getUserConfiguration () {
+function getUserConfiguration() {
   return vscode.workspace.getConfiguration('flix')
 }
 
-function handlePrintDiagnostics ({ status, result }) {
-    if (getUserConfiguration().clearOutput.enabled) {
-        outputChannel.clear()
+function handlePrintDiagnostics({ status, result }) {
+  if (getUserConfiguration().clearOutput.enabled) {
+    outputChannel.clear()
+  }
+
+  for (const res of result) {
+    for (const diag of res.diagnostics) {
+      if (diag.severity <= 2) {
+        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${diag.fullMessage}`)
+      }
     }
-        
-    for (const res of result) {
-        for (const diag of res.diagnostics) {
-            if (diag.severity <= 2) {
-                outputChannel.appendLine(`${String.fromCodePoint(0x274C)} ${diag.fullMessage}`)
-            }
-        }
-    }
+  }
 }
 
-export async function activate (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+export async function activate(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   // activate state
   initialiseState(context)
 
-  registerFlixReleaseDocumentProvider(context);
+  registerFlixReleaseDocumentProvider(context)
 
   // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix Compiler')
@@ -126,25 +126,25 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
   registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
   registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
-  registerCommand('flix.showParserAst', handlers.showAst(client, "Parser"))
-  registerCommand('flix.showWeederAst', handlers.showAst(client, "Weeder"))
-  registerCommand('flix.showKinderAst', handlers.showAst(client, "Kinder"))
-  registerCommand('flix.showResolverAst', handlers.showAst(client, "Resolver"))
-  registerCommand('flix.showTyperAst', handlers.showAst(client, "Typer"))
-  registerCommand('flix.showDocumentorAst', handlers.showAst(client, "Documentor"))
-  registerCommand('flix.showLoweringAst', handlers.showAst(client, "Lowering"))
-  registerCommand('flix.showEarlyTreeShakerAst', handlers.showAst(client, "EarlyTreeShaker"))
-  registerCommand('flix.showMonomorphAst', handlers.showAst(client, "Monomorph"))
-  registerCommand('flix.showSimplifierAst', handlers.showAst(client, "Simplifier"))
-  registerCommand('flix.showClosureConvAst', handlers.showAst(client, "ClosureConv"))
-  registerCommand('flix.showLambdaLiftAst', handlers.showAst(client, "LambdaLift"))
-  registerCommand('flix.showTailrecAst', handlers.showAst(client, "Tailrec"))
-  registerCommand('flix.showOptimizerAst', handlers.showAst(client, "Optimizer"))
-  registerCommand('flix.showLateTreeShakerAst', handlers.showAst(client, "LateTreeShaker"))
-  registerCommand('flix.showReducerAst', handlers.showAst(client, "Reducer"))
-  registerCommand('flix.showVarNumberingAst', handlers.showAst(client, "VarNumbering"))
-  registerCommand('flix.showMonoTyperAst', handlers.showAst(client, "MonoTyper"))
-  registerCommand('flix.showEraserAst', handlers.showAst(client, "Eraser"))
+  registerCommand('flix.showParserAst', handlers.showAst(client, 'Parser'))
+  registerCommand('flix.showWeederAst', handlers.showAst(client, 'Weeder'))
+  registerCommand('flix.showKinderAst', handlers.showAst(client, 'Kinder'))
+  registerCommand('flix.showResolverAst', handlers.showAst(client, 'Resolver'))
+  registerCommand('flix.showTyperAst', handlers.showAst(client, 'Typer'))
+  registerCommand('flix.showDocumentorAst', handlers.showAst(client, 'Documentor'))
+  registerCommand('flix.showLoweringAst', handlers.showAst(client, 'Lowering'))
+  registerCommand('flix.showEarlyTreeShakerAst', handlers.showAst(client, 'EarlyTreeShaker'))
+  registerCommand('flix.showMonomorphAst', handlers.showAst(client, 'Monomorph'))
+  registerCommand('flix.showSimplifierAst', handlers.showAst(client, 'Simplifier'))
+  registerCommand('flix.showClosureConvAst', handlers.showAst(client, 'ClosureConv'))
+  registerCommand('flix.showLambdaLiftAst', handlers.showAst(client, 'LambdaLift'))
+  registerCommand('flix.showTailrecAst', handlers.showAst(client, 'Tailrec'))
+  registerCommand('flix.showOptimizerAst', handlers.showAst(client, 'Optimizer'))
+  registerCommand('flix.showLateTreeShakerAst', handlers.showAst(client, 'LateTreeShaker'))
+  registerCommand('flix.showReducerAst', handlers.showAst(client, 'Reducer'))
+  registerCommand('flix.showVarNumberingAst', handlers.showAst(client, 'VarNumbering'))
+  registerCommand('flix.showMonoTyperAst', handlers.showAst(client, 'MonoTyper'))
+  registerCommand('flix.showEraserAst', handlers.showAst(client, 'Eraser'))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
 
@@ -184,13 +184,13 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   // watch for changes to the flix.toml file
   tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
   tomlWatcher.onDidChange(() => {
-    const {msg, option1, option2} = USER_MESSAGE.ASK_RELOAD_TOML()
+    const { msg, option1, option2 } = USER_MESSAGE.ASK_RELOAD_TOML()
     const doReload = vscode.window.showInformationMessage(msg, option1, option2)
-    doReload.then((res) => {
-        if (res == "Yes") {
-            makeHandleRestartClient(context, launchOptions)()
-        }
-    });
+    doReload.then(res => {
+      if (res == 'Yes') {
+        makeHandleRestartClient(context, launchOptions)()
+      }
+    })
   })
 
   vscode.workspace.onDidChangeConfiguration(() => {
@@ -200,7 +200,11 @@ export async function activate (context: vscode.ExtensionContext, launchOptions:
   await startSession(context, launchOptions, client)
 }
 
-async function startSession (context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions, client: LanguageClient) {
+async function startSession(
+  context: vscode.ExtensionContext,
+  launchOptions: LaunchOptions = defaultLaunchOptions,
+  client: LanguageClient,
+) {
   // clear listeners from previous sessions
   eventEmitter.removeAllListeners()
 
@@ -210,14 +214,18 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   // show default output channel without changing focus
   outputChannel.show(true)
 
-  const globalStoragePath = context.globalStorageUri.fsPath;
+  const globalStoragePath = context.globalStorageUri.fsPath
   const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-  const workspaceFiles: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)))
-  const workspacePkgs: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)))
-  const workspaceJars: [string] = _.map(vsCodeUriToUriString, (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)))
+  const workspaceFiles: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(FLIX_GLOB_PATTERN))
+  const workspacePkgs: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(FPKG_GLOB_PATTERN))
+  const workspaceJars: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(JAR_GLOB_PATTERN))
 
   // Wait until we're sure flix exists
-  const flixFilename = await ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix: launchOptions.shouldUpdateFlix })
+  const flixFilename = await ensureFlixExists({
+    globalStoragePath,
+    workspaceFolders,
+    shouldUpdateFlix: launchOptions.shouldUpdateFlix,
+  })
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()
@@ -232,11 +240,11 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     workspaceFiles,
     workspacePkgs,
     workspaceJars,
-    userConfiguration: getUserConfiguration()
+    userConfiguration: getUserConfiguration(),
   })
 
   // Handle when server has answered back after getting the notification above
-  client.onNotification(jobs.Request.internalReady, function handler () {
+  client.onNotification(jobs.Request.internalReady, function handler() {
     // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
 
@@ -244,7 +252,7 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
     handlers.createSharedRepl(context, launchOptions)
   })
 
-  client.onNotification(jobs.Request.internalFinishedJob, function handler () {
+  client.onNotification(jobs.Request.internalFinishedJob, function handler() {
     // only one job runs at once, so currently not trying to distinguish
     eventEmitter.emit(jobs.Request.internalFinishedJob)
   })
@@ -258,10 +266,9 @@ async function startSession (context: vscode.ExtensionContext, launchOptions: La
   client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)
-
 }
 
-export function deactivate (): Thenable<void> | undefined {
+export function deactivate(): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
   pkgWatcher && pkgWatcher.dispose()
   tomlWatcher && tomlWatcher.dispose()

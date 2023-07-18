@@ -1,14 +1,9 @@
 import * as path from 'path'
 import * as vscode from 'vscode'
 
-import {
-  LanguageClient,
-  LanguageClientOptions,
-  ServerOptions,
-  TransportKind
-} from 'vscode-languageclient/node'
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node'
 
-export default function createLanguageClient ({ context, outputChannel }) {
+export default function createLanguageClient({ context, outputChannel }) {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'))
   // The debug options for the server
@@ -20,13 +15,13 @@ export default function createLanguageClient ({ context, outputChannel }) {
   const serverOptions: ServerOptions = {
     run: {
       module: serverModule,
-      transport: TransportKind.ipc
+      transport: TransportKind.ipc,
     },
     debug: {
       module: serverModule,
       transport: TransportKind.ipc,
-      options: debugOptions
-    }
+      options: debugOptions,
+    },
   }
 
   // Options to control the language client
@@ -35,16 +30,11 @@ export default function createLanguageClient ({ context, outputChannel }) {
     documentSelector: [{ scheme: 'file', language: 'flix' }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+      fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc'),
     },
-    outputChannel
+    outputChannel,
   }
 
   // Create the language client and start the client.
-  return new LanguageClient(
-    'flixLanguageServer',
-    'Flix Language Server',
-    serverOptions,
-    clientOptions
-  )
+  return new LanguageClient('flixLanguageServer', 'Flix Language Server', serverOptions, clientOptions)
 }

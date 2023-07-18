@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { InitializeParams, InitializeResult, InlayHintParams, ServerRequestHandler, TextDocumentSyncKind } from 'vscode-languageserver'
+import {
+  InitializeParams,
+  InitializeResult,
+  InlayHintParams,
+  ServerRequestHandler,
+  TextDocumentSyncKind,
+} from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
@@ -33,27 +39,27 @@ interface UriInput {
   uri: string
 }
 
-function printHorizontalRuler () {
-  console.log(_.repeat(48, String.fromCodePoint(0x23E4)))
+function printHorizontalRuler() {
+  console.log(_.repeat(48, String.fromCodePoint(0x23e4)))
 }
 
-export function handleInitialize (_params: InitializeParams) {
+export function handleInitialize(_params: InitializeParams) {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentHighlightProvider: true,
       completionProvider: {
-        triggerCharacters: [".", "/", "?"]
+        triggerCharacters: ['.', '/', '?'],
       },
       hoverProvider: true,
       inlayHintProvider: true,
       definitionProvider: true,
       referencesProvider: true,
       codeLensProvider: {
-        resolveProvider: true
+        resolveProvider: true,
       },
       renameProvider: {
-        prepareProvider: false
+        prepareProvider: false,
       },
       documentSymbolProvider: true,
       codeActionProvider: true,
@@ -63,103 +69,107 @@ export function handleInitialize (_params: InitializeParams) {
         // NB: Must be in sync with ca.uwaterloo.flix.api.lsp.SemanticTokenType.
         legend: {
           tokenTypes: [
-              "class",
-              "enum",
-              "enumMember",
-              "function",
-              "interface",
-              "operator",
-              "parameter",
-              "property",
-              "method",
-              "namespace",
-              "type",
-              "typeParameter",
-              "variable"
-            ],
-          tokenModifiers: ["declaration"]
+            'class',
+            'enum',
+            'enumMember',
+            'function',
+            'interface',
+            'operator',
+            'parameter',
+            'property',
+            'method',
+            'namespace',
+            'type',
+            'typeParameter',
+            'variable',
+          ],
+          tokenModifiers: ['declaration'],
         },
-        full: true
-      }
-    }
+        full: true,
+      },
+    },
   }
   return result
 }
 
-export function handleReplaceConfiguration (userConfiguration: engine.UserConfiguration) {
+export function handleReplaceConfiguration(userConfiguration: engine.UserConfiguration) {
   engine.updateUserConfiguration(userConfiguration)
 }
 
 /**
  * Runs when both client and server are ready.
  */
-export function handleReady (engineInput: engine.StartEngineInput) {
+export function handleReady(engineInput: engine.StartEngineInput) {
   engine.start(engineInput)
 }
 
-export function handleAddUri ({ uri }: UriInput) {
+export function handleAddUri({ uri }: UriInput) {
   engine.addUri(uri)
 }
 
-export function handleRemUri ({ uri }: UriInput) {
+export function handleRemUri({ uri }: UriInput) {
   engine.remUri(uri)
 }
 
-export function handleAddPkg ( { uri } : UriInput) {
+export function handleAddPkg({ uri }: UriInput) {
   engine.addPkg(uri)
 }
 
-export function handleRemPkg ({ uri }: UriInput) {
+export function handleRemPkg({ uri }: UriInput) {
   engine.remPkg(uri)
 }
 
-export function handleAddJar ( { uri } : UriInput) {
+export function handleAddJar({ uri }: UriInput) {
   engine.addJar(uri)
 }
 
-export function handleRemJar ({ uri }: UriInput) {
+export function handleRemJar({ uri }: UriInput) {
   engine.remJar(uri)
 }
 
-export const handleShowAst = enqueueUnlessHasErrors(makeShowAstJob, makeShowAstResponseHandler, hasErrorsHandlerForCommands)
+export const handleShowAst = enqueueUnlessHasErrors(
+  makeShowAstJob,
+  makeShowAstResponseHandler,
+  hasErrorsHandlerForCommands,
+)
 
-function makeShowAstJob (params: any) {
-    return {
-        request: jobs.Request.lspShowAst,
-        uri: params.uri,
-        phase: params.phase
-    }
+function makeShowAstJob(params: any) {
+  return {
+    request: jobs.Request.lspShowAst,
+    uri: params.uri,
+    phase: params.phase,
+  }
 }
 
-function makeShowAstResponseHandler (promiseResolver: Function) {
-    return function responseHandler ({ status, result }: any) {
-      sendNotification(jobs.Request.lspShowAst, { status, result })
-      promiseResolver()
-    }
+function makeShowAstResponseHandler(promiseResolver: Function) {
+  return function responseHandler({ status, result }: any) {
+    sendNotification(jobs.Request.lspShowAst, { status, result })
+    promiseResolver()
+  }
 }
 
-export function handleExit () {
+export function handleExit() {
   engine.stop()
 }
 
-export function handleSave (params: any) {
+export function handleSave(params: any) {
   if (engine.compileOnSaveEnabled()) {
     addUriToCompiler(params.document, true)
   }
 }
 
-export function handleChangeContent (params: any) {
+export function handleChangeContent(params: any) {
   if (engine.compileOnChangeEnabled()) {
     // We send the document immediately to ensure better auto-complete.
     addUriToCompiler(params.document, true)
   }
 }
 
-function addUriToCompiler (document: TextDocument, skipDelay?: boolean) {
+function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
-    src: document.getText()
+    src: document.getText(),
   }
   queue.enqueue(job, skipDelay)
 }
@@ -167,10 +177,14 @@ function addUriToCompiler (document: TextDocument, skipDelay?: boolean) {
 /**
  * @function
  */
-export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto, undefined, makeGotoDefinitionResponseHandler)
+export const handleGotoDefinition = makePositionalHandler(
+  jobs.Request.lspGoto,
+  undefined,
+  makeGotoDefinitionResponseHandler,
+)
 
-function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
+function makeGotoDefinitionResponseHandler(promiseResolver: Function) {
+  return function responseHandler({ status, result }: socket.FlixResponse) {
     const targetUri = _.get('targetUri', result)
     if (status === 'success') {
       if (_.startsWith('file://', targetUri)) {
@@ -186,7 +200,7 @@ function makeGotoDefinitionResponseHandler (promiseResolver: Function) {
 /**
  * @function
  */
-export const handleImplementation = makePositionalHandler(jobs.Request.lspImplementation);
+export const handleImplementation = makePositionalHandler(jobs.Request.lspImplementation)
 
 /**
  * @function
@@ -196,8 +210,7 @@ export const handleHighlight = makePositionalHandler(jobs.Request.lspHighlight)
 /**
  * @function
  */
- export const handleComplete = makePositionalHandler(jobs.Request.lspComplete)
-
+export const handleComplete = makePositionalHandler(jobs.Request.lspComplete)
 
 /**
  * @function
@@ -217,44 +230,52 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 /**
  * @function
  */
-export const handleRename = enqueueUnlessHasErrors(makeRenameJob, makeDefaultResponseHandler, hasErrorsHandlerForCommands)
+export const handleRename = enqueueUnlessHasErrors(
+  makeRenameJob,
+  makeDefaultResponseHandler,
+  hasErrorsHandlerForCommands,
+)
 
-function makeRenameJob (params: any) {
+function makeRenameJob(params: any) {
   return {
     request: jobs.Request.lspRename,
     uri: params.textDocument.uri,
     position: params.position,
-    newName: params.newName
+    newName: params.newName,
   }
 }
 
 /**
  * @function
  */
-export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols);
+export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols)
 
 export function handleCodeAction(params: any): Promise<any> {
-    const uri = params.textDocument ? params.textDocument.uri : undefined
-    const range = params.range
-    const context = params.context
+  const uri = params.textDocument ? params.textDocument.uri : undefined
+  const range = params.range
+  const context = params.context
 
-    return new Promise(function (resolve) {
-        const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspCodeAction, { uri, range, context })
-        socket.eventEmitter.once(job.id, ({ status, result }) => resolve(result))
-    })
+  return new Promise(function (resolve) {
+    const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspCodeAction, { uri, range, context })
+    socket.eventEmitter.once(job.id, ({ status, result }) => resolve(result))
+  })
 }
 
 /**
  * @function
  */
-export const handleWorkspaceSymbols = enqueueUnlessHasErrors(makeWorkspaceSymbolsJob, makeDefaultResponseHandler, hasErrorsHandlerForCommands)
+export const handleWorkspaceSymbols = enqueueUnlessHasErrors(
+  makeWorkspaceSymbolsJob,
+  makeDefaultResponseHandler,
+  hasErrorsHandlerForCommands,
+)
 
 function makeWorkspaceSymbolsJob(params: any) {
-    return {
-        request: jobs.Request.lspWorkspaceSymbols,
-        position: params.position,
-        query: params.query || ''
-    }
+  return {
+    request: jobs.Request.lspWorkspaceSymbols,
+    position: params.position,
+    query: params.query || '',
+  }
 }
 
 /**
@@ -262,17 +283,25 @@ function makeWorkspaceSymbolsJob(params: any) {
  */
 export const handleSemanticTokens = makePositionalHandler(jobs.Request.lspSemanticTokens)
 
-export const handleInlayHints = (params: InlayHintParams): Thenable<any> => new Promise((resolve) => {
-  const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspInlayHints, { uri: params.textDocument.uri, range: params.range });
-  socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve));
-});
+export const handleInlayHints = (params: InlayHintParams): Thenable<any> =>
+  new Promise(resolve => {
+    const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspInlayHints, {
+      uri: params.textDocument.uri,
+      range: params.range,
+    })
+    socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve))
+  })
 
 /**
  * @function
  */
-export const handleRunTests = enqueueUnlessHasErrors({ request: jobs.Request.cmdRunTests }, makeRunTestsResponseHandler, hasErrorsHandlerForCommands)
+export const handleRunTests = enqueueUnlessHasErrors(
+  { request: jobs.Request.cmdRunTests },
+  makeRunTestsResponseHandler,
+  hasErrorsHandlerForCommands,
+)
 
-function prettyPrintTestResults (result: any) {
+function prettyPrintTestResults(result: any) {
   if (_.isEmpty(result)) {
     // nothing to print
     sendNotification(jobs.Request.internalMessage, 'No tests to run')
@@ -281,13 +310,11 @@ function prettyPrintTestResults (result: any) {
   printHorizontalRuler()
   for (const test of result) {
     console.log(
-      test.outcome === 'success'
-        ? String.fromCodePoint(0x2705)
-        : String.fromCodePoint(0x274C),
+      test.outcome === 'success' ? String.fromCodePoint(0x2705) : String.fromCodePoint(0x274c),
       test.name,
       test.outcome === 'success'
         ? ''
-        : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`
+        : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`,
     )
   }
   printHorizontalRuler()
@@ -301,8 +328,8 @@ function prettyPrintTestResults (result: any) {
   }
 }
 
-function makeRunTestsResponseHandler (promiseResolver: Function) {
-  return function responseHandler (flixResponse: socket.FlixResponse) {
+function makeRunTestsResponseHandler(promiseResolver: Function) {
+  return function responseHandler(flixResponse: socket.FlixResponse) {
     // the status is always 'success' when with failing tests
     const { result } = flixResponse
     prettyPrintTestResults(result)
@@ -311,7 +338,7 @@ function makeRunTestsResponseHandler (promiseResolver: Function) {
   }
 }
 
-function hasErrorsHandlerForCommands () {
+function hasErrorsHandlerForCommands() {
   sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
   sendNotification(jobs.Request.internalFinishedJob)
 }
@@ -321,8 +348,8 @@ function hasErrorsHandlerForCommands () {
  */
 export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
 
-function makeVersionResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: any) {
+function makeVersionResponseHandler(promiseResolver: Function) {
+  return function responseHandler({ status, result }: any) {
     // version is called on startup currently
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
@@ -341,7 +368,7 @@ function makeVersionResponseHandler (promiseResolver: Function) {
  *
  * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
  */
-export function lspCheckResponseHandler ({ status, result }: socket.FlixResponse) {
+export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
   _.each(sendDiagnostics, result)

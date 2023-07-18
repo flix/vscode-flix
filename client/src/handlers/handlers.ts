@@ -32,7 +32,7 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
   if (missing) {
     const activeTerminals = vscode.window.terminals
     for (const element of activeTerminals) {
-      if (element.name.substring(0, 4) == `REPL`) {
+      if (element.name.substring(0, 4) === `REPL`) {
         FLIX_TERMINAL = element
         missing = false
       }
@@ -42,7 +42,7 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
   if (missing) {
     FLIX_TERMINAL = vscode.window.createTerminal('REPL')
 
-    let cmd = await getJVMCmd(context, launchOptions)
+    const cmd = await getJVMCmd(context, launchOptions)
     cmd.push('repl')
     if (vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
       cmd.push('--explain')
@@ -52,7 +52,7 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
   }
 
   vscode.window.onDidCloseTerminal(terminal => {
-    if (terminal.name == FLIX_TERMINAL.name) FLIX_TERMINAL = undefined
+    if (terminal.name === FLIX_TERMINAL.name) FLIX_TERMINAL = undefined
   })
 
   return missing
@@ -68,7 +68,7 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
 function getFlixTerminal() {
   const activeTerminals = vscode.window.terminals
   for (const element of activeTerminals) {
-    if (element.name.substring(0, 4) == `flix`) return element
+    if (element.name.substring(0, 4) === `flix`) return element
   }
   const terminal = vscode.window.createTerminal(`flix-` + countTerminals.toString())
   countTerminals += 1 //creating a new terminal since no active flix terminals available.
@@ -131,15 +131,15 @@ async function takeInputFromUser() {
 }
 
 async function handleUnsavedFiles() {
-  let unsaved = []
+  const unsaved = []
   const textDocuments = vscode.workspace.textDocuments
   for (const textDocument of textDocuments) {
     if (textDocument.isDirty) unsaved.push(textDocument)
   }
-  if (unsaved.length != 0) {
+  if (unsaved.length !== 0) {
     const { msg, option1, option2 } = USER_MESSAGE.ASK_SAVE_CHANGED_FILES()
     const action = await vscode.window.showWarningMessage(msg, option1, option2)
-    if (action == option2) await vscode.workspace.saveAll(false)
+    if (action === option2) await vscode.workspace.saveAll(false)
   }
 }
 
@@ -154,7 +154,7 @@ async function getFiles() {
   await handleUnsavedFiles()
   const flixFiles = await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)
   const fpkgFiles = await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)
-  let files = []
+  const files = []
   files.push(...flixFiles)
   files.push(...fpkgFiles)
   return files.map(x => x.fsPath)
@@ -175,9 +175,9 @@ async function passArgs(
   launchOptions: LaunchOptions = defaultLaunchOptions,
   entryPoint?: string,
 ) {
-  let cmd = await getJVMCmd(context, launchOptions, entryPoint)
+  const cmd = await getJVMCmd(context, launchOptions, entryPoint)
   cmd.push(...(await getFiles()))
-  if (args.trim().length != 0) {
+  if (args.trim().length !== 0) {
     cmd.push('--args')
     cmd.push(args)
   }
@@ -217,8 +217,10 @@ async function getJVMCmd(
 ) {
   const flixFilename = await getFlixFilename(context, launchOptions)
   const jvm: string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
-  let cmd = ['java']
-  if (jvm.length != 0) cmd.push(...jvm.split(' '))
+  const cmd = ['java']
+  if (jvm.length !== 0) {
+    cmd.push(...jvm.split(' '))
+  }
   cmd.push(...['-jar', flixFilename])
   if (entryPoint && entryPoint.length > 0) {
     cmd.push(...['--entrypoint', entryPoint])
@@ -312,8 +314,8 @@ export function runMainNewTerminal(
   launchOptions: LaunchOptions = defaultLaunchOptions,
 ) {
   return async function handler(entryPoint) {
-    let terminal = newFlixTerminal()
-    let cmd = await getJVMCmd(context, launchOptions, entryPoint)
+    const terminal = newFlixTerminal()
+    const cmd = await getJVMCmd(context, launchOptions, entryPoint)
     cmd.push(...(await getFiles()))
     cmd.push(...getExtraFlixArgs())
     passCommandToTerminal(cmd, terminal)
@@ -336,9 +338,9 @@ export function runMainNewTerminalWithArgs(
   launchOptions: LaunchOptions = defaultLaunchOptions,
 ) {
   return async function handler(entryPoint) {
-    let input = await takeInputFromUser()
-    if (input != undefined) {
-      let terminal = newFlixTerminal()
+    const input = await takeInputFromUser()
+    if (input !== undefined) {
+      const terminal = newFlixTerminal()
       await passArgs(terminal, input, context, launchOptions, entryPoint)
     }
   }
@@ -386,7 +388,7 @@ export function makeHandleRunJobWithProgress(
 function getTerminal(name: string) {
   const activeTerminals = vscode.window.terminals
   for (const element of activeTerminals) {
-    if (element.name == name) return element
+    if (element.name === name) return element
   }
   return vscode.window.createTerminal({ name: name })
 }
@@ -491,7 +493,7 @@ export function cmdTests(context: vscode.ExtensionContext, launchOptions: Launch
  *
  * @returns function handler
  */
-export function showAst(client: LanguageClient, phase: String) {
+export function showAst(client: LanguageClient, phase: string) {
   return async function handler() {
     client.sendNotification(jobs.Request.lspShowAst, {
       uri: vscode.window.activeTextEditor.document.uri.fsPath,

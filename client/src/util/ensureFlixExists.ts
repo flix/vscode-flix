@@ -9,23 +9,16 @@ import { USER_MESSAGE } from './userMessages'
 const FLIX_JAR = 'flix.jar'
 
 async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promise<T> {
-  while (true) {
-    try {
-      return await downloadFunc()
-    } catch (e) {
-      const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_RETRY(e.message)
-      const selected = await vscode.window.showErrorMessage(
-        msg,
-        {},
-        { title: option1, retry: true },
-        { title: option2 },
-      )
+  try {
+    return await downloadFunc()
+  } catch (e) {
+    const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_RETRY(e.message)
+    const selected = await vscode.window.showErrorMessage(msg, {}, { title: option1, retry: true }, { title: option2 })
 
-      if (selected?.retry) {
-        continue
-      }
-      throw e
+    if (selected?.retry) {
+      downloadWithRetryDialog(downloadFunc)
     }
+    throw e
   }
 }
 

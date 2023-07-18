@@ -30,11 +30,11 @@ let resolversToCleanUp = {
 /**
  * Ensures the `resolver` is called eventually. Returns a function that should be called if everything works out.
  *
- * @param resolver {Function} Function to call with no arguments eventually unless canceled
+ * @param resolver {() => void} Function to call with no arguments eventually unless canceled
  * @param timeout {Number} Optional time to wait until bailing out
- * @returns {Function} Function that should be called when things work out
+ * @returns {() => void} Function that should be called when things work out
  */
-export function ensureCleanupEventually(resolver, timeout = 180) {
+export function ensureCleanupEventually(resolver: () => void, timeout = 180) {
   const index = `${indexCounter++}`
   const timer = setTimeout(() => {
     const msg = USER_MESSAGE.TIMEOUT(timeout)

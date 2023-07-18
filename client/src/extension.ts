@@ -187,7 +187,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     const { msg, option1, option2 } = USER_MESSAGE.ASK_RELOAD_TOML()
     const doReload = vscode.window.showInformationMessage(msg, option1, option2)
     doReload.then(res => {
-      if (res == 'Yes') {
+      if (res === 'Yes') {
         makeHandleRestartClient(context, launchOptions)()
       }
     })

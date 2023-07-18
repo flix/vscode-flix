@@ -41,7 +41,7 @@ export async function fetchRelease(
   console.warn('Issuing request for released artifacts metadata to', requestUrl)
 
   const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json' }
-  if (githubToken != null) {
+  if (githubToken !== null) {
     headers.Authorization = 'token ' + githubToken
   }
 
@@ -216,7 +216,9 @@ async function downloadFile(
   // See the nodejs changelog:
   // https://github.com/nodejs/node/blob/master/doc/changelogs/CHANGELOG_V13.md
   const [, major, minor] = /v(\d+)\.(\d+)\.(\d+)/.exec(process.version)!
-  if (+major > 13 || (+major === 13 && +minor >= 11)) return
+  if (+major > 13 || (+major === 13 && +minor >= 11)) {
+    return
+  }
 
   await new Promise<void>(resolve => {
     destFileStream.on('close', resolve)

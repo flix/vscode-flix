@@ -1,10 +1,10 @@
 {
-  "editor.insertSpaces": true,
-  "tslint.enable": true,
-  "typescript.tsc.autoDetect": "off",
-  "typescript.preferences.quoteStyle": "single",
+  "json.schemaDownload.enable": true,
+  "eslint.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "editor.detectIndentation": false
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

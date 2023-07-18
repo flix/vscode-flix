@@ -18,85 +18,85 @@ import { handleVersion } from '../handlers'
 import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
-import { getPortPromise } from 'portfinder';
-import * as _ from "lodash";
+import { getPortPromise } from 'portfinder'
+import * as _ from 'lodash'
 
 import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
-import { USER_MESSAGE } from '../util/userMessages';
+import { USER_MESSAGE } from '../util/userMessages'
 
 export interface CompileOnSave {
   enabled: boolean
 }
 
 export interface CompileOnChange {
-  enabled: boolean,
+  enabled: boolean
   delay: number
 }
 
 export interface Explain {
-    enabled: boolean;
+  enabled: boolean
 }
 
 export interface UserConfiguration {
-  compileOnSave: CompileOnSave,
-  compileOnChange: CompileOnChange,
-  explain: Explain,
-  extraJvmArgs: string,
+  compileOnSave: CompileOnSave
+  compileOnChange: CompileOnChange
+  explain: Explain
+  extraJvmArgs: string
   extraFlixArgs: string
 }
 
 export interface StartEngineInput {
-  flixFilename: string,
-  workspaceFolders: [string],
-  extensionPath: string,
-  extensionVersion: string,
-  globalStoragePath: string,
-  workspaceFiles: [string],
-  workspacePkgs: [string],
-  workspaceJars: [string],
+  flixFilename: string
+  workspaceFolders: [string]
+  extensionPath: string
+  extensionVersion: string
+  globalStoragePath: string
+  workspaceFiles: [string]
+  workspacePkgs: [string]
+  workspaceJars: [string]
   userConfiguration: UserConfiguration
 }
 
-let flixInstance: ChildProcess | undefined = undefined;
+let flixInstance: ChildProcess | undefined = undefined
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
 
-export function isRunning () {
+export function isRunning() {
   return flixRunning
 }
 
-export function getFlixFilename () {
+export function getFlixFilename() {
   return startEngineInput.flixFilename
 }
 
-export function getExtensionVersion () {
-  return _.get(startEngineInput, 'extensionVersion', '(unknown version)');
+export function getExtensionVersion() {
+  return _.get(startEngineInput, 'extensionVersion', '(unknown version)')
 }
 
-export function getProjectRootUri () {
+export function getProjectRootUri() {
   return _.first(startEngineInput.workspaceFolders)
 }
 
-export function updateUserConfiguration (userConfiguration: UserConfiguration) {
-  _.set(userConfiguration, 'userConfiguration', startEngineInput);
+export function updateUserConfiguration(userConfiguration: UserConfiguration) {
+  _.set(userConfiguration, 'userConfiguration', startEngineInput)
   queue.resetEnqueueDebounced()
 }
 
-export function compileOnSaveEnabled () {
+export function compileOnSaveEnabled() {
   return startEngineInput?.userConfiguration.compileOnSave.enabled ?? true
 }
 
-export function compileOnChangeEnabled () {
+export function compileOnChangeEnabled() {
   return startEngineInput?.userConfiguration.compileOnChange.enabled ?? true
 }
 
-export function compileOnChangeDelay () {
+export function compileOnChangeDelay() {
   return startEngineInput?.userConfiguration.compileOnChange.delay ?? 300
 }
 
-export async function start (input: StartEngineInput) {
+export async function start(input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     await stop()
   }
@@ -126,13 +126,13 @@ export async function start (input: StartEngineInput) {
   // TODO split respecting ""
   const args = []
   args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
-  args.push("-jar", flixFilename, "lsp", `${port}`)
+  args.push('-jar', flixFilename, 'lsp', `${port}`)
   args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
   if (startEngineInput?.userConfiguration.explain.enabled ?? false) {
-    args.push("--explain")
+    args.push('--explain')
   }
 
-  const instance = flixInstance = spawn('java', args);
+  const instance = (flixInstance = spawn('java', args))
   const webSocketUrl = `ws://localhost:${port}`
 
   // forward flix to own stdout & stderr
@@ -140,28 +140,27 @@ export async function start (input: StartEngineInput) {
   instance.stderr.pipe(process.stderr)
 
   const connectToSocket = (data: any) => {
-    const str = data.toString().split(/(\r?\n)/g).join('')
+    const str = data
+      .toString()
+      .split(/(\r?\n)/g)
+      .join('')
     if (str.includes(`:${port}`)) {
       // initialise websocket, listening to messages and what not
       socket.initialiseSocket({
         uri: webSocketUrl,
-        onOpen: function handleOpen () {
+        onOpen: function handleOpen() {
           flixRunning = true
-          const addUriJobs = _.map(workspaceFiles, uri => ({ uri, request: jobs.Request.apiAddUri }));
-          const addPkgJobs = _.map(workspacePkgs, uri => ({ uri, request: jobs.Request.apiAddPkg }));
-          const addJarJobs = _.map(workspaceJars, uri => ({ uri, request: jobs.Request.apiAddJar }));
-          const Jobs: jobs.Job[] = [
-            ...addUriJobs,
-            ...addPkgJobs,
-            ...addJarJobs,
-          ];
+          const addUriJobs = _.map(workspaceFiles, uri => ({ uri, request: jobs.Request.apiAddUri }))
+          const addPkgJobs = _.map(workspacePkgs, uri => ({ uri, request: jobs.Request.apiAddPkg }))
+          const addJarJobs = _.map(workspaceJars, uri => ({ uri, request: jobs.Request.apiAddJar }))
+          const Jobs: jobs.Job[] = [...addUriJobs, ...addPkgJobs, ...addJarJobs]
           queue.initialiseQueues(Jobs)
           handleVersion()
           sendNotification(jobs.Request.internalFinishedJob)
         },
-        onClose: function handleClose () {
+        onClose: function handleClose() {
           flixRunning = false
-        }
+        },
       })
 
       // now that the connection is established, there's no reason to listen for new messages
@@ -176,15 +175,15 @@ export async function start (input: StartEngineInput) {
  * Parses the argument string into a list of arguments.
  */
 function parseArgs(args: string): Array<string> {
-    const trimmed = args.trim()
-    if (trimmed === '') {
-        return []
-    } else {
-        return args.split(' ')
-    }
+  const trimmed = args.trim()
+  if (trimmed === '') {
+    return []
+  } else {
+    return args.split(' ')
+  }
 }
 
-export async function stop () {
+export async function stop() {
   queue.terminateQueue()
   await socket.closeSocket()
   if (flixInstance) {
@@ -192,50 +191,50 @@ export async function stop () {
   }
 }
 
-export function addUri (uri: string) {
+export function addUri(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
 
-export function remUri (uri: string) {
+export function remUri(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemUri,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
 
-export function addPkg (uri: string) {
+export function addPkg(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiAddPkg,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
 
-export function remPkg (uri: string) {
+export function remPkg(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemPkg,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
 
-export function addJar (uri: string) {
+export function addJar(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiAddJar,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
 
-export function remJar (uri: string) {
+export function remJar(uri: string) {
   const job: jobs.Job = {
     request: jobs.Request.apiRemJar,
-    uri
+    uri,
   }
   queue.enqueue(job)
 }
@@ -244,6 +243,6 @@ export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: an
   const job: jobs.Job = {
     request,
     ...(params || {}),
-  };
-  return queue.enqueue(job);
+  }
+  return queue.enqueue(job)
 }

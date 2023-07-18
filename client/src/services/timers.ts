@@ -34,7 +34,7 @@ let resolversToCleanUp = {
  * @param timeout {Number} Optional time to wait until bailing out
  * @returns {Function} Function that should be called when things work out
  */
-export function ensureCleanupEventually (resolver, timeout = 180) {
+export function ensureCleanupEventually(resolver, timeout = 180) {
   const index = `${indexCounter++}`
   const timer = setTimeout(() => {
     const msg = USER_MESSAGE.TIMEOUT(timeout)
@@ -43,9 +43,9 @@ export function ensureCleanupEventually (resolver, timeout = 180) {
   }, timeout * 1000)
   resolversToCleanUp[index] = {
     timer,
-    resolver
+    resolver,
   }
-  return function cancelCleanupCrew () {
+  return function cancelCleanupCrew() {
     const resolverMap = resolversToCleanUp[index]
     if (resolverMap) {
       clearTimeout(resolverMap.timer)
@@ -57,7 +57,7 @@ export function ensureCleanupEventually (resolver, timeout = 180) {
 /**
  * Empty the map of resolvers, clearing their timeouts and calling each resolver.
  */
-export function callResolversAndEmptyList () {
+export function callResolversAndEmptyList() {
   _.each(({ timer, resolver }) => {
     clearTimeout(timer)
     resolver()

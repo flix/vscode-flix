@@ -16,7 +16,7 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
     const selected = await vscode.window.showErrorMessage(msg, {}, { title: option1, retry: true }, { title: option2 })
 
     if (selected?.retry) {
-      downloadWithRetryDialog(downloadFunc)
+      return downloadWithRetryDialog(downloadFunc)
     }
     throw e
   }

@@ -18,8 +18,11 @@ import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 import { hasErrors } from '../server'
+import { HandlerResult, ServerRequestHandler } from 'vscode-languageserver'
 
-export function makeDefaultResponseHandler(promiseResolver: Function) {
+type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
+
+export function makeDefaultResponseHandler(promiseResolver: (result?: socket.FlixResult) => void): ResponseHandler {
   return function responseHandler({ status, result }: socket.FlixResponse) {
     if (status === 'success') {
       promiseResolver(result)
@@ -29,7 +32,12 @@ export function makeDefaultResponseHandler(promiseResolver: Function) {
   }
 }
 
-export function makeEnqueuePromise(type: jobs.Request, makeResponseHandler?: Function, uri?: string, position?: any) {
+export function makeEnqueuePromise(
+  type: jobs.Request,
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
+  uri?: string,
+  position?: any,
+) {
   return function enqueuePromise() {
     return new Promise(function (resolve) {
       const job = engine.enqueueJobWithFlattenedParams(type, { uri, position })
@@ -49,10 +57,10 @@ export function makeEnqueuePromise(type: jobs.Request, makeResponseHandler?: Fun
  * @param hasErrorsHandler
  */
 export function enqueueUnlessHasErrors(
-  jobOrGetJob: jobs.Job | Function,
-  makeResponseHandler?: Function,
-  hasErrorsHandler?: Function,
-) {
+  jobOrGetJob: jobs.Job | ((params: any) => jobs.Job),
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult | undefined) => void) => ResponseHandler,
+  hasErrorsHandler?: () => void,
+): (params: any) => any {
   if (typeof hasErrorsHandler !== 'function') {
     // development check (remove later)
     throw '`enqueueUnlessHasErrors` must have `hasErrorsHandler` when called with errors'
@@ -72,8 +80,8 @@ export function enqueueUnlessHasErrors(
 
 export function makePositionalHandler(
   type: jobs.Request,
-  handlerWhenErrorsExist?: Function,
-  makeResponseHandler?: Function,
+  handlerWhenErrorsExist?: () => Thenable<any>,
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
 ) {
   return function positionalHandler(params: any): Thenable<any> {
     if (hasErrors() && handlerWhenErrorsExist) {

@@ -122,7 +122,7 @@ export function sendNotification(notificationType: string, payload?: any) {
 const fileUrisWithErrors: Set<string> = new Set()
 
 // A Boolean of whether the program contains errors.
-var programHasError: Boolean = false
+let programHasError: boolean = false
 
 export function hasErrors() {
   return programHasError

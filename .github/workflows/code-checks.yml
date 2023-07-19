@@ -14,10 +14,6 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Check code formatting
-      run: |
-        npm install -g prettier
-        prettier --check .
+      run: npx prettier --check .
     - name: Run linter
-      run: |
-        npm install -g eslint-cli
-        eslint .
+      run: npx eslint .

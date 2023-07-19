@@ -141,7 +141,7 @@ function makeShowAstJob(params: any) {
   }
 }
 
-function makeShowAstResponseHandler(promiseResolver: Function) {
+function makeShowAstResponseHandler(promiseResolver: () => void) {
   return function responseHandler({ status, result }: any) {
     sendNotification(jobs.Request.lspShowAst, { status, result })
     promiseResolver()
@@ -183,7 +183,7 @@ export const handleGotoDefinition = makePositionalHandler(
   makeGotoDefinitionResponseHandler,
 )
 
-function makeGotoDefinitionResponseHandler(promiseResolver: Function) {
+function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler({ status, result }: socket.FlixResponse) {
     const targetUri = _.get('targetUri', result)
     if (status === 'success') {
@@ -328,7 +328,7 @@ function prettyPrintTestResults(result: any) {
   }
 }
 
-function makeRunTestsResponseHandler(promiseResolver: Function) {
+function makeRunTestsResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler(flixResponse: socket.FlixResponse) {
     // the status is always 'success' when with failing tests
     const { result } = flixResponse
@@ -348,7 +348,7 @@ function hasErrorsHandlerForCommands() {
  */
 export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
 
-function makeVersionResponseHandler(promiseResolver: Function) {
+function makeVersionResponseHandler(promiseResolver: () => void) {
   return function responseHandler({ status, result }: any) {
     // version is called on startup currently
     // use this to communicate back to the client that startup is done

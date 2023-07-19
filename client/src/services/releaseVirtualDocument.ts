@@ -34,7 +34,7 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
     // use uri-path as text
     const id = new Number(uri.path.split('/')[0])
     const installedVersion = getInstalledFlixVersion()
-    if (id == installedVersion.id) {
+    if (id === installedVersion.id) {
       const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion)
       return msg
     } else {

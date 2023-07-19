@@ -38,10 +38,10 @@ function isPriorityJob(job: jobs.Job) {
   return (
     job.request === jobs.Request.apiAddUri ||
     job.request === jobs.Request.apiRemUri ||
-    job.request == jobs.Request.apiAddPkg ||
-    job.request == jobs.Request.apiRemPkg ||
-    job.request == jobs.Request.apiAddJar ||
-    job.request == jobs.Request.apiRemJar
+    job.request === jobs.Request.apiAddPkg ||
+    job.request === jobs.Request.apiRemPkg ||
+    job.request === jobs.Request.apiAddJar ||
+    job.request === jobs.Request.apiRemJar
   )
 }
 
@@ -58,7 +58,7 @@ function emptyWaitingForPriorityQueue() {
   return values
 }
 
-let enqueueDebounced: Function = makeEnqueueDebounced()
+let enqueueDebounced: () => void = makeEnqueueDebounced()
 
 function handleEnqueue() {
   if (_.isEmpty(waitingForPriorityQueue)) {
@@ -177,7 +177,7 @@ export async function processQueue() {
       if (job.request === jobs.Request.apiAddUri && !job.src) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
-      } else if (job.request == jobs.Request.apiAddPkg && !job.src) {
+      } else if (job.request === jobs.Request.apiAddPkg && !job.src) {
         const base64 = fs.readFileSync(fileURLToPath(job.uri!)).toString('base64')
         socket.sendMessage({ ...job, base64 })
       } else {

@@ -38,7 +38,7 @@ interface sentMessagesMap {
 const sentMessagesMap: sentMessagesMap = {}
 const MESSAGE_TIMEOUT_SECONDS = 30
 
-interface FlixResult {
+export interface FlixResult {
   uri: string
   diagnostics: [
     {
@@ -120,7 +120,7 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
 async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
   const uriPort = _.toInteger(uri.slice(-4))
   getPort({ port: uriPort }, (err, freePort) => {
-    if (uriPort == freePort) {
+    if (uriPort === freePort) {
       // This happens if the previously used port is now free
       sendNotification(jobs.Request.internalRestart)
       return

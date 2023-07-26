@@ -19,19 +19,19 @@ import { openFlixReleaseOverview } from './releaseVirtualDocument'
 
 let globalState: vscode.Memento
 
-export default function initialise (context: vscode.ExtensionContext) {
+export default function initialise(context: vscode.ExtensionContext) {
   globalState = context.globalState
 }
 
 enum StateKeys {
-  installedFlixVersion = 'installedFlixVersion'
+  installedFlixVersion = 'installedFlixVersion',
 }
 
-export function getInstalledFlixVersion (): FlixRelease {
+export function getInstalledFlixVersion(): FlixRelease {
   return globalState?.get(StateKeys.installedFlixVersion)
 }
 
-export async function setInstalledFlixVersion (value) {
-  await globalState?.update(StateKeys.installedFlixVersion, value);
-  return openFlixReleaseOverview(value);
+export async function setInstalledFlixVersion(value) {
+  await globalState?.update(StateKeys.installedFlixVersion, value)
+  return openFlixReleaseOverview(value)
 }

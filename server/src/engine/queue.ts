@@ -34,28 +34,33 @@ let waitingForPriorityQueue: jobs.JobMap = {
   // uri -> job
 }
 
-function isPriorityJob (job: jobs.Job) {
-  return (job.request === jobs.Request.apiAddUri || job.request === jobs.Request.apiRemUri
-    || job.request == jobs.Request.apiAddPkg || job.request == jobs.Request.apiRemPkg
-    || job.request == jobs.Request.apiAddJar || job.request == jobs.Request.apiRemJar)
+function isPriorityJob(job: jobs.Job) {
+  return (
+    job.request === jobs.Request.apiAddUri ||
+    job.request === jobs.Request.apiRemUri ||
+    job.request === jobs.Request.apiAddPkg ||
+    job.request === jobs.Request.apiRemPkg ||
+    job.request === jobs.Request.apiAddJar ||
+    job.request === jobs.Request.apiRemJar
+  )
 }
 
-function jobToEnqueuedJob (job: jobs.Job) {
+function jobToEnqueuedJob(job: jobs.Job) {
   const id = `${jobCounter++}`
   const enqueuedJob = { ...job, id }
   jobs.setJob(id, enqueuedJob)
   return enqueuedJob
 }
 
-function emptyWaitingForPriorityQueue () {
+function emptyWaitingForPriorityQueue() {
   const values = _.values(waitingForPriorityQueue)
   waitingForPriorityQueue = {}
   return values
 }
 
-let enqueueDebounced: Function = makeEnqueueDebounced()
+let enqueueDebounced: () => void = makeEnqueueDebounced()
 
-function handleEnqueue () {
+function handleEnqueue() {
   if (_.isEmpty(waitingForPriorityQueue)) {
     return
   }
@@ -63,15 +68,15 @@ function handleEnqueue () {
   startQueue()
 }
 
-function makeEnqueueDebounced () {
-  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, {'leading': true, 'trailing': true})
+function makeEnqueueDebounced() {
+  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, { leading: true, trailing: true })
 }
 
-export function resetEnqueueDebounced () {
+export function resetEnqueueDebounced() {
   enqueueDebounced = makeEnqueueDebounced()
 }
 
-function enqueueWithPriority (job: jobs.EnqueuedJob, skipDelay?: boolean) {
+function enqueueWithPriority(job: jobs.EnqueuedJob, skipDelay?: boolean) {
   waitingForPriorityQueue[job.uri!] = job
   if (skipDelay) {
     handleEnqueue()
@@ -81,7 +86,7 @@ function enqueueWithPriority (job: jobs.EnqueuedJob, skipDelay?: boolean) {
   return job
 }
 
-export function enqueue (job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
+export function enqueue(job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
   const enqueuedJob = jobToEnqueuedJob(job)
 
   if (isPriorityJob(enqueuedJob)) {
@@ -125,7 +130,7 @@ export function initialiseQueues(jobs: jobs.Job[]) {
  * If the last item is taken from priorityQueue, append lsp/check to first position in taskQueue.
  * Otherwise take the first item off taskQueue.
  */
-function dequeue () {
+function dequeue() {
   if (_.isEmpty(priorityQueue)) {
     if (_.isEmpty(taskQueue)) {
       return undefined
@@ -139,14 +144,14 @@ function dequeue () {
     priorityQueue.shift()
     if (_.isEmpty(priorityQueue)) {
       enqueue({
-        request: jobs.Request.lspCheck
+        request: jobs.Request.lspCheck,
       })
     }
     return first
   }
 }
 
-function startQueue () {
+function startQueue() {
   if (queueRunning) {
     return
   }
@@ -154,13 +159,13 @@ function startQueue () {
   processQueue()
 }
 
-function emptyQueue () {
+function emptyQueue() {
   priorityQueue = []
   taskQueue = []
   queueRunning = false
 }
 
-export async function processQueue () {
+export async function processQueue() {
   // console.warn('[[debug:ProcessQueue]]: ' + _.map('request', priorityQueue).join(', ') + ' || ' + _.map('request', taskQueue).join(', '))
   if (!engine.isRunning()) {
     // VSCode might ask us to do things before we're up and running - wait for next processQueue call
@@ -172,14 +177,14 @@ export async function processQueue () {
       if (job.request === jobs.Request.apiAddUri && !job.src) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
-      } else if(job.request == jobs.Request.apiAddPkg && !job.src) {
+      } else if (job.request === jobs.Request.apiAddPkg && !job.src) {
         const base64 = fs.readFileSync(fileURLToPath(job.uri!)).toString('base64')
-        socket.sendMessage({...job, base64 })
+        socket.sendMessage({ ...job, base64 })
       } else {
         socket.sendMessage(job)
       }
     } catch (err) {
-      const errorMessage = USER_MESSAGE.FAILED_TO_READ_FILE(job.uri || "", err)
+      const errorMessage = USER_MESSAGE.FAILED_TO_READ_FILE(job.uri || '', err)
       sendNotification(jobs.Request.internalError, {
         message: errorMessage,
         actions: [],
@@ -190,11 +195,11 @@ export async function processQueue () {
   }
 }
 
-export async function terminateQueue () {
+export async function terminateQueue() {
   const id = 'shutdown'
   const job: jobs.EnqueuedJob = {
     id,
-    request: jobs.Request.apiShutdown
+    request: jobs.Request.apiShutdown,
   }
   socket.sendMessage(job)
   await new Promise(resolve => {

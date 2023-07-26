@@ -20,8 +20,10 @@ import * as socket from '../engine/socket'
 import { hasErrors } from '../server'
 import { StatusCode } from '../util/statusCodes'
 
-export function makeDefaultResponseHandler (promiseResolver: Function) {
-  return function responseHandler ({ status, result }: socket.FlixResponse) {
+type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
+
+export function makeDefaultResponseHandler(promiseResolver: (result?: socket.FlixResult) => void): ResponseHandler {
+  return function responseHandler({ status, result }: socket.FlixResponse) {
     if (status === StatusCode.Ok) {
       promiseResolver(result)
     } else {
@@ -30,8 +32,13 @@ export function makeDefaultResponseHandler (promiseResolver: Function) {
   }
 }
 
-export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Function, uri?: string, position?: any) {
-  return function enqueuePromise () {
+export function makeEnqueuePromise(
+  type: jobs.Request,
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
+  uri?: string,
+  position?: any,
+) {
+  return function enqueuePromise() {
     return new Promise(function (resolve) {
       const job = engine.enqueueJobWithFlattenedParams(type, { uri, position })
       const handler = makeResponseHandler || makeDefaultResponseHandler
@@ -49,12 +56,16 @@ export function makeEnqueuePromise (type: jobs.Request, makeResponseHandler?: Fu
  * @param makeResponseHandler
  * @param hasErrorsHandler
  */
-export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeResponseHandler?: Function, hasErrorsHandler?: Function) {
+export function enqueueUnlessHasErrors(
+  jobOrGetJob: jobs.Job | ((params: any) => jobs.Job),
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult | undefined) => void) => ResponseHandler,
+  hasErrorsHandler?: () => void,
+): (params: any) => any {
   if (typeof hasErrorsHandler !== 'function') {
     // development check (remove later)
     throw '`enqueueUnlessHasErrors` must have `hasErrorsHandler` when called with errors'
   }
-  return function enqueuePromise (params: any) {
+  return function enqueuePromise(params: any) {
     if (hasErrors() && hasErrorsHandler) {
       return hasErrorsHandler()
     }
@@ -67,8 +78,12 @@ export function enqueueUnlessHasErrors (jobOrGetJob: jobs.Job | Function, makeRe
   }
 }
 
-export function makePositionalHandler (type: jobs.Request, handlerWhenErrorsExist?: Function, makeResponseHandler?: Function) {
-  return function positionalHandler (params: any): Thenable<any> {
+export function makePositionalHandler(
+  type: jobs.Request,
+  handlerWhenErrorsExist?: () => Thenable<any>,
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
+) {
+  return function positionalHandler(params: any): Thenable<any> {
     if (hasErrors() && handlerWhenErrorsExist) {
       // NOTE: At present this isn't used by anyone (neither is makeResponseHandler)
       return handlerWhenErrorsExist()

@@ -21,7 +21,7 @@ const GITHUB_API_ENDPOINT_URL = 'https://api.github.com'
 const OWNER = 'flix'
 const REPO = 'flix'
 
-export function assert (condition: boolean, explanation: string): asserts condition {
+export function assert(condition: boolean, explanation: string): asserts condition {
   try {
     nativeAssert(condition, explanation)
   } catch (err) {
@@ -30,9 +30,9 @@ export function assert (condition: boolean, explanation: string): asserts condit
   }
 }
 
-export async function fetchRelease (
+export async function fetchRelease(
   releaseTag: string = 'latest',
-  githubToken?: string | null | undefined
+  githubToken?: string | null | undefined,
 ): Promise<FlixRelease> {
   const apiEndpointPath = `/repos/${OWNER}/${REPO}/releases/${releaseTag}`
 
@@ -41,7 +41,7 @@ export async function fetchRelease (
   console.warn('Issuing request for released artifacts metadata to', requestUrl)
 
   const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json' }
-  if (githubToken != null) {
+  if (githubToken !== null) {
     headers.Authorization = 'token ' + githubToken
   }
 
@@ -54,14 +54,11 @@ export async function fetchRelease (
       response: {
         headers: response.headers,
         status: response.status,
-        body: await response.text()
-      }
+        body: await response.text(),
+      },
     })
 
-    throw new Error(
-      `Got response ${response.status} when trying to fetch ` +
-      `release info for ${releaseTag} release`
-    )
+    throw new Error(`Got response ${response.status} when trying to fetch ` + `release info for ${releaseTag} release`)
   }
 
   // We skip runtime type checks for simplicity (here we cast from `any` to `GithubRelease`)
@@ -73,26 +70,36 @@ export async function fetchRelease (
     description: _.get(release, 'body'),
     version: tagToVersion(_.get(release, 'tag_name')),
     downloadUrl: _.get(release, 'assets.0.browser_download_url'),
-    downloadedAt: Date.now()
+    downloadedAt: Date.now(),
   }
   return flixRelease
 }
 
-function tagToVersion (tagName: string = ''): FlixVersion {
+function tagToVersion(tagName: string = ''): FlixVersion {
   const versionString = tagName[0] === 'v' ? tagName.slice(1) : tagName
   const [major, minor, patch] = _.map(_.split(versionString, '.'), _.parseInt)
   return {
     major,
     minor,
-    patch
+    patch,
   }
 }
 
-export function firstNewerThanSecond (first: FlixRelease, second: FlixRelease): boolean {
-  if (!second || !second.version || second.version.major === undefined || second.version.minor === undefined || second.version.patch === undefined) {
+export function firstNewerThanSecond(first: FlixRelease, second: FlixRelease): boolean {
+  if (
+    !second ||
+    !second.version ||
+    second.version.major === undefined ||
+    second.version.minor === undefined ||
+    second.version.patch === undefined
+  ) {
     return true
   }
-  return (first.version.major > second.version.major) || (first.version.minor > second.version.minor) || (first.version.patch > second.version.patch)
+  return (
+    first.version.major > second.version.major ||
+    first.version.minor > second.version.minor ||
+    first.version.patch > second.version.patch
+  )
 }
 
 export interface FlixVersion {
@@ -113,28 +120,28 @@ export interface FlixRelease {
 
 // We omit declaration of tremendous amount of fields that we are not using here
 interface GithubRelease {
+  name: string
+  id: number
+  body: string
+  // eslint-disable-next-line camelcase
+  published_at: string
+  assets: Array<{
     name: string
-    id: number
-    body: string
     // eslint-disable-next-line camelcase
-    published_at: string
-    assets: Array<{
-        name: string
-        // eslint-disable-next-line camelcase
-        browser_download_url: string
-    }>
+    browser_download_url: string
+  }>
 }
 
 interface DownloadOpts {
-    progressTitle: string
-    url: string
-    dest: string
-    mode?: number
-    gunzip?: boolean
-    overwrite?: boolean
+  progressTitle: string
+  url: string
+  dest: string
+  mode?: number
+  gunzip?: boolean
+  overwrite?: boolean
 }
 
-export async function download (opts: DownloadOpts) {
+export async function download(opts: DownloadOpts) {
   // Put artifact into a temporary file (in the same dir for simplicity)
   // to prevent partially downloaded files when user kills vscode
   const dest = path.parse(opts.dest)
@@ -152,7 +159,7 @@ export async function download (opts: DownloadOpts) {
     {
       location: vscode.ProgressLocation.Notification,
       cancellable: false,
-      title: opts.progressTitle
+      title: opts.progressTitle,
     },
     async (progress, _cancellationToken) => {
       let lastPercentage = 0
@@ -160,23 +167,23 @@ export async function download (opts: DownloadOpts) {
         const newPercentage = (readBytes / totalBytes) * 100
         progress.report({
           message: newPercentage.toFixed(0) + '%',
-          increment: newPercentage - lastPercentage
+          increment: newPercentage - lastPercentage,
         })
 
         lastPercentage = newPercentage
       })
-    }
+    },
   )
 
   await fs.promises.rename(tempFile, opts.dest)
 }
 
-async function downloadFile (
+async function downloadFile(
   url: string,
   destFilePath: fs.PathLike,
   mode: number | undefined,
   gunzip: boolean,
-  onProgress: (readBytes: number, totalBytes: number) => void
+  onProgress: (readBytes: number, totalBytes: number) => void,
 ): Promise<void> {
   const res = await fetch(url)
 
@@ -209,7 +216,9 @@ async function downloadFile (
   // See the nodejs changelog:
   // https://github.com/nodejs/node/blob/master/doc/changelogs/CHANGELOG_V13.md
   const [, major, minor] = /v(\d+)\.(\d+)\.(\d+)/.exec(process.version)!
-  if (+major > 13 || (+major === 13 && +minor >= 11)) return
+  if (+major > 13 || (+major === 13 && +minor >= 11)) {
+    return
+  }
 
   await new Promise<void>(resolve => {
     destFileStream.on('close', resolve)

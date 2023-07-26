@@ -19,9 +19,9 @@ import * as queue from './queue'
 import { clearDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { handleCrash, lspCheckResponseHandler } from '../handlers'
-import { getPort } from 'portfinder';
+import { getPort } from 'portfinder'
 import { USER_MESSAGE } from '../util/userMessages'
-import { StatusCode } from '../util/statusCodes';
+import { StatusCode } from '../util/statusCodes'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -39,24 +39,26 @@ interface sentMessagesMap {
 const sentMessagesMap: sentMessagesMap = {}
 const MESSAGE_TIMEOUT_SECONDS = 30
 
-interface FlixResult {
+export interface FlixResult {
   uri: string
-  diagnostics: [{
-    range: {
-      start: {
-        line: number
-        character: number
+  diagnostics: [
+    {
+      range: {
+        start: {
+          line: number
+          character: number
+        }
+        end: {
+          line: number
+          character: number
+        }
       }
-      end: {
-        line: number
-        character: number
-      }
-    }
-    severity: number
-    code: string
-    message: string
-    tags: string[]
-  }]
+      severity: number
+      code: string
+      message: string
+      tags: string[]
+    },
+  ]
   reportPath: string
 }
 
@@ -67,22 +69,22 @@ export interface FlixResponse {
 }
 
 interface InitialiseSocketInput {
-  uri: string,
-  onOpen?: () => void,
+  uri: string
+  onOpen?: () => void
   onClose?: () => void
 }
 
-export function isOpen () {
+export function isOpen() {
   return webSocket && webSocketOpen
 }
 
-export function isClosed () {
+export function isClosed() {
   return !isOpen()
 }
 
 let lastManualStopTimestamp: number = 0
 
-export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInput) {
+export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput) {
   if (!uri) {
     throw 'Must be called with an uri'
   }
@@ -96,15 +98,15 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
   webSocket.on('close', () => {
     webSocketOpen = false
     if (lastManualStopTimestamp + 15000 < Date.now()) {
-        // This happends when the connections breaks unintentionally
-        console.log(USER_MESSAGE.CONNECTION_LOST())
-        tryToConnect({ uri, onOpen, onClose }, 5).then((connected) => {
-            if (!connected) {
-                console.log(USER_MESSAGE.CONNECTION_LOST_RESTARTING())
-                sendNotification(jobs.Request.internalRestart)
-            }
-        })
-        return
+      // This happends when the connections breaks unintentionally
+      console.log(USER_MESSAGE.CONNECTION_LOST())
+      tryToConnect({ uri, onOpen, onClose }, 5).then(connected => {
+        if (!connected) {
+          console.log(USER_MESSAGE.CONNECTION_LOST_RESTARTING())
+          sendNotification(jobs.Request.internalRestart)
+        }
+      })
+      return
     }
     onClose && setTimeout(onClose!, 0)
   })
@@ -118,37 +120,37 @@ export function initialiseSocket ({ uri, onOpen, onClose }: InitialiseSocketInpu
 }
 
 async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
-    const uriPort = _.toInteger(uri.slice(-4));
-    getPort({port: uriPort},(err, freePort)=> {
-        if (uriPort == freePort) {
-            // This happens if the previously used port is now free
-            sendNotification(jobs.Request.internalRestart)
-            return
-        }
-    })
-    let retries = times;
-    while(retries-- > 0) {
-        initialiseSocket({uri, onOpen, onClose})
-        await sleep(1000)
-        if (webSocketOpen) {
-            return true
-        }
+  const uriPort = _.toInteger(uri.slice(-4))
+  getPort({ port: uriPort }, (err, freePort) => {
+    if (uriPort === freePort) {
+      // This happens if the previously used port is now free
+      sendNotification(jobs.Request.internalRestart)
+      return
     }
-    return false
+  })
+  let retries = times
+  while (retries-- > 0) {
+    initialiseSocket({ uri, onOpen, onClose })
+    await sleep(1000)
+    if (webSocketOpen) {
+      return true
+    }
+  }
+  return false
 }
 
-function clearTimer (id: string) {
+function clearTimer(id: string) {
   clearTimeout(sentMessagesMap[id])
   delete sentMessagesMap[id]
 }
 
-function clearAllTimers () {
+function clearAllTimers() {
   _.each(clearTimer, _.keys(sentMessagesMap))
 }
 
-const sleep = (ms:number) => new Promise((resolve) => setTimeout(resolve, ms))
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-export async function closeSocket () {
+export async function closeSocket() {
   let retries = 0
   if (webSocket) {
     clearAllTimers()
@@ -167,7 +169,7 @@ export async function closeSocket () {
   }
 }
 
-export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
+export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
       const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
@@ -185,16 +187,16 @@ export function sendMessage (job: jobs.EnqueuedJob, retries = 0) {
   sentMessagesMap[job.id] = setTimeout(() => {
     delete sentMessagesMap[job.id]
     sendNotification(jobs.Request.internalError, {
-        message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
-        actions: [],
+      message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
+      actions: [],
     })
     setTimeout(queue.processQueue, 0)
-  }, (MESSAGE_TIMEOUT_SECONDS * 1000))
+  }, MESSAGE_TIMEOUT_SECONDS * 1000)
   // send job as string
   webSocket.send(JSON.stringify(job))
 }
 
-function handleResponse (flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
+function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)

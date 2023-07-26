@@ -49,7 +49,7 @@ export enum Request {
   lspCodeAction = 'lsp/codeAction',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspSemanticTokens = 'lsp/semanticTokens',
-  lspShowAst = "lsp/showAst",
+  lspShowAst = 'lsp/showAst',
 
   internalRestart = 'ext/restart', // Internal Extension Request
   internalDownloadLatest = 'ext/downloadLatest', // Internal Extension Request
@@ -58,7 +58,7 @@ export enum Request {
   internalError = 'ext/error', // Internal Extension Request
   internalFinishedJob = 'ext/finished', // Internal Extension Request
   internalDiagnostics = 'ext/diagnostics', // Internal Extension Request
-  internalReplaceConfiguration = 'ext/replaceConfiguration' // Internal Extension Request
+  internalReplaceConfiguration = 'ext/replaceConfiguration', // Internal Extension Request
 }
 
 export interface Position {
@@ -68,7 +68,7 @@ export interface Position {
 
 export interface Job {
   request: Request
-  [param: string]: any;
+  [param: string]: any
 }
 
 export interface EnqueuedJob extends Job {
@@ -81,10 +81,10 @@ export interface JobMap {
 
 const jobs: JobMap = {}
 
-export function setJob (id: string, job: EnqueuedJob) {
+export function setJob(id: string, job: EnqueuedJob) {
   jobs[id] = job
 }
 
-export function getJob (id: string) {
+export function getJob(id: string) {
   return jobs[id]
 }

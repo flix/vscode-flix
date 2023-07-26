@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import { USER_MESSAGE } from '../util/userMessages';
-import { FlixRelease } from './releases';
-import { getInstalledFlixVersion } from './state';
+import * as vscode from 'vscode'
+import { USER_MESSAGE } from '../util/userMessages'
+import { FlixRelease } from './releases'
+import { getInstalledFlixVersion } from './state'
 
 /**
  * The scheme used to distinguish our documents.
  */
-const scheme = 'flixcompiler';
+const scheme = 'flixcompiler'
 
 /**
  * Handle documents where the uri scheme is [[scheme]] (flixcompiler):
@@ -31,18 +31,18 @@ const scheme = 'flixcompiler';
  */
 const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentContentProvider {
   provideTextDocumentContent(uri: vscode.Uri): string {
-      // use uri-path as text
-      const id = new Number(uri.path.split('/')[0]);
-      const installedVersion = getInstalledFlixVersion();
-      if (id == installedVersion.id) {
-        const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion);
-        return msg;
-      } else {
-        const msg = USER_MESSAGE.INFORM_NO_CHANGELOG();
-        return msg;
-      }
+    // use uri-path as text
+    const id = new Number(uri.path.split('/')[0])
+    const installedVersion = getInstalledFlixVersion()
+    if (id === installedVersion.id) {
+      const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion)
+      return msg
+    } else {
+      const msg = USER_MESSAGE.INFORM_NO_CHANGELOG()
+      return msg
     }
-  })();
+  }
+})()
 
 /**
  * Open and show the document given by the provider when for the given [[uri]].
@@ -51,7 +51,7 @@ const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentCon
  */
 async function openFlixReleaseDocument(uri: vscode.Uri) {
   // trigger the provider.
-  await vscode.commands.executeCommand("markdown.showPreview", uri);
+  await vscode.commands.executeCommand('markdown.showPreview', uri)
 }
 
 /**
@@ -62,8 +62,8 @@ function createFlixReleaseContentUri({ id }: FlixRelease): vscode.Uri {
   const uri = vscode.Uri.from({
     scheme,
     path: `${id}/CHANGELOG`,
-  });
-  return uri;
+  })
+  return uri
 }
 
 /**
@@ -71,12 +71,12 @@ function createFlixReleaseContentUri({ id }: FlixRelease): vscode.Uri {
  * @param flixRelease a release of the flix compiler.
  */
 export async function openFlixReleaseOverview(flixRelease: FlixRelease) {
-  await openFlixReleaseDocument(createFlixReleaseContentUri(flixRelease));
+  await openFlixReleaseDocument(createFlixReleaseContentUri(flixRelease))
 }
 
 /**
  * Register the provider.
  */
- export function registerFlixReleaseDocumentProvider({ subscriptions }: vscode.ExtensionContext) {
-    subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(scheme, flixReleaseDocumentProvider));
+export function registerFlixReleaseDocumentProvider({ subscriptions }: vscode.ExtensionContext) {
+  subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(scheme, flixReleaseDocumentProvider))
 }

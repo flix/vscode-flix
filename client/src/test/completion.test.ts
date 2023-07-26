@@ -14,8 +14,8 @@ suite('Should do completion', () => {
     await testCompletion(docUri, new vscode.Position(0, 0), {
       items: [
         { label: 'JavaScript', kind: vscode.CompletionItemKind.Text },
-        { label: 'TypeScript', kind: vscode.CompletionItemKind.Text }
-      ]
+        { label: 'TypeScript', kind: vscode.CompletionItemKind.Text },
+      ],
     })
   })
 })
@@ -23,7 +23,7 @@ suite('Should do completion', () => {
 async function testCompletion(
   docUri: vscode.Uri,
   position: vscode.Position,
-  expectedCompletionList: vscode.CompletionList
+  expectedCompletionList: vscode.CompletionList,
 ) {
   await activate(docUri)
 
@@ -31,7 +31,7 @@ async function testCompletion(
   const actualCompletionList = (await vscode.commands.executeCommand(
     'vscode.executeCompletionItemProvider',
     docUri,
-    position
+    position,
   )) as vscode.CompletionList
 
   assert.ok(actualCompletionList.items.length >= 2)

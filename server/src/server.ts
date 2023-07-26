@@ -1,9 +1,4 @@
-import {
-  createConnection,
-  TextDocuments,
-  ProposedFeatures,
-  PublishDiagnosticsParams
-} from 'vscode-languageserver'
+import { createConnection, TextDocuments, ProposedFeatures, PublishDiagnosticsParams } from 'vscode-languageserver'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -108,7 +103,7 @@ connection.listen()
  * @param notificationType {String} - Notification key, has to match a listener in the client
  * @param payload {*} - Anything (can be empty)
  */
-export function sendNotification (notificationType: string, payload?: any) {
+export function sendNotification(notificationType: string, payload?: any) {
   connection.sendNotification(notificationType, payload)
 
   if (typeof payload === 'string') {
@@ -127,16 +122,16 @@ export function sendNotification (notificationType: string, payload?: any) {
 const fileUrisWithErrors: Set<string> = new Set()
 
 // A Boolean of whether the program contains errors.
-var programHasError:Boolean = false
+let programHasError: boolean = false
 
-export function hasErrors () {
+export function hasErrors() {
   return programHasError
 }
 
 /**
  * Clear `fileUrisWithErrors` after removing error flags for all `uri`s.
  */
-export function clearDiagnostics () {
+export function clearDiagnostics() {
   fileUrisWithErrors.forEach((uri: string) => sendDiagnostics({ uri, diagnostics: [] }))
   fileUrisWithErrors.clear()
   programHasError = false
@@ -145,12 +140,12 @@ export function clearDiagnostics () {
 /**
  * Proxy for `connection.sendDiagnostics` that also adds the `uri` to `fileUrisWithErrors`.
  */
-export function sendDiagnostics (params: PublishDiagnosticsParams) {
+export function sendDiagnostics(params: PublishDiagnosticsParams) {
   params.diagnostics.forEach(diagnostic => {
     if (diagnostic.severity && diagnostic.severity < 3) {
-        programHasError = true;
+      programHasError = true
     }
     fileUrisWithErrors.add(params.uri)
-  });
+  })
   connection.sendDiagnostics(params)
 }

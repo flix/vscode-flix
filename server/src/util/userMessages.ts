@@ -36,6 +36,10 @@ export class USER_MESSAGE {
     return `Job timed out after ${timeoutTime} seconds`
   }
 
+  static COMPILER_CRASHED(reportPath: string) {
+    return `The flix compiler crashed. See the crash report for details:\n${reportPath}`
+  }
+
   static REQUEST_TIMEOUT(retries: number) {
     return `Could not send message after ${retries} retries. Websocket not available.`
   }

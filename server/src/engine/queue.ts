@@ -185,7 +185,10 @@ export async function processQueue() {
       }
     } catch (err) {
       const errorMessage = USER_MESSAGE.FAILED_TO_READ_FILE(job.uri || '', err)
-      sendNotification(jobs.Request.internalError, errorMessage)
+      sendNotification(jobs.Request.internalError, {
+        message: errorMessage,
+        actions: [],
+      })
     }
   } else {
     queueRunning = false

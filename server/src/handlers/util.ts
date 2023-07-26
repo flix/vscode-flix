@@ -18,13 +18,13 @@ import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 import { hasErrors } from '../server'
-import { HandlerResult, ServerRequestHandler } from 'vscode-languageserver'
+import { StatusCode } from '../util/statusCodes'
 
 type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
 
 export function makeDefaultResponseHandler(promiseResolver: (result?: socket.FlixResult) => void): ResponseHandler {
   return function responseHandler({ status, result }: socket.FlixResponse) {
-    if (status === 'success') {
+    if (status === StatusCode.Success) {
       promiseResolver(result)
     } else {
       promiseResolver()

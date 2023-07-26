@@ -16,11 +16,12 @@
 
 import * as jobs from './jobs'
 import * as queue from './queue'
-import { sendNotification } from '../server'
+import { clearDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
-import { lspCheckResponseHandler } from '../handlers'
+import { handleCrash, lspCheckResponseHandler } from '../handlers'
 import { getPort } from 'portfinder'
 import { USER_MESSAGE } from '../util/userMessages'
+import { StatusCode } from '../util/statusCodes'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
@@ -58,11 +59,12 @@ export interface FlixResult {
       tags: string[]
     },
   ]
+  reportPath: string
 }
 
 export interface FlixResponse {
   id: string
-  status: string
+  status: StatusCode
   result?: FlixResult
 }
 
@@ -171,7 +173,10 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
       const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
-      return sendNotification(jobs.Request.internalError, errorMessage)
+      return sendNotification(jobs.Request.internalError, {
+        message: errorMessage,
+        actions: [],
+      })
     }
     setTimeout(() => {
       sendMessage(job, retries + 1)
@@ -181,7 +186,10 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
   // register a timer to handle timeouts
   sentMessagesMap[job.id] = setTimeout(() => {
     delete sentMessagesMap[job.id]
-    sendNotification(jobs.Request.internalError, USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS))
+    sendNotification(jobs.Request.internalError, {
+      message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
+      actions: [],
+    })
     setTimeout(queue.processQueue, 0)
   }, MESSAGE_TIMEOUT_SECONDS * 1000)
   // send job as string
@@ -189,7 +197,10 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
 }
 
 function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
-  if (job.request === jobs.Request.lspCheck) {
+  if (flixResponse.status === StatusCode.CompilerError) {
+    clearDiagnostics()
+    handleCrash(flixResponse)
+  } else if (job.request === jobs.Request.lspCheck) {
     lspCheckResponseHandler(flixResponse)
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)

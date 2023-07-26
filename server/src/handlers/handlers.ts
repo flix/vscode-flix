@@ -32,6 +32,7 @@ import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
 import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
+import { StatusCode } from '../util/statusCodes'
 
 const _ = require('lodash/fp')
 
@@ -186,7 +187,7 @@ export const handleGotoDefinition = makePositionalHandler(
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler({ status, result }: socket.FlixResponse) {
     const targetUri = _.get('targetUri', result)
-    if (status === 'success') {
+    if (status === StatusCode.Success) {
       if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
@@ -322,7 +323,10 @@ function prettyPrintTestResults(result: any) {
   const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
   const failingTests = totalTests - successfulTests
   if (failingTests > 0) {
-    sendNotification(jobs.Request.internalError, `Tests Failed (${failingTests}/${totalTests})`)
+    sendNotification(jobs.Request.internalError, {
+      message: `Tests Failed (${failingTests}/${totalTests})`,
+      actions: [],
+    })
   } else {
     sendNotification(jobs.Request.internalMessage, `Tests Passed (${successfulTests}/${totalTests})`)
   }
@@ -339,7 +343,10 @@ function makeRunTestsResponseHandler(promiseResolver: (result?: socket.FlixResul
 }
 
 function hasErrorsHandlerForCommands() {
-  sendNotification(jobs.Request.internalError, 'Cannot run commands when errors are present.')
+  sendNotification(jobs.Request.internalError, {
+    message: 'Cannot run commands when errors are present.',
+    actions: [],
+  })
   sendNotification(jobs.Request.internalFinishedJob)
 }
 
@@ -353,11 +360,14 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
     // version is called on startup currently
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
-    if (status === 'success') {
+    if (status === StatusCode.Success) {
       const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {
-      sendNotification(jobs.Request.internalError, USER_MESSAGE.FAILED_TO_START())
+      sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.FAILED_TO_START(),
+        actions: [],
+      })
     }
     promiseResolver()
   }
@@ -372,4 +382,23 @@ export function lspCheckResponseHandler({ status, result }: socket.FlixResponse)
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
   _.each(sendDiagnostics, result)
+}
+
+/**
+ * Handle response where status is `statusCodes.COMPILER_ERROR`
+ */
+export function handleCrash({ status, result }: socket.FlixResponse) {
+  const path = result?.reportPath as string
+  sendNotification(jobs.Request.internalError, {
+    message: USER_MESSAGE.COMPILER_CRASHED(path),
+    actions: [
+      {
+        title: 'Open Report',
+        command: {
+          type: 'openFile',
+          path,
+        },
+      },
+    ],
+  })
 }

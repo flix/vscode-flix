@@ -14,6 +14,7 @@ import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
 import { USER_MESSAGE } from './util/userMessages'
+import { StatusCode } from './util/statusCodes'
 
 const _ = require('lodash/fp')
 
@@ -60,7 +61,7 @@ function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions
 }
 
 async function handleShowAst({ status, result }) {
-  if (status === 'success') {
+  if (status === StatusCode.Success) {
     const content: string = '// ' + result.title + '\n\n' + result.text
     const document = await vscode.workspace.openTextDocument({ content: content, language: 'flix' })
     const editor = vscode.window.showTextDocument(document)
@@ -85,6 +86,22 @@ function handlePrintDiagnostics({ status, result }) {
         outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${diag.fullMessage}`)
       }
     }
+  }
+}
+
+interface Action {
+  title: string
+  command: {
+    type: 'openFile'
+    path: string
+  }
+}
+async function handleError({ message, actions }: { message: string; actions: Action[] }) {
+  const selection = await vscode.window.showErrorMessage(message, ...actions.map(a => a.title))
+  const action = actions.find(a => a.title === selection)
+  if (action?.command?.type === 'openFile') {
+    const uri = vscode.Uri.file(action.command.path)
+    vscode.window.showTextDocument(uri)
   }
 }
 
@@ -263,7 +280,7 @@ async function startSession(
 
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
-  client.onNotification(jobs.Request.internalError, vscode.window.showErrorMessage)
+  client.onNotification(jobs.Request.internalError, handleError)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)
 }

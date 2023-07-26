@@ -111,16 +111,16 @@ export async function start(input: StartEngineInput) {
   if (versionString === undefined) {
     // This happends when we are not able to run a java statement or get a java version
     sendNotification(jobs.Request.internalError, {
-        message: USER_MESSAGE.JAVA_NOT_FOUND(),
-        actions: [],
+      message: USER_MESSAGE.JAVA_NOT_FOUND(),
+      actions: [],
     })
     return
   }
 
   if (majorVersion! < 11) {
     sendNotification(jobs.Request.internalError, {
-        message: USER_MESSAGE.JAVA_WRONG_VERSION(versionString),
-        actions: [],
+      message: USER_MESSAGE.JAVA_WRONG_VERSION(versionString),
+      actions: [],
     })
     return
   }

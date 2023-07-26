@@ -5,15 +5,15 @@ export enum StatusCode {
   /**
    * Request was successfully processed.
    */
-  OK = 'OK',
+  Success = 'success',
 
   /**
    * Request was invalid and could not be processed.
    */
-  INVALID_REQUEST = 'INVALID_REQUEST',
+  InvalidRequest = 'invalid_request',
 
   /**
    * The compiler has crashed.
    */
-  COMPILER_ERROR = 'COMPILER_ERROR',
+  CompilerError = 'compiler_error',
 }

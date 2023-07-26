@@ -24,7 +24,7 @@ type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
 
 export function makeDefaultResponseHandler(promiseResolver: (result?: socket.FlixResult) => void): ResponseHandler {
   return function responseHandler({ status, result }: socket.FlixResponse) {
-    if (status === StatusCode.Ok) {
+    if (status === StatusCode.Success) {
       promiseResolver(result)
     } else {
       promiseResolver()

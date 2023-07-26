@@ -187,7 +187,7 @@ export const handleGotoDefinition = makePositionalHandler(
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler({ status, result }: socket.FlixResponse) {
     const targetUri = _.get('targetUri', result)
-    if (status === StatusCode.Ok) {
+    if (status === StatusCode.Success) {
       if (_.startsWith('file://', targetUri)) {
         return promiseResolver(result)
       } else {
@@ -360,7 +360,7 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
     // version is called on startup currently
     // use this to communicate back to the client that startup is done
     sendNotification(jobs.Request.internalReady)
-    if (status === StatusCode.Ok) {
+    if (status === StatusCode.Success) {
       const message = USER_MESSAGE.CONNECTION_ESTABLISHED(result, engine)
       sendNotification(jobs.Request.internalMessage, message)
     } else {

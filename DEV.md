@@ -11,6 +11,22 @@ changes to the code you need to restart the `Launch Client` (see *Call Stack*).
 
 You can set breakpoints in the compiled code, e.g. `server/out/server.js`.
 
+## Code Style
+
+All code should be formatted with Prettier and checked with ESLint with respect 
+to the config files (`.prettierrc` and `.eslintrc.json`) found in the root of the
+project. This is checked for all pull requests to the repository.
+
+If you are using Visual Studio Code you can make sure this will happen
+automatically on save by installing the recommended extensions:
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+Alternatively, you can run the terminal commands:
+- Check formatting: `npx prettier . --check`
+- Fix formatting: `npx prettier . --write`
+- Check linting: `npx eslint .`
+
 ## Commits
 
 This project loosely uses the format from

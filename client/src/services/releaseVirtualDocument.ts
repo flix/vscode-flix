@@ -32,7 +32,7 @@ const scheme = 'flixcompiler'
 const flixReleaseDocumentProvider = new (class implements vscode.TextDocumentContentProvider {
   provideTextDocumentContent(uri: vscode.Uri): string {
     // use uri-path as text
-    const id = new Number(uri.path.split('/')[0])
+    const id = Number(uri.path.split('/')[0])
     const installedVersion = getInstalledFlixVersion()
     if (id === installedVersion.id) {
       const msg = USER_MESSAGE.SHOW_CHANGELOG(installedVersion)

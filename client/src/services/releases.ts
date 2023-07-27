@@ -41,7 +41,7 @@ export async function fetchRelease(
   console.warn('Issuing request for released artifacts metadata to', requestUrl)
 
   const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json' }
-  if (githubToken !== null) {
+  if (githubToken !== null && githubToken !== undefined) {
     headers.Authorization = 'token ' + githubToken
   }
 

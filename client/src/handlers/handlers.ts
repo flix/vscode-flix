@@ -11,7 +11,7 @@ import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
-let FLIX_TERMINAL: vscode.Terminal | undefined = undefined
+let FLIX_TERMINAL: vscode.Terminal | null = null
 
 let countTerminals: number = 0
 
@@ -22,40 +22,62 @@ export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) 
 }
 
 /**
- * Creates a persistent shared repl if one does not already exist.
- *
- * @return boolean indicatng whether a new terminal was created
+ * Creates a persistent shared repl on startup.
  */
 export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  let missing = FLIX_TERMINAL === undefined
-
-  if (missing) {
+  if (FLIX_TERMINAL === null) {
+    // Check if there is already a terminal with the name `REPL`
+    // This is the case if the user has just restarted VSCode
     const activeTerminals = vscode.window.terminals
     for (const element of activeTerminals) {
       if (element.name.substring(0, 4) === `REPL`) {
         FLIX_TERMINAL = element
-        missing = false
+        launchReplInTerminal(FLIX_TERMINAL, context, launchOptions)
+        break
       }
     }
   }
 
+  ensureReplExists(context, launchOptions)
+}
+
+/**
+ * Ensures that a repl still exists and creates a new one if not.
+ *
+ * @returns Whether or not a new repl was created.
+ */
+async function ensureReplExists(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+  const missing = FLIX_TERMINAL === null
+
   if (missing) {
     FLIX_TERMINAL = vscode.window.createTerminal('REPL')
-
-    const cmd = await getJVMCmd(context, launchOptions)
-    cmd.push('repl')
-    if (vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
-      cmd.push('--explain')
-    }
-    cmd.push(...getExtraFlixArgs())
-    FLIX_TERMINAL.sendText(quote(cmd))
+    launchReplInTerminal(FLIX_TERMINAL, context, launchOptions)
   }
 
   vscode.window.onDidCloseTerminal(terminal => {
-    if (terminal.name === FLIX_TERMINAL.name) FLIX_TERMINAL = undefined
+    if (terminal.name === FLIX_TERMINAL.name) FLIX_TERMINAL = null
   })
 
   return missing
+}
+
+/**
+ * Launch the REPL in the given terminal.
+ */
+async function launchReplInTerminal(
+  terminal: vscode.Terminal,
+  context: vscode.ExtensionContext,
+  launchOptions: LaunchOptions,
+) {
+  const cmd = await getJVMCmd(context, launchOptions)
+
+  cmd.push('repl')
+  if (vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
+    cmd.push('--explain')
+  }
+  cmd.push(...getExtraFlixArgs())
+
+  terminal.sendText(quote(cmd))
 }
 
 /**
@@ -248,7 +270,7 @@ function runCmd<A extends unknown[]>(
 ) {
   return async (...args: A) => {
     async function prepareRepl() {
-      const newRepl = await createSharedRepl(context, launchOptions)
+      const newRepl = await ensureReplExists(context, launchOptions)
       FLIX_TERMINAL.show()
 
       // Wait for the REPL to start up and become responsive

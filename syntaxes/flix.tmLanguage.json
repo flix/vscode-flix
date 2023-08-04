@@ -182,6 +182,10 @@
                 {
                     "name": "storage.type.modifier.flix",
                     "match": "\\b(lawful|pub|override|sealed|static)\\b"
+                },
+                {
+                  "name": "keyword.control.ast.flix",
+                  "match": "\\b(branch|jumpto)\\b"
                 }
             ]
         },

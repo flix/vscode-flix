@@ -239,7 +239,7 @@
                 },
                 {
                     "name": "constant.numeric.decimal.flix",
-                    "match": "\\b[0-9](_*[0-9])*(i8|i16|i32|i64|ii)?\\b"
+                    "match": "(?<!\\$)\\b[0-9](_*[0-9])*(i8|i16|i32|i64|ii)?\\b"
                 }
             ]
         },

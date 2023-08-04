@@ -116,6 +116,10 @@
                     "match": "\\b(par)\\b"
                 },
                 {
+                    "name": "keyword.control.ast.flix",
+                    "match": "\\b(branch|jumpto)\\b"
+                },
+                {
                     "name": "keyword.operator.bool.flix",
                     "match": "\\b(not|and|or)\\b"
                 },

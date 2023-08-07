@@ -196,7 +196,7 @@
             "patterns": [
                 {
                     "name": "constant.character.escape",
-                    "match": "\\\\."
+                    "match": "\\\\((u[0-9a-fA-F]{4})|.)"
                 }
             ]
         },
@@ -207,7 +207,7 @@
             "patterns": [
                 {
                     "name": "constant.character.escape.flix",
-                    "match": "\\\\."
+                    "match": "\\\\((u[0-9a-fA-F]{4})|.)"
                 },
                 {
                     "begin": "\\$\\{",

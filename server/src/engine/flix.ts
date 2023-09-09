@@ -144,7 +144,7 @@ export async function start(input: StartEngineInput) {
   // SEE https://github.com/microsoft/vscode/issues/192545
   //
   const instance = (flixInstance = spawn('java', args))
-  const webSocketUrl = `ws://127.0.0.1:${port}` 
+  const webSocketUrl = `ws://127.0.0.1:${port}`
 
   // forward flix to own stdout & stderr
   instance.stdout.pipe(process.stdout)

@@ -56,6 +56,10 @@
         "title": "Flix: test"
       },
       {
+        "command": "flix.cmdDoc",
+        "title": "Flix: doc"
+      },
+      {
         "command": "flix.showParserAst",
         "title": "Flix: Show Parser AST"
       },

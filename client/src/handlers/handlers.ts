@@ -508,6 +508,19 @@ export function cmdTests(context: vscode.ExtensionContext, launchOptions: Launch
 }
 
 /**
+ * builds the documentation for the current project using the command `java -jar flix.jar doc`
+ *
+ * @param context vscode.ExtensionContext
+ *
+ * @param launchOptions LaunchOptions
+ *
+ * @returns function handler
+ */
+export function cmdDoc(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+  return runCmd(context, launchOptions, ':doc')
+}
+
+/**
  * show the ast of a given phase
  *
  * @param context vscode.ExtensionContext

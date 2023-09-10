@@ -143,6 +143,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
   registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
   registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
+  registerCommand('flix.cmdDoc', handlers.cmdDoc(context, launchOptions))
   registerCommand('flix.showParserAst', handlers.showAst(client, 'Parser'))
   registerCommand('flix.showWeederAst', handlers.showAst(client, 'Weeder'))
   registerCommand('flix.showKinderAst', handlers.showAst(client, 'Kinder'))

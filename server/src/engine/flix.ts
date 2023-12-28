@@ -117,7 +117,7 @@ export async function start(input: StartEngineInput) {
     return
   }
 
-  if (majorVersion! < 11) {
+  if (majorVersion! < 21) {
     sendNotification(jobs.Request.internalError, {
       message: USER_MESSAGE.JAVA_WRONG_VERSION(versionString),
       actions: [],

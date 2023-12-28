@@ -81,7 +81,7 @@ Alternative (for advanced users):
 
 ## Requirements
 
-- Requires Java 11 (or later).
+- Requires Java 21 (or later).
     - Ensure that the `java` command is on your path.
 
 ## For Developers

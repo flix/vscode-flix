@@ -19,6 +19,7 @@ import {
   InitializeResult,
   InlayHintParams,
   ServerRequestHandler,
+  TextDocumentChangeEvent,
   TextDocumentSyncKind,
 } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -153,13 +154,13 @@ export function handleExit() {
   engine.stop()
 }
 
-export function handleSave(params: any) {
+export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
     addUriToCompiler(params.document, true)
   }
 }
 
-export function handleChangeContent(params: any) {
+export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
     // We send the document immediately to ensure better auto-complete.
     addUriToCompiler(params.document, true)

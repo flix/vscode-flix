@@ -45,6 +45,6 @@ export class USER_MESSAGE {
   }
 
   static FILE_NOT_PART_OF_PROJECT() {
-    return `This file is not included in the project`
+    return `Only files in root, src/** and test/** are included`
   }
 }

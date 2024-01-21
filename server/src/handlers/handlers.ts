@@ -18,7 +18,6 @@ import {
   InitializeParams,
   InitializeResult,
   InlayHintParams,
-  ServerRequestHandler,
   TextDocumentChangeEvent,
   TextDocumentSyncKind,
 } from 'vscode-languageserver'
@@ -35,7 +34,7 @@ import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
-const _ = require('lodash/fp')
+import _ = require('lodash/fp')
 
 interface UriInput {
   uri: string
@@ -168,12 +167,27 @@ export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument
 }
 
 function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
+  if (!uriIsInProject(document.uri)) {
+    sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+    return
+  }
+
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
     src: document.getText(),
   }
   queue.enqueue(job, skipDelay)
+}
+
+function uriIsInProject(uri: string) {
+  const rootUri = getProjectRootUri()
+  const regExps = [
+    String.raw`^${rootUri}/[^/]*\.flix$`,
+    String.raw`^${rootUri}/src/.*\.flix$`,
+    String.raw`^${rootUri}/test/.*\.flix$`,
+  ].map(regExpString => new RegExp(regExpString))
+  return regExps.some(regExp => regExp.test(uri))
 }
 
 /**
@@ -382,6 +396,9 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
 export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
+
+  // TODO: Find out why TS doen't like this
+  // @ts-ignore
   _.each(sendDiagnostics, result)
 }
 

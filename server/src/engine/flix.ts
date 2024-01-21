@@ -76,7 +76,12 @@ export function getExtensionVersion() {
 }
 
 export function getProjectRootUri() {
-  return _.first(startEngineInput.workspaceFolders)
+  const path = _.first(startEngineInput.workspaceFolders)!
+
+  // This is the format that that VSCode forwards the URI in
+  const escapedPath = path.replace(':', '%3A')
+
+  return new URL(`file:///${escapedPath}`)
 }
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {

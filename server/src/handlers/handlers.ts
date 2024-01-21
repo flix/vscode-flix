@@ -172,11 +172,11 @@ export const handleGotoDefinition = makePositionalHandler(
 )
 
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
-  return function responseHandler({ status, result }: socket.FlixResponse) {
-    const targetUri = result?.targetUri
-    if (status === StatusCode.Success) {
+  return function responseHandler(response: socket.FlixResponse) {
+    if (response.status === StatusCode.Success) {
+      const targetUri = response.result?.targetUri
       if (targetUri !== undefined && targetUri.startsWith('file://')) {
-        return promiseResolver(result)
+        return promiseResolver(response.result)
       } else {
         sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri ?? 'undefined'))
       }
@@ -316,21 +316,20 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
  *
  * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
  */
-export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
+export function lspCheckResponseHandler(response: socket.FlixResponseCheck) {
   clearDiagnostics()
-  sendNotification(jobs.Request.internalDiagnostics, { status, result })
+  sendNotification(jobs.Request.internalDiagnostics, response)
 
-  // TODO: change type of result upstream
-  for (const r of result as unknown as socket.FlixResult[]) {
+  for (const r of response.result) {
     sendDiagnostics(r)
   }
 }
 
 /**
- * Handle response where status is `statusCodes.COMPILER_ERROR`
+ * Handle response where status is `StatusCode.CompilerError`
  */
-export function handleCrash({ status, result }: socket.FlixResponse) {
-  const path = result?.reportPath as string
+export function handleCrash(response: socket.FlixResponseCompilerError) {
+  const path = response.result.reportPath
   sendNotification(jobs.Request.internalError, {
     message: USER_MESSAGE.COMPILER_CRASHED(path),
     actions: [

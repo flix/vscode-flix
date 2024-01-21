@@ -39,7 +39,7 @@ interface sentMessagesMap {
 const sentMessagesMap: sentMessagesMap = {}
 const MESSAGE_TIMEOUT_SECONDS = 30
 
-export interface FlixResult {
+export interface FlixResultCheck {
   uri: string
   diagnostics: [
     {
@@ -59,15 +59,53 @@ export interface FlixResult {
       tags: DiagnosticTag[]
     },
   ]
-  reportPath: string
+}
+export interface FlixResult {
   targetUri?: string
 }
 
-export interface FlixResponse {
+/**
+ * The jobs that can be assumed to never produce an invalid request
+ */
+type InfallibleJobs = jobs.Request.lspCheck
+
+interface FlixResponseBase {
   id: string
-  status: StatusCode
+}
+export interface FlixResponseCompilerError extends FlixResponseBase {
+  jobRequest: jobs.Request
+  status: StatusCode.CompilerError
+  result: {
+    reportPath: string
+  }
+}
+/**
+ * The special case of lsp/check, which is handled differently from the rest
+ */
+export interface FlixResponseCheck extends FlixResponseBase {
+  jobRequest: jobs.Request.lspCheck
+  status: StatusCode.Success
+  result: FlixResultCheck[]
+}
+export interface FlixResponseSuccess extends FlixResponseBase {
+  jobRequest: Exclude<jobs.Request, jobs.Request.lspCheck>
+  status: StatusCode.Success
   result?: FlixResult
 }
+export interface FlixResponseInvalidRequest extends FlixResponseBase {
+  jobRequest: Exclude<jobs.Request, InfallibleJobs>
+  status: StatusCode.InvalidRequest
+  message: string
+}
+type FlixResponseUnknown =
+  | FlixResponseCompilerError
+  | FlixResponseCheck
+  | FlixResponseSuccess
+  | FlixResponseInvalidRequest
+/**
+ * The types of responses observable by a normal job on the queue
+ */
+export type FlixResponse = FlixResponseSuccess | FlixResponseInvalidRequest
 
 interface InitialiseSocketInput {
   uri: string
@@ -113,10 +151,11 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
   })
 
   webSocket.on('message', (data: string) => {
-    const flixResponse: FlixResponse = JSON.parse(data)
-    const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
+    const rawResponse: FlixResponseUnknown = JSON.parse(data)
+    const job: jobs.EnqueuedJob = jobs.getJob(rawResponse.id)
+    const flixResponse = { ...rawResponse, jobRequest: job.request } as FlixResponseUnknown
 
-    handleResponse(flixResponse, job)
+    handleResponse(flixResponse)
   })
 }
 
@@ -197,11 +236,11 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
   webSocket?.send(JSON.stringify(job))
 }
 
-function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
+function handleResponse(flixResponse: FlixResponseUnknown) {
   if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)
-  } else if (job.request === jobs.Request.lspCheck) {
+  } else if (flixResponse.jobRequest === jobs.Request.lspCheck) {
     lspCheckResponseHandler(flixResponse)
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-const path = require('path')
-const ChildProcess = require('child_process')
-const _ = require('lodash/fp')
+import * as path from 'path'
+import * as ChildProcess from 'child_process'
 
 interface JavaVersion {
   majorVersion: number | undefined
@@ -28,7 +27,10 @@ const unknownJavaVersion: JavaVersion = {
   versionString: undefined,
 }
 
-const getMajorVersion = _.flow(_.split('.'), _.first, _.parseInt(10))
+function getMajorVersion(s: string) {
+  const majorString = s.split('.')[0]
+  return parseInt(majorString)
+}
 
 export default async function javaMajorVersion(rootPath: string): Promise<JavaVersion> {
   return new Promise(resolve => {
@@ -42,10 +44,10 @@ export default async function javaMajorVersion(rootPath: string): Promise<JavaVe
         if (typeof stdout !== 'string') {
           return resolve(unknownJavaVersion)
         }
-        const majorVersion = getMajorVersion(stdout) || 0
+        const majorVersion = getMajorVersion(stdout)
         return resolve({
           majorVersion,
-          versionString: _.trim(stdout),
+          versionString: stdout.trim(),
         })
       },
     )

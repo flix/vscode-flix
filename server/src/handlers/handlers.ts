@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  InitializeParams,
-  InitializeResult,
-  InlayHintParams,
-  ServerRequestHandler,
-  TextDocumentSyncKind,
-} from 'vscode-languageserver'
+import { InitializeParams, InitializeResult, InlayHintParams, TextDocumentSyncKind } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
@@ -30,11 +24,8 @@ import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
-import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
-
-const _ = require('lodash/fp')
 
 interface UriInput {
   uri: string
@@ -182,12 +173,12 @@ export const handleGotoDefinition = makePositionalHandler(
 
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler({ status, result }: socket.FlixResponse) {
-    const targetUri = _.get('targetUri', result)
+    const targetUri = result?.targetUri
     if (status === StatusCode.Success) {
-      if (_.startsWith('file://', targetUri)) {
+      if (targetUri !== undefined && targetUri.startsWith('file://')) {
         return promiseResolver(result)
       } else {
-        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri))
+        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri ?? 'undefined'))
       }
     }
     promiseResolver()
@@ -328,7 +319,11 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
 export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
-  _.each(sendDiagnostics, result)
+
+  // TODO: change type of result upstream
+  for (const r of result as unknown as socket.FlixResult[]) {
+    sendDiagnostics(r)
+  }
 }
 
 /**

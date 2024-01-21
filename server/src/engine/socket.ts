@@ -23,10 +23,10 @@ import { getPort } from 'portfinder'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
-const _ = require('lodash/fp')
-const WebSocket = require('ws')
+import * as WebSocket from 'ws'
+import { DiagnosticSeverity, DiagnosticTag } from 'vscode-languageserver'
 
-let webSocket: any
+let webSocket: WebSocket | undefined = undefined
 let webSocketOpen = false
 
 // event emitter to handle communication between socket handlers and connection handlers
@@ -53,13 +53,14 @@ export interface FlixResult {
           character: number
         }
       }
-      severity: number
+      severity: DiagnosticSeverity
       code: string
       message: string
-      tags: string[]
+      tags: DiagnosticTag[]
     },
   ]
   reportPath: string
+  targetUri?: string
 }
 
 export interface FlixResponse {
@@ -75,7 +76,7 @@ interface InitialiseSocketInput {
 }
 
 export function isOpen() {
-  return webSocket && webSocketOpen
+  return webSocket !== undefined && webSocketOpen
 }
 
 export function isClosed() {
@@ -120,7 +121,7 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
 }
 
 async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
-  const uriPort = _.toInteger(uri.slice(-4))
+  const uriPort = parseInt(uri.slice(-4))
   getPort({ port: uriPort }, (err, freePort) => {
     if (uriPort === freePort) {
       // This happens if the previously used port is now free
@@ -145,7 +146,7 @@ function clearTimer(id: string) {
 }
 
 function clearAllTimers() {
-  _.each(clearTimer, _.keys(sentMessagesMap))
+  Object.keys(sentMessagesMap).forEach(clearTimer)
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -193,7 +194,7 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
     setTimeout(queue.processQueue, 0)
   }, MESSAGE_TIMEOUT_SECONDS * 1000)
   // send job as string
-  webSocket.send(JSON.stringify(job))
+  webSocket?.send(JSON.stringify(job))
 }
 
 function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {

@@ -17,25 +17,21 @@
 import * as vscode from 'vscode'
 import { USER_MESSAGE } from '../util/userMessages'
 
-const _ = require('lodash/fp')
-
 // incrementing index to use as keys for resolver maps
 let indexCounter = 0
 
 // maintain a list of resolve functions to run when cleaning up
-let resolversToCleanUp = {
-  // idx -> { timer, resolver }
-}
+let resolversToCleanUp: Record<number, { timer: NodeJS.Timeout; resolver: () => void }> = {}
 
 /**
  * Ensures the `resolver` is called eventually. Returns a function that should be called if everything works out.
  *
- * @param resolver {() => void} Function to call with no arguments eventually unless canceled
- * @param timeout {Number} Optional time to wait until bailing out
- * @returns {() => void} Function that should be called when things work out
+ * @param resolver Function to call with no arguments eventually unless canceled
+ * @param timeout Optional time to wait until bailing out
+ * @returns Function that should be called when things work out
  */
 export function ensureCleanupEventually(resolver: () => void, timeout = 180) {
-  const index = `${indexCounter++}`
+  const index = indexCounter++
   const timer = setTimeout(() => {
     const msg = USER_MESSAGE.TIMEOUT(timeout)
     vscode.window.showErrorMessage(msg)
@@ -58,9 +54,9 @@ export function ensureCleanupEventually(resolver: () => void, timeout = 180) {
  * Empty the map of resolvers, clearing their timeouts and calling each resolver.
  */
 export function callResolversAndEmptyList() {
-  _.each(({ timer, resolver }) => {
+  for (const { timer, resolver } of Object.values(resolversToCleanUp)) {
     clearTimeout(timer)
     resolver()
-  }, resolversToCleanUp)
+  }
   resolversToCleanUp = {}
 }

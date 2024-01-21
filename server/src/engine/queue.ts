@@ -21,8 +21,7 @@ import { fileURLToPath } from 'url'
 import { sendNotification } from '../server'
 import { USER_MESSAGE } from '../util/userMessages'
 
-const _ = require('lodash/fp')
-const fs = require('fs')
+import * as fs from 'fs'
 
 let jobCounter = 0
 let queueRunning = false
@@ -53,7 +52,7 @@ function jobToEnqueuedJob(job: jobs.Job) {
 }
 
 function emptyWaitingForPriorityQueue() {
-  const values = _.values(waitingForPriorityQueue)
+  const values = Object.values(waitingForPriorityQueue)
   waitingForPriorityQueue = {}
   return values
 }
@@ -61,7 +60,7 @@ function emptyWaitingForPriorityQueue() {
 let enqueueDebounced: () => void = makeEnqueueDebounced()
 
 function handleEnqueue() {
-  if (_.isEmpty(waitingForPriorityQueue)) {
+  if (Object.keys(waitingForPriorityQueue).length === 0) {
     return
   }
   priorityQueue.push(...emptyWaitingForPriorityQueue())
@@ -69,7 +68,28 @@ function handleEnqueue() {
 }
 
 function makeEnqueueDebounced() {
-  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, { leading: true, trailing: true })
+  let coolDownTimer: NodeJS.Timeout | null = null
+  let waiting = false
+  return () => {
+    // If we're still in cool-down,
+    // register that we want to be called at the end of the cool-down
+    if (coolDownTimer !== null) {
+      waiting = true
+      return
+    }
+
+    // If we're not in cool down, call immediately and start cool-down
+    handleEnqueue()
+    coolDownTimer = setTimeout(() => {
+      coolDownTimer = null
+
+      // If there was a call during cool-down, handle it now
+      if (waiting) {
+        waiting = false
+        handleEnqueue()
+      }
+    }, engine.compileOnChangeDelay())
+  }
 }
 
 export function resetEnqueueDebounced() {
@@ -96,7 +116,7 @@ export function enqueue(job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
   if (job.request === jobs.Request.lspCheck) {
     // there's a special rule for lsp/check:
     // there can only be one and it has to be in the beginning
-    taskQueue = _.reject({ request: jobs.Request.lspCheck }, taskQueue)
+    taskQueue = taskQueue.filter(j => j.request !== jobs.Request.lspCheck)
     taskQueue.unshift(enqueuedJob)
   } else {
     taskQueue.push(enqueuedJob)
@@ -131,18 +151,18 @@ export function initialiseQueues(jobs: jobs.Job[]) {
  * Otherwise take the first item off taskQueue.
  */
 function dequeue() {
-  if (_.isEmpty(priorityQueue)) {
-    if (_.isEmpty(taskQueue)) {
+  if (priorityQueue.length === 0) {
+    if (taskQueue.length === 0) {
       return undefined
     }
-    const first = _.first(taskQueue)
+    const first = taskQueue[0]
     taskQueue.shift()
     return first
   } else {
     // priorityQueue has items
-    const first = _.first(priorityQueue)
+    const first = priorityQueue[0]
     priorityQueue.shift()
-    if (_.isEmpty(priorityQueue)) {
+    if (priorityQueue.length === 0) {
       enqueue({
         request: jobs.Request.lspCheck,
       })
@@ -171,8 +191,8 @@ export async function processQueue() {
     // VSCode might ask us to do things before we're up and running - wait for next processQueue call
     return
   }
-  const job: jobs.EnqueuedJob = dequeue()
-  if (job) {
+  const job = dequeue()
+  if (job !== undefined) {
     try {
       if (job.request === jobs.Request.apiAddUri && !job.src) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')

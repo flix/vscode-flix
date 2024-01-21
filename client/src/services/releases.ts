@@ -12,8 +12,7 @@ import * as zlib from 'zlib'
 import * as util from 'util'
 import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
-import * as _ from 'lodash'
-const fetch = require('node-fetch-commonjs')
+import fetch from 'node-fetch-commonjs'
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -61,23 +60,23 @@ export async function fetchRelease(
     throw new Error(`Got response ${response.status} when trying to fetch ` + `release info for ${releaseTag} release`)
   }
 
-  // We skip runtime type checks for simplicity (here we cast from `any` to `GithubRelease`)
-  const release: GithubRelease = await response.json()
+  // We skip runtime type checks for simplicity (here we cast from `unknown` to `GithubRelease`)
+  const release = (await response.json()) as GithubRelease
   const flixRelease: FlixRelease = {
-    url: _.get(release, 'url'),
-    id: _.get(release, 'id'),
-    name: _.get(release, 'name'),
-    description: _.get(release, 'body'),
-    version: tagToVersion(_.get(release, 'tag_name')),
-    downloadUrl: _.get(release, 'assets.0.browser_download_url'),
+    url: release.url,
+    id: release.id,
+    name: release.name,
+    description: release.body,
+    version: tagToVersion(release.tag_name),
+    downloadUrl: release.assets[0].browser_download_url,
     downloadedAt: Date.now(),
   }
   return flixRelease
 }
 
-function tagToVersion(tagName: string = ''): FlixVersion {
+function tagToVersion(tagName: string): FlixVersion {
   const versionString = tagName[0] === 'v' ? tagName.slice(1) : tagName
-  const [major, minor, patch] = _.map(_.split(versionString, '.'), _.parseInt)
+  const [major, minor, patch] = versionString.split('.').map(parseInt)
   return {
     major,
     minor,
@@ -120,11 +119,13 @@ export interface FlixRelease {
 
 // We omit declaration of tremendous amount of fields that we are not using here
 interface GithubRelease {
+  url: string
   name: string
   id: number
   body: string
   // eslint-disable-next-line camelcase
   published_at: string
+  tag_name: string
   assets: Array<{
     name: string
     // eslint-disable-next-line camelcase

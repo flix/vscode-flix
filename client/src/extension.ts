@@ -16,8 +16,6 @@ import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDo
 import { USER_MESSAGE } from './util/userMessages'
 import { StatusCode } from './util/statusCodes'
 
-const _ = require('lodash/fp')
-
 export interface LaunchOptions {
   shouldUpdateFlix: boolean
 }
@@ -123,7 +121,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // Utility for safely registering commands
   const registeredCommands = await vscode.commands.getCommands(true)
   const registerCommand = (command: string, callback: any) => {
-    if (!_.includes(command, registeredCommands)) {
+    if (!registeredCommands.includes(command)) {
       vscode.commands.registerCommand(command, callback)
     }
   }
@@ -233,10 +231,10 @@ async function startSession(
   outputChannel.show(true)
 
   const globalStoragePath = context.globalStorageUri.fsPath
-  const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
-  const workspaceFiles: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(FLIX_GLOB_PATTERN))
-  const workspacePkgs: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(FPKG_GLOB_PATTERN))
-  const workspaceJars: [string] = _.map(vsCodeUriToUriString, await vscode.workspace.findFiles(JAR_GLOB_PATTERN))
+  const workspaceFolders = vscode.workspace.workspaceFolders.map(f => f.uri.fsPath)
+  const workspaceFiles = (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)).map(vsCodeUriToUriString)
+  const workspacePkgs = (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)).map(vsCodeUriToUriString)
+  const workspaceJars = (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)).map(vsCodeUriToUriString)
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({

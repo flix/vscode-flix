@@ -169,7 +169,6 @@ export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument
 
 function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
   if (!uriIsInProject(URI.parse(document.uri))) {
-    sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
     return
   }
 

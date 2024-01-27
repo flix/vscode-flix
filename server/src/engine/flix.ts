@@ -20,6 +20,7 @@ import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder'
 import * as _ from 'lodash'
+import { URI } from 'vscode-uri'
 
 import * as jobs from './jobs'
 import * as queue from './queue'
@@ -77,11 +78,7 @@ export function getExtensionVersion() {
 
 export function getProjectRootUri() {
   const path = _.first(startEngineInput.workspaceFolders)!
-
-  // This is the format that that VSCode forwards the URI in
-  const escapedPath = path.replace(':', '%3A')
-
-  return new URL(`file:///${escapedPath}`)
+  return URI.file(path)
 }
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {

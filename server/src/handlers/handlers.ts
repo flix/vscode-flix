@@ -35,6 +35,7 @@ import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
 import _ = require('lodash/fp')
+import { URI } from 'vscode-uri'
 
 interface UriInput {
   uri: string
@@ -167,7 +168,7 @@ export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument
 }
 
 function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
-  if (!uriIsInProject(document.uri)) {
+  if (!uriIsInProject(URI.parse(document.uri))) {
     sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
     return
   }
@@ -180,14 +181,24 @@ function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
   queue.enqueue(job, skipDelay)
 }
 
-function uriIsInProject(uri: string) {
+function uriIsInProject(uri: URI) {
   const rootUri = getProjectRootUri()
-  const regExps = [
-    String.raw`^${rootUri}/[^/]*\.flix$`,
-    String.raw`^${rootUri}/src/.*\.flix$`,
-    String.raw`^${rootUri}/test/.*\.flix$`,
+
+  if (rootUri.scheme !== uri.scheme) {
+    return false
+  }
+
+  if (rootUri.authority !== uri.authority) {
+    return false
+  }
+
+  const pathRegExps = [
+    String.raw`^${rootUri.path}/[^/]*\.flix$`,
+    String.raw`^${rootUri.path}/src/.*\.flix$`,
+    String.raw`^${rootUri.path}/test/.*\.flix$`,
   ].map(regExpString => new RegExp(regExpString))
-  return regExps.some(regExp => regExp.test(uri))
+
+  return pathRegExps.some(pathRegExp => pathRegExp.test(uri.path))
 }
 
 /**

@@ -125,10 +125,10 @@ interface GithubRelease {
   body: string
   published_at: string
   tag_name: string
-  assets: Array<{
+  assets: {
     name: string
     browser_download_url: string
-  }>
+  }[]
 }
 
 interface DownloadOpts {

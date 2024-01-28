@@ -2,6 +2,11 @@ import { createConnection, TextDocuments, ProposedFeatures, PublishDiagnosticsPa
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
+// Workaround for circular dependency between flix.ts and queue.ts
+// TODO: Fix this
+import * as queue from './engine/queue'
+queue
+
 import * as handlers from './handlers'
 import * as jobs from './engine/jobs'
 

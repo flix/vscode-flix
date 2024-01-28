@@ -123,12 +123,10 @@ interface GithubRelease {
   name: string
   id: number
   body: string
-  // eslint-disable-next-line camelcase
   published_at: string
   tag_name: string
   assets: Array<{
     name: string
-    // eslint-disable-next-line camelcase
     browser_download_url: string
   }>
 }

@@ -1,312 +1,312 @@
 {
-    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-    "copyright_notice": "Copyright 2020 Stephen Tetley, Magnus Madsen",
-    "license": "Apache License, Version 2.0",
-    "name": "flix",
-    "scopeName": "source.flix",
-    "patterns": [
-        {
-            "include": "#all_patterns"
-        }
-    ],
-    "repository": {
-        "all_patterns": {
-            "patterns": [
-                {
-                    "include": "#constants"
-                },
-                {
-                    "include": "#keywords"
-                },
-                {
-                    "include": "#literal_char"
-                },
-                {
-                    "include": "#literal_string"
-                },
-                {
-                    "include": "#literal_dec"
-                },
-                {
-                    "include": "#literal_hex"
-                },
-                {
-                    "include": "#annotations"
-                },
-                {
-                    "include": "#types"
-                },
-                {
-                    "include": "#comments"
-                }
-            ]
-        },
-        "constants": {
-            "patterns": [
-                {
-                    "name": "constant.language.unit.flix",
-                    "match": "\\b\\(\\)\\b"
-                },
-                {
-                    "name": "constant.language.bool.flix",
-                    "match": "\\b(true|false)\\b"
-                },
-                {
-                    "name": "constant.language.null.flix",
-                    "match": "\\b(null)\\b"
-                }
-            ]
-        },
-        "keywords": {
-            "patterns": [
-                {
-                    "name": "keyword.control.choose.flix",
-                    "match": "\\b(choose)\\b"
-                },
-                {
-                    "name": "keyword.control.debug.flix",
-                    "match": "\\b(debug)\\b"
-                },
-                {
-                    "name": "keyword.control.do.flix",
-                    "match": "\\b(do)\\b"
-                },
-                {
-                    "name": "keyword.control.for.flix",
-                    "match": "\\b(for)\\b"
-                },
-                {
-                    "name": "keyword.control.applicativefor.flix",
-                    "match": "\\b(forA)\\b"
-                },
-                {
-                    "name": "keyword.control.monadicfor.flix",
-                    "match": "\\b(forM)\\b"
-                },
-                {
-                    "name": "keyword.control.foreach.flix",
-                    "match": "\\b(foreach)\\b"
-                },
-                {
-                    "name": "keyword.control.yield.flix",
-                    "match": "\\b(yield)\\b"
-                },
-                {
-                    "name": "keyword.control.if.flix",
-                    "match": "\\b(if|else)\\b"
-                },
-                {
-                    "name": "keyword.control.match.flix",
-                    "match": "\\b(case|match|typematch)\\b"
-                },
-                {
-                    "name": "keyword.control.try.flix",
-                    "match": "\\b(try|catch)\\b"
-                },
-                {
-                    "name": "keyword.control.resume.flix",
-                    "match": "\\b(resume)\\b"
-                },
-                {
-                    "name": "keyword.control.spawn.flix",
-                    "match": "\\b(spawn)\\b"
-                },
-                {
-                    "name": "keyword.control.par.flix",
-                    "match": "\\b(par)\\b"
-                },
-                {
-                    "name": "keyword.control.ast.flix",
-                    "match": "\\b(branch|jumpto)\\b"
-                },
-                {
-                    "name": "keyword.operator.bool.flix",
-                    "match": "\\b(not|and|or)\\b"
-                },
-                {
-                    "name": "keyword.operator.fix.flix",
-                    "match": "\\bfix\\b"
-                },
-                {
-                    "name": "keyword.declaration.flix",
-                    "match": "\\b(eff|def|law|enum|case|type|alias|class|instance|with|without|opaque|mod)\\b"
-                },
-                {
-                    "name": "keyword.expression.cast.flix",
-                    "match": "\\b(checked_cast|checked_ecast|unchecked_cast|masked_cast|as)\\b"
-                },
-                {
-                    "name": "keyword.expression.discard.flix",
-                    "match": "\\b(discard)\\b"
-                },
-                {
-                    "name": "keyword.expression.fixpoint.flix",
-                    "match": "\\b(from|into|inject|project|solve|query|where|select)\\b"
-                },
-                {
-                    "name": "keyword.expression.force.flix",
-                    "match": "\\b(force)\\b"
-                },
-                {
-                    "name": "keyword.expression.hole.flix",
-                    "match": "(\\?\\?\\?|\\?[a-zA-Z0-9]+)"
-                },
-                {
-                    "name": "keyword.expression.import.flix",
-                    "match": "\\b(import)\\b"
-                },
-                {
-                    "name": "keyword.expression.let.flix",
-                    "match": "\\b(let\\*|let)\\b"
-                },
-                {
-                    "name": "keyword.expression.lazy.flix",
-                    "match": "\\b(lazy)\\b"
-                },
-                {
-                    "name": "keyword.expression.region.flix",
-                    "match": "\\b(region)\\b"
-                },
-                {
-                    "name": "keyword.expression.references.flix",
-                    "match": "\\b(ref|deref)\\b"
-                },
-                {
-                    "name": "keyword.use.flix",
-                    "match": "\\b(use)\\b"
-                },
-                {
-                    "name": "keyword.symbols.flix",
-                    "match": "(\\->|~>|<\\-|=>)"
-                },
-                {
-                    "name": "keyword.operator.semicolon.flix",
-                    "match": ";"
-                },
-                {
-                    "name": "storage.type.modifier.flix",
-                    "match": "\\b(lawful|pub|override|sealed|static)\\b"
-                }
-            ]
-        },
-        "literal_char": {
-            "name": "string.quoted.single.flix",
-            "begin": "'",
-            "end": "'",
-            "patterns": [
-                {
-                    "name": "constant.character.escape",
-                    "match": "\\\\((u[0-9a-fA-F]{4})|.)"
-                }
-            ]
-        },
-        "literal_string": {
-            "name": "string.quoted.double.flix",
-            "begin": "\"",
-            "end": "\"",
-            "patterns": [
-                {
-                    "name": "constant.character.escape.flix",
-                    "match": "\\\\((u[0-9a-fA-F]{4})|.)"
-                },
-                {
-                    "begin": "\\$\\{",
-                    "beginCaptures": {
-                        "0": {
-                            "name": "punctuation.definition.template-expression.begin.flix"
-                        }
-                    },
-                    "end": "\\}",
-                    "endCaptures": {
-                        "0": {
-                            "name": "punctuation.definition.template-expression.end.flix"
-                        }
-                    },
-                    "patterns": [
-                        {
-                            "include": "#all_patterns"
-                        }
-                    ],
-                    "contentName": "meta.embedded.line.flix"
-                }
-            ]
-        },
-        "literal_dec": {
-            "patterns": [
-                {
-                    "name": "constant.numeric.decimal.flix",
-                    "match": "\\b[0-9](_*[0-9])*\\.[0-9](_*[0-9])*(f32|f64)?\\b"
-                },
-                {
-                    "name": "constant.numeric.decimal.flix",
-                    "match": "(?<!\\$)\\b[0-9](_*[0-9])*(i8|i16|i32|i64|ii)?\\b"
-                }
-            ]
-        },
-        "literal_hex": {
-            "name": "constant.numeric.hex.flix",
-            "match": "\\b0x[a-fA-F0-9](_*[a-fA-F0-9])*(i8|i16|i32|i64|ii)?\\b"
-        },
-        "annotations": {
-            "patterns": [
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Deprecated"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Experimental"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Internal"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@ParallelWhenPure"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Parallel"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@LazyWhenPure"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Lazy"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Skip"
-                },
-                {
-                    "name": "storage.type.annotation.flix",
-                    "match": "@Test"
-                }
-            ]
-        },
-        "types": {
-            "patterns": [
-                {
-                    "name": "entity.name.type",
-                    "match": "\\b(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)\\b"
-                }
-            ]
-        },
-        "comments": {
-            "patterns": [
-                {
-                    "name": "comment.line.double-slash.flix",
-                    "match": "//.*$"
-                },
-                {
-                    "name": "comment.block.flix",
-                    "begin": "/\\*",
-                    "end": "\\*/"
-                }
-            ]
-        }
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "copyright_notice": "Copyright 2020 Stephen Tetley, Magnus Madsen",
+  "license": "Apache License, Version 2.0",
+  "name": "flix",
+  "scopeName": "source.flix",
+  "patterns": [
+    {
+      "include": "#all_patterns"
     }
+  ],
+  "repository": {
+    "all_patterns": {
+      "patterns": [
+        {
+          "include": "#constants"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#literal_char"
+        },
+        {
+          "include": "#literal_string"
+        },
+        {
+          "include": "#literal_dec"
+        },
+        {
+          "include": "#literal_hex"
+        },
+        {
+          "include": "#annotations"
+        },
+        {
+          "include": "#types"
+        },
+        {
+          "include": "#comments"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.unit.flix",
+          "match": "\\b\\(\\)\\b"
+        },
+        {
+          "name": "constant.language.bool.flix",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.flix",
+          "match": "\\b(null)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.choose.flix",
+          "match": "\\b(choose)\\b"
+        },
+        {
+          "name": "keyword.control.debug.flix",
+          "match": "\\b(debug)\\b"
+        },
+        {
+          "name": "keyword.control.do.flix",
+          "match": "\\b(do)\\b"
+        },
+        {
+          "name": "keyword.control.for.flix",
+          "match": "\\b(for)\\b"
+        },
+        {
+          "name": "keyword.control.applicativefor.flix",
+          "match": "\\b(forA)\\b"
+        },
+        {
+          "name": "keyword.control.monadicfor.flix",
+          "match": "\\b(forM)\\b"
+        },
+        {
+          "name": "keyword.control.foreach.flix",
+          "match": "\\b(foreach)\\b"
+        },
+        {
+          "name": "keyword.control.yield.flix",
+          "match": "\\b(yield)\\b"
+        },
+        {
+          "name": "keyword.control.if.flix",
+          "match": "\\b(if|else)\\b"
+        },
+        {
+          "name": "keyword.control.match.flix",
+          "match": "\\b(case|match|typematch)\\b"
+        },
+        {
+          "name": "keyword.control.try.flix",
+          "match": "\\b(try|catch)\\b"
+        },
+        {
+          "name": "keyword.control.resume.flix",
+          "match": "\\b(resume)\\b"
+        },
+        {
+          "name": "keyword.control.spawn.flix",
+          "match": "\\b(spawn)\\b"
+        },
+        {
+          "name": "keyword.control.par.flix",
+          "match": "\\b(par)\\b"
+        },
+        {
+          "name": "keyword.control.ast.flix",
+          "match": "\\b(branch|jumpto)\\b"
+        },
+        {
+          "name": "keyword.operator.bool.flix",
+          "match": "\\b(not|and|or)\\b"
+        },
+        {
+          "name": "keyword.operator.fix.flix",
+          "match": "\\bfix\\b"
+        },
+        {
+          "name": "keyword.declaration.flix",
+          "match": "\\b(eff|def|law|enum|case|type|alias|class|instance|with|without|opaque|mod)\\b"
+        },
+        {
+          "name": "keyword.expression.cast.flix",
+          "match": "\\b(checked_cast|checked_ecast|unchecked_cast|masked_cast|as)\\b"
+        },
+        {
+          "name": "keyword.expression.discard.flix",
+          "match": "\\b(discard)\\b"
+        },
+        {
+          "name": "keyword.expression.fixpoint.flix",
+          "match": "\\b(from|into|inject|project|solve|query|where|select)\\b"
+        },
+        {
+          "name": "keyword.expression.force.flix",
+          "match": "\\b(force)\\b"
+        },
+        {
+          "name": "keyword.expression.hole.flix",
+          "match": "(\\?\\?\\?|\\?[a-zA-Z0-9]+)"
+        },
+        {
+          "name": "keyword.expression.import.flix",
+          "match": "\\b(import)\\b"
+        },
+        {
+          "name": "keyword.expression.let.flix",
+          "match": "\\b(let\\*|let)\\b"
+        },
+        {
+          "name": "keyword.expression.lazy.flix",
+          "match": "\\b(lazy)\\b"
+        },
+        {
+          "name": "keyword.expression.region.flix",
+          "match": "\\b(region)\\b"
+        },
+        {
+          "name": "keyword.expression.references.flix",
+          "match": "\\b(ref|deref)\\b"
+        },
+        {
+          "name": "keyword.use.flix",
+          "match": "\\b(use)\\b"
+        },
+        {
+          "name": "keyword.symbols.flix",
+          "match": "(\\->|~>|<\\-|=>)"
+        },
+        {
+          "name": "keyword.operator.semicolon.flix",
+          "match": ";"
+        },
+        {
+          "name": "storage.type.modifier.flix",
+          "match": "\\b(lawful|pub|override|sealed|static)\\b"
+        }
+      ]
+    },
+    "literal_char": {
+      "name": "string.quoted.single.flix",
+      "begin": "'",
+      "end": "'",
+      "patterns": [
+        {
+          "name": "constant.character.escape",
+          "match": "\\\\((u[0-9a-fA-F]{4})|.)"
+        }
+      ]
+    },
+    "literal_string": {
+      "name": "string.quoted.double.flix",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.flix",
+          "match": "\\\\((u[0-9a-fA-F]{4})|.)"
+        },
+        {
+          "begin": "\\$\\{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.begin.flix"
+            }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.template-expression.end.flix"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#all_patterns"
+            }
+          ],
+          "contentName": "meta.embedded.line.flix"
+        }
+      ]
+    },
+    "literal_dec": {
+      "patterns": [
+        {
+          "name": "constant.numeric.decimal.flix",
+          "match": "\\b[0-9](_*[0-9])*\\.[0-9](_*[0-9])*(f32|f64)?\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.flix",
+          "match": "(?<!\\$)\\b[0-9](_*[0-9])*(i8|i16|i32|i64|ii)?\\b"
+        }
+      ]
+    },
+    "literal_hex": {
+      "name": "constant.numeric.hex.flix",
+      "match": "\\b0x[a-fA-F0-9](_*[a-fA-F0-9])*(i8|i16|i32|i64|ii)?\\b"
+    },
+    "annotations": {
+      "patterns": [
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Deprecated"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Experimental"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Internal"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@ParallelWhenPure"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Parallel"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@LazyWhenPure"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Lazy"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Skip"
+        },
+        {
+          "name": "storage.type.annotation.flix",
+          "match": "@Test"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "entity.name.type",
+          "match": "\\b(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)\\b"
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.flix",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.flix",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    }
+  }
 }

@@ -220,14 +220,16 @@ export function addUri(uri: string) {
  * If this URI has not already been added to the workspace via {@linkcode addUri},
  * it will be ignored, making it safe to call this function on any file.
  */
-export function updateUri(uri: string) {
+export function updateUri(uri: string, src: string) {
   if (!currentWorkspaceFiles.has(uri)) {
     return
   }
 
+  // Including the source code in the job is necessary because the file might not yet have been saved
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri,
+    src,
   }
 
   // Skip the delay to improve auto-complete responsiveness

@@ -157,13 +157,15 @@ export function handleExit() {
 
 export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
-    engine.updateUri(params.document.uri)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
 }
 
 export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
-    engine.updateUri(params.document.uri)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
 }
 

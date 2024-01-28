@@ -24,18 +24,15 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
-import * as queue from '../engine/queue'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
-import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
 import _ = require('lodash/fp')
-import { URI } from 'vscode-uri'
 
 interface UriInput {
   uri: string
@@ -156,48 +153,14 @@ export function handleExit() {
 
 export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
-    addUriToCompiler(params.document, true)
+    engine.updateUri(params.document.uri)
   }
 }
 
 export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
-    // We send the document immediately to ensure better auto-complete.
-    addUriToCompiler(params.document, true)
+    engine.updateUri(params.document.uri)
   }
-}
-
-function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
-  if (!uriIsInProject(URI.parse(document.uri))) {
-    return
-  }
-
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
-    src: document.getText(),
-  }
-  queue.enqueue(job, skipDelay)
-}
-
-function uriIsInProject(uri: URI) {
-  const rootUri = getProjectRootUri()
-
-  if (rootUri.scheme !== uri.scheme) {
-    return false
-  }
-
-  if (rootUri.authority !== uri.authority) {
-    return false
-  }
-
-  const pathRegExps = [
-    String.raw`^${rootUri.path}/[^/]*\.flix$`,
-    String.raw`^${rootUri.path}/src/.*\.flix$`,
-    String.raw`^${rootUri.path}/test/.*\.flix$`,
-  ].map(regExpString => new RegExp(regExpString))
-
-  return pathRegExps.some(pathRegExp => pathRegExp.test(uri.path))
 }
 
 /**

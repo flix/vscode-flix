@@ -55,7 +55,9 @@ async function ensureReplExists(context: vscode.ExtensionContext, launchOptions:
   }
 
   vscode.window.onDidCloseTerminal(terminal => {
-    if (terminal.name === FLIX_TERMINAL.name) FLIX_TERMINAL = null
+    if (terminal.name === FLIX_TERMINAL.name) {
+      FLIX_TERMINAL = null
+    }
   })
 
   return missing
@@ -90,7 +92,9 @@ async function launchReplInTerminal(
 function getFlixTerminal() {
   const activeTerminals = vscode.window.terminals
   for (const element of activeTerminals) {
-    if (element.name.substring(0, 4) === `flix`) return element
+    if (element.name.substring(0, 4) === `flix`) {
+      return element
+    }
   }
   const terminal = vscode.window.createTerminal(`flix-` + countTerminals.toString())
   countTerminals += 1 //creating a new terminal since no active flix terminals available.
@@ -156,12 +160,16 @@ async function handleUnsavedFiles() {
   const unsaved = []
   const textDocuments = vscode.workspace.textDocuments
   for (const textDocument of textDocuments) {
-    if (textDocument.isDirty) unsaved.push(textDocument)
+    if (textDocument.isDirty) {
+      unsaved.push(textDocument)
+    }
   }
   if (unsaved.length !== 0) {
     const { msg, option1, option2 } = USER_MESSAGE.ASK_SAVE_CHANGED_FILES()
     const action = await vscode.window.showWarningMessage(msg, option1, option2)
-    if (action === option2) await vscode.workspace.saveAll(false)
+    if (action === option2) {
+      await vscode.workspace.saveAll(false)
+    }
   }
 }
 
@@ -274,13 +282,18 @@ function runCmd<A extends unknown[]>(
       FLIX_TERMINAL.show()
 
       // Wait for the REPL to start up and become responsive
-      if (newRepl) await new Promise(r => setTimeout(r, 2000))
+      if (newRepl) {
+        await new Promise(r => setTimeout(r, 2000))
+      }
     }
 
     await Promise.allSettled([handleUnsavedFiles(), prepareRepl()])
 
-    if (typeof cmd === 'string') FLIX_TERMINAL.sendText(cmd)
-    else FLIX_TERMINAL.sendText(await cmd(...args))
+    if (typeof cmd === 'string') {
+      FLIX_TERMINAL.sendText(cmd)
+    } else {
+      FLIX_TERMINAL.sendText(await cmd(...args))
+    }
   }
 }
 
@@ -313,7 +326,9 @@ export function runMain(context: vscode.ExtensionContext, launchOptions: LaunchO
 export function runMainWithArgs(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
   return runCmd(context, launchOptions, async (entryPoint: string) => {
     const input = await takeInputFromUser()
-    if (input === undefined) return ''
+    if (input === undefined) {
+      return ''
+    }
 
     const args = input.split(' ').map(s => `"${s}"`)
     return `:eval ${entryPoint}(${args.join(', ')})`
@@ -410,7 +425,9 @@ export function makeHandleRunJobWithProgress(
 function getTerminal(name: string) {
   const activeTerminals = vscode.window.terminals
   for (const element of activeTerminals) {
-    if (element.name === name) return element
+    if (element.name === name) {
+      return element
+    }
   }
   return vscode.window.createTerminal({ name: name })
 }

@@ -23,6 +23,10 @@ import {
 } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
+// Workaround for circular dependency between flix.ts and queue.ts
+import * as queue from '../engine/queue'
+queue.enqueue
+
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'

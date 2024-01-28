@@ -232,7 +232,7 @@ export function updateUri(uri: string, src: string) {
     src,
   }
 
-  // Skip the delay to improve auto-complete responsiveness
+  // Skip the delay to make auto-complete work
   const skipDelay = true
   queue.enqueue(job, skipDelay)
 }

@@ -40,10 +40,6 @@ interface UriInput {
   uri: string
 }
 
-function printHorizontalRuler() {
-  console.log(_.repeat(48, String.fromCodePoint(0x23e4)))
-}
-
 export function handleInitialize(_params: InitializeParams) {
   const result: InitializeResult = {
     capabilities: {
@@ -292,55 +288,6 @@ export const handleInlayHints = (params: InlayHintParams): Thenable<any> =>
     })
     socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve))
   })
-
-/**
- * @function
- */
-export const handleRunTests = enqueueUnlessHasErrors(
-  { request: jobs.Request.cmdRunTests },
-  makeRunTestsResponseHandler,
-  hasErrorsHandlerForCommands,
-)
-
-function prettyPrintTestResults(result: any) {
-  if (_.isEmpty(result)) {
-    // nothing to print
-    sendNotification(jobs.Request.internalMessage, 'No tests to run')
-    return
-  }
-  printHorizontalRuler()
-  for (const test of result) {
-    console.log(
-      test.outcome === 'success' ? String.fromCodePoint(0x2705) : String.fromCodePoint(0x274c),
-      test.name,
-      test.outcome === 'success'
-        ? ''
-        : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`,
-    )
-  }
-  printHorizontalRuler()
-  const totalTests = _.size(result)
-  const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
-  const failingTests = totalTests - successfulTests
-  if (failingTests > 0) {
-    sendNotification(jobs.Request.internalError, {
-      message: `Tests Failed (${failingTests}/${totalTests})`,
-      actions: [],
-    })
-  } else {
-    sendNotification(jobs.Request.internalMessage, `Tests Passed (${successfulTests}/${totalTests})`)
-  }
-}
-
-function makeRunTestsResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
-  return function responseHandler(flixResponse: socket.FlixResponse) {
-    // the status is always 'success' when with failing tests
-    const { result } = flixResponse
-    prettyPrintTestResults(result)
-    promiseResolver(result)
-    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
-  }
-}
 
 function hasErrorsHandlerForCommands() {
   sendNotification(jobs.Request.internalError, {

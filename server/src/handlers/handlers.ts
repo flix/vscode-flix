@@ -18,23 +18,21 @@ import {
   InitializeParams,
   InitializeResult,
   InlayHintParams,
-  ServerRequestHandler,
+  TextDocumentChangeEvent,
   TextDocumentSyncKind,
 } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
-import * as queue from '../engine/queue'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
-import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
-const _ = require('lodash/fp')
+import _ = require('lodash/fp')
 
 interface UriInput {
   uri: string
@@ -149,26 +147,18 @@ export function handleExit() {
   engine.stop()
 }
 
-export function handleSave(params: any) {
+export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
 }
 
-export function handleChangeContent(params: any) {
+export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
-    // We send the document immediately to ensure better auto-complete.
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
-}
-
-function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
-    src: document.getText(),
-  }
-  queue.enqueue(job, skipDelay)
 }
 
 /**
@@ -328,6 +318,9 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
 export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
   clearDiagnostics()
   sendNotification(jobs.Request.internalDiagnostics, { status, result })
+
+  // TODO: Find out why TS doen't like this
+  // @ts-ignore
   _.each(sendDiagnostics, result)
 }
 

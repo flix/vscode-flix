@@ -20,7 +20,6 @@ import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder'
 import * as _ from 'lodash'
-import { URI } from 'vscode-uri'
 
 import * as jobs from './jobs'
 import * as queue from './queue'
@@ -63,6 +62,7 @@ export interface StartEngineInput {
 let flixInstance: ChildProcess | undefined = undefined
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
+let currentWorkspaceFiles: Set<string> = new Set()
 
 export function isRunning() {
   return flixRunning
@@ -74,11 +74,6 @@ export function getFlixFilename() {
 
 export function getExtensionVersion() {
   return _.get(startEngineInput, 'extensionVersion', '(unknown version)')
-}
-
-export function getProjectRootUri() {
-  const path = _.first(startEngineInput.workspaceFolders)!
-  return URI.file(path)
 }
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
@@ -108,6 +103,8 @@ export async function start(input: StartEngineInput) {
 
   const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
 
+  currentWorkspaceFiles = new Set(workspaceFiles)
+
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
   if (versionString === undefined) {
@@ -119,7 +116,7 @@ export async function start(input: StartEngineInput) {
     return
   }
 
-  if (majorVersion! < 11) {
+  if (majorVersion! < 21) {
     sendNotification(jobs.Request.internalError, {
       message: USER_MESSAGE.JAVA_WRONG_VERSION(versionString),
       actions: [],
@@ -204,7 +201,12 @@ export async function stop() {
   }
 }
 
+/**
+ * Add the given `uri` to the workspace.
+ */
 export function addUri(uri: string) {
+  currentWorkspaceFiles.add(uri)
+
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri,
@@ -212,7 +214,37 @@ export function addUri(uri: string) {
   queue.enqueue(job)
 }
 
+/**
+ * Handle a change in the file with the given `uri`.
+ *
+ * If this URI has not already been added to the workspace via {@linkcode addUri},
+ * it will be ignored and a warning will be presented to the user,
+ * making it safe to call this function on any file.
+ */
+export function updateUri(uri: string, src: string) {
+  if (!currentWorkspaceFiles.has(uri)) {
+    sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+    return
+  }
+
+  // Including the source code in the job is necessary because the file might not yet have been saved
+  const job: jobs.Job = {
+    request: jobs.Request.apiAddUri,
+    uri,
+    src,
+  }
+
+  // Skip the delay to make auto-complete work
+  const skipDelay = true
+  queue.enqueue(job, skipDelay)
+}
+
+/**
+ * Remove the given `uri` from the workspace.
+ */
 export function remUri(uri: string) {
+  currentWorkspaceFiles.delete(uri)
+
   const job: jobs.Job = {
     request: jobs.Request.apiRemUri,
     uri,

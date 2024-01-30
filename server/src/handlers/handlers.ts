@@ -24,25 +24,18 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
-import * as queue from '../engine/queue'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
 import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
-import { getProjectRootUri } from '../engine'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
 import _ = require('lodash/fp')
-import { URI } from 'vscode-uri'
 
 interface UriInput {
   uri: string
-}
-
-function printHorizontalRuler() {
-  console.log(_.repeat(48, String.fromCodePoint(0x23e4)))
 }
 
 export function handleInitialize(_params: InitializeParams) {
@@ -156,49 +149,16 @@ export function handleExit() {
 
 export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
 }
 
 export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
-    // We send the document immediately to ensure better auto-complete.
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
-}
-
-function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
-  if (!uriIsInProject(URI.parse(document.uri))) {
-    sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
-    return
-  }
-
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
-    src: document.getText(),
-  }
-  queue.enqueue(job, skipDelay)
-}
-
-function uriIsInProject(uri: URI) {
-  const rootUri = getProjectRootUri()
-
-  if (rootUri.scheme !== uri.scheme) {
-    return false
-  }
-
-  if (rootUri.authority !== uri.authority) {
-    return false
-  }
-
-  const pathRegExps = [
-    String.raw`^${rootUri.path}/[^/]*\.flix$`,
-    String.raw`^${rootUri.path}/src/.*\.flix$`,
-    String.raw`^${rootUri.path}/test/.*\.flix$`,
-  ].map(regExpString => new RegExp(regExpString))
-
-  return pathRegExps.some(pathRegExp => pathRegExp.test(uri.path))
 }
 
 /**
@@ -318,55 +278,6 @@ export const handleInlayHints = (params: InlayHintParams): Thenable<any> =>
     })
     socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve))
   })
-
-/**
- * @function
- */
-export const handleRunTests = enqueueUnlessHasErrors(
-  { request: jobs.Request.cmdRunTests },
-  makeRunTestsResponseHandler,
-  hasErrorsHandlerForCommands,
-)
-
-function prettyPrintTestResults(result: any) {
-  if (_.isEmpty(result)) {
-    // nothing to print
-    sendNotification(jobs.Request.internalMessage, 'No tests to run')
-    return
-  }
-  printHorizontalRuler()
-  for (const test of result) {
-    console.log(
-      test.outcome === 'success' ? String.fromCodePoint(0x2705) : String.fromCodePoint(0x274c),
-      test.name,
-      test.outcome === 'success'
-        ? ''
-        : `(at ${test.location.uri}#${test.location.range.start.line}:${test.location.range.start.character})`,
-    )
-  }
-  printHorizontalRuler()
-  const totalTests = _.size(result)
-  const successfulTests = _.size(_.filter({ outcome: 'success' }, result))
-  const failingTests = totalTests - successfulTests
-  if (failingTests > 0) {
-    sendNotification(jobs.Request.internalError, {
-      message: `Tests Failed (${failingTests}/${totalTests})`,
-      actions: [],
-    })
-  } else {
-    sendNotification(jobs.Request.internalMessage, `Tests Passed (${successfulTests}/${totalTests})`)
-  }
-}
-
-function makeRunTestsResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
-  return function responseHandler(flixResponse: socket.FlixResponse) {
-    // the status is always 'success' when with failing tests
-    const { result } = flixResponse
-    prettyPrintTestResults(result)
-    promiseResolver(result)
-    sendNotification(jobs.Request.internalFinishedJob, flixResponse)
-  }
-}
 
 function hasErrorsHandlerForCommands() {
   sendNotification(jobs.Request.internalError, {

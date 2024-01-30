@@ -29,7 +29,7 @@ export class USER_MESSAGE {
   }
 
   static JAVA_WRONG_VERSION(foundVersion: string) {
-    return `Flix requires Java 11 or later. Found "${foundVersion}".`
+    return `Flix requires Java 21 or later. Found "${foundVersion}".`
   }
 
   static RESPONSE_TIMEOUT(timeoutTime: number) {

@@ -2,6 +2,11 @@ import { createConnection, TextDocuments, ProposedFeatures, PublishDiagnosticsPa
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
+// Workaround for circular dependency between flix.ts and queue.ts
+// TODO: Fix this
+import * as queue from './engine/queue'
+queue
+
 import * as handlers from './handlers'
 import * as jobs from './engine/jobs'
 
@@ -42,9 +47,6 @@ connection.onNotification(jobs.Request.apiRemJar, handlers.handleRemJar)
 
 // Show ast
 connection.onNotification(jobs.Request.lspShowAst, handlers.handleShowAst)
-
-// cmd/*
-connection.onNotification(jobs.Request.cmdRunTests, handlers.handleRunTests)
 
 // Cleanup after exit
 connection.onExit(handlers.handleExit)

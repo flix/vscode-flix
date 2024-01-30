@@ -33,8 +33,6 @@ export enum Request {
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
 
-  cmdRunTests = 'cmd/runTests',
-
   lspCheck = 'lsp/check',
   lspCodelens = 'lsp/codelens',
   lspHighlight = 'lsp/highlight',

@@ -21,6 +21,10 @@
     "onLanguage:flix"
   ],
   "main": "./client/out/extension.js",
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "contributes": {
     "commands": [
       {
@@ -307,7 +311,6 @@
     "vscode:prepublish": "npm run build",
     "build": "node build.js",
     "watch": "tsc -b -w",
-    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "test": "sh ./scripts/e2e.sh"
   },
   "devDependencies": {

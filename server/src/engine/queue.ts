@@ -69,7 +69,36 @@ function handleEnqueue() {
 }
 
 function makeEnqueueDebounced() {
-  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, { leading: true, trailing: true })
+  let coolDownTimer: NodeJS.Timeout | null = null
+  let waiting = false
+
+  function startCooldown() {
+    coolDownTimer = setTimeout(endCooldown, engine.compileOnChangeDelay())
+  }
+
+  function endCooldown() {
+    coolDownTimer = null
+
+    // If there was a call during cool-down, handle it now
+    if (waiting) {
+      waiting = false
+      handleEnqueue()
+      startCooldown()
+    }
+  }
+
+  return () => {
+    // If we're still in cool-down,
+    // register that we want to be called at the end of the cool-down
+    if (coolDownTimer !== null) {
+      waiting = true
+      return
+    }
+
+    // If we're not in cool down, call immediately and start cool-down
+    handleEnqueue()
+    startCooldown()
+  }
 }
 
 export function resetEnqueueDebounced() {

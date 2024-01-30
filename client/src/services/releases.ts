@@ -150,7 +150,9 @@ export async function download(opts: DownloadOpts) {
   if (opts.overwrite) {
     // Unlinking the exe file before moving new one on its place should prevent ETXTBSY error.
     await fs.promises.unlink(opts.dest).catch(err => {
-      if (err.code !== 'ENOENT') throw err
+      if (err.code !== 'ENOENT') {
+        throw err
+      }
     })
   }
 

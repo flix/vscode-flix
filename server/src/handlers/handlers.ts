@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-import { InitializeParams, InitializeResult, InlayHintParams, TextDocumentSyncKind } from 'vscode-languageserver'
+import {
+  InitializeParams,
+  InitializeResult,
+  InlayHintParams,
+  TextDocumentChangeEvent,
+  TextDocumentSyncKind,
+} from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 import * as jobs from '../engine/jobs'
-import * as queue from '../engine/queue'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
@@ -140,26 +145,18 @@ export function handleExit() {
   engine.stop()
 }
 
-export function handleSave(params: any) {
+export function handleSave(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnSaveEnabled()) {
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
 }
 
-export function handleChangeContent(params: any) {
+export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
   if (engine.compileOnChangeEnabled()) {
-    // We send the document immediately to ensure better auto-complete.
-    addUriToCompiler(params.document, true)
+    const document = params.document
+    engine.updateUri(document.uri, document.getText())
   }
-}
-
-function addUriToCompiler(document: TextDocument, skipDelay?: boolean) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri: document.uri, // Note: this typically has the file:// scheme (important for files as keys)
-    src: document.getText(),
-  }
-  queue.enqueue(job, skipDelay)
 }
 
 /**

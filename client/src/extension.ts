@@ -34,7 +34,10 @@ let tomlWatcher: vscode.FileSystemWatcher
 
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
-export const FLIX_GLOB_PATTERN = '**/*.flix'
+export const FLIX_GLOB_PATTERN = new vscode.RelativePattern(
+  vscode.workspace.workspaceFolders?.[0],
+  '{*.flix,src/**/*.flix,test/**/*.flix}',
+)
 
 export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
 export const JAR_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.jar')

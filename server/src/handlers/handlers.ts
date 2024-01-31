@@ -171,13 +171,13 @@ export const handleGotoDefinition = makePositionalHandler(
 )
 
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
-  return function responseHandler({ status, result }: socket.FlixResponse) {
-    const targetUri = _.get('targetUri', result)
-    if (status === StatusCode.Success) {
-      if (_.startsWith('file://', targetUri)) {
-        return promiseResolver(result)
+  return function responseHandler(response: socket.FlixResponse) {
+    if (response.status === StatusCode.Success) {
+      const targetUri = response.result?.targetUri
+      if (targetUri !== undefined && _.startsWith('file://', targetUri)) {
+        return promiseResolver(response.result)
       } else {
-        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri))
+        sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri ?? 'undefined'))
       }
     }
     promiseResolver()
@@ -315,20 +315,20 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
  *
  * This is different from the rest of the response handlers in that it isn't tied together with its enqueueing function.
  */
-export function lspCheckResponseHandler({ status, result }: socket.FlixResponse) {
+export function lspCheckResponseHandler(response: socket.FlixResponseCheck) {
   clearDiagnostics()
-  sendNotification(jobs.Request.internalDiagnostics, { status, result })
+  sendNotification(jobs.Request.internalDiagnostics, response)
 
-  // TODO: Find out why TS doen't like this
-  // @ts-ignore
-  _.each(sendDiagnostics, result)
+  for (const r of response.result) {
+    sendDiagnostics(r)
+  }
 }
 
 /**
- * Handle response where status is `statusCodes.COMPILER_ERROR`
+ * Handle response where status is `StatusCode.CompilerError`
  */
-export function handleCrash({ status, result }: socket.FlixResponse) {
-  const path = result?.reportPath as string
+export function handleCrash(response: socket.FlixResponseCompilerError) {
+  const path = response.result.reportPath
   sendNotification(jobs.Request.internalError, {
     message: USER_MESSAGE.COMPILER_CRASHED(path),
     actions: [

@@ -10,7 +10,7 @@ jobs:
       regex: "^(chore|ci|docs|feat|fix|refactor|style|test): "
     steps:
       - name: Check title
-        uses: actions/github-script@v3
+        uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: >

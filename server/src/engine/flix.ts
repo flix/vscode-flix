@@ -218,12 +218,10 @@ export function addUri(uri: string) {
  * Handle a change in the file with the given `uri`.
  *
  * If this URI has not already been added to the workspace via {@linkcode addUri},
- * it will be ignored and a warning will be presented to the user,
- * making it safe to call this function on any file.
+ * it will be ignored, making it safe to call this function on any file.
  */
 export function updateUri(uri: string, src: string) {
   if (!currentWorkspaceFiles.has(uri)) {
-    sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
     return
   }
 

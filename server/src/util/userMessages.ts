@@ -43,8 +43,4 @@ export class USER_MESSAGE {
   static REQUEST_TIMEOUT(retries: number) {
     return `Could not send message after ${retries} retries. Websocket not available.`
   }
-
-  static FILE_NOT_PART_OF_PROJECT() {
-    return `Only files in root, src/** and test/** are included`
-  }
 }

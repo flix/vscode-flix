@@ -2,6 +2,8 @@
 // https://github.com/rust-analyzer/rust-analyzer/blob/master/editors/code/src/net.ts
 // The code in rust-analyzer is released under the same licence as this project.
 
+// Replace with `import fetch from "node-fetch"` once this is fixed in rollup:
+// https://github.com/rollup/plugins/issues/491
 import * as vscode from 'vscode'
 import * as stream from 'stream'
 import * as crypto from 'crypto'
@@ -11,9 +13,7 @@ import * as util from 'util'
 import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
 import * as _ from 'lodash'
-
-// Remove when support for Node.js 20 is dropped
-import fetch from 'node-fetch'
+const fetch = require('node-fetch-commonjs')
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -61,8 +61,8 @@ export async function fetchRelease(
     throw new Error(`Got response ${response.status} when trying to fetch ` + `release info for ${releaseTag} release`)
   }
 
-  // We skip runtime type checks for simplicity (here we cast from `unknown` to `GithubRelease`)
-  const release = (await response.json()) as GithubRelease
+  // We skip runtime type checks for simplicity (here we cast from `any` to `GithubRelease`)
+  const release: GithubRelease = await response.json()
   const flixRelease: FlixRelease = {
     url: _.get(release, 'url'),
     id: _.get(release, 'id'),

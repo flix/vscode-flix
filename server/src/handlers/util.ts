@@ -20,12 +20,12 @@ import * as socket from '../engine/socket'
 import { hasErrors } from '../server'
 import { StatusCode } from '../util/statusCodes'
 
-type ResponseHandler = (response: socket.FlixResponse) => void
+type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
 
 export function makeDefaultResponseHandler(promiseResolver: (result?: socket.FlixResult) => void): ResponseHandler {
-  return function responseHandler(response: socket.FlixResponse) {
-    if (response.status === StatusCode.Success) {
-      promiseResolver(response.result)
+  return function responseHandler({ status, result }: socket.FlixResponse) {
+    if (status === StatusCode.Success) {
+      promiseResolver(result)
     } else {
       promiseResolver()
     }

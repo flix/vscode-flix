@@ -25,7 +25,6 @@ import { StatusCode } from '../util/statusCodes'
 
 const _ = require('lodash/fp')
 const WebSocket = require('ws')
-import { DiagnosticSeverity, DiagnosticTag } from 'vscode-languageserver'
 
 let webSocket: any
 let webSocketOpen = false
@@ -40,7 +39,7 @@ interface sentMessagesMap {
 const sentMessagesMap: sentMessagesMap = {}
 const MESSAGE_TIMEOUT_SECONDS = 30
 
-export interface FlixResultCheck {
+export interface FlixResult {
   uri: string
   diagnostics: [
     {
@@ -54,62 +53,20 @@ export interface FlixResultCheck {
           character: number
         }
       }
-      severity: DiagnosticSeverity
+      severity: number
       code: string
       message: string
-      tags: DiagnosticTag[]
+      tags: string[]
     },
   ]
-}
-/**
- * The general result of a job
- */
-export interface FlixResult {
-  targetUri?: string
+  reportPath: string
 }
 
-/**
- * The jobs that can be assumed to never produce an invalid request
- */
-type InfallibleJobs = jobs.Request.lspCheck
-
-interface FlixResponseBase {
+export interface FlixResponse {
   id: string
-}
-export interface FlixResponseCompilerError extends FlixResponseBase {
-  jobRequest: jobs.Request
-  status: StatusCode.CompilerError
-  result: {
-    reportPath: string
-  }
-}
-/**
- * The special case of lsp/check, which is handled differently from the rest
- */
-export interface FlixResponseCheck extends FlixResponseBase {
-  jobRequest: jobs.Request.lspCheck
-  status: StatusCode.Success
-  result: FlixResultCheck[]
-}
-export interface FlixResponseSuccess extends FlixResponseBase {
-  jobRequest: Exclude<jobs.Request, jobs.Request.lspCheck>
-  status: StatusCode.Success
+  status: StatusCode
   result?: FlixResult
 }
-export interface FlixResponseInvalidRequest extends FlixResponseBase {
-  jobRequest: Exclude<jobs.Request, InfallibleJobs>
-  status: StatusCode.InvalidRequest
-  message: string
-}
-type FlixResponseUnknown =
-  | FlixResponseCompilerError
-  | FlixResponseCheck
-  | FlixResponseSuccess
-  | FlixResponseInvalidRequest
-/**
- * The types of responses observable by a normal job on the queue
- */
-export type FlixResponse = FlixResponseSuccess | FlixResponseInvalidRequest
 
 interface InitialiseSocketInput {
   uri: string
@@ -155,12 +112,10 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
   })
 
   webSocket.on('message', (data: string) => {
-    // Parse response and add the associated jobRequest to the object
-    const rawResponse: Omit<FlixResponseUnknown, 'jobRequest'> = JSON.parse(data)
-    const job: jobs.EnqueuedJob = jobs.getJob(rawResponse.id)
-    const flixResponse = { ...rawResponse, jobRequest: job.request } as FlixResponseUnknown
+    const flixResponse: FlixResponse = JSON.parse(data)
+    const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
 
-    handleResponse(flixResponse)
+    handleResponse(flixResponse, job)
   })
 }
 
@@ -241,11 +196,11 @@ export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
   webSocket.send(JSON.stringify(job))
 }
 
-function handleResponse(flixResponse: FlixResponseUnknown) {
+function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)
-  } else if (flixResponse.jobRequest === jobs.Request.lspCheck) {
+  } else if (job.request === jobs.Request.lspCheck) {
     lspCheckResponseHandler(flixResponse)
   } else {
     eventEmitter.emit(flixResponse.id, flixResponse)

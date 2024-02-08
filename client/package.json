@@ -18,7 +18,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",
-    "@types/vscode": "^1.74.0",
-    "vscode-test": "^1.6.1"
+    "@types/vscode": "^1.74.0"
   }
 }

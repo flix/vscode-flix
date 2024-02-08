@@ -26,16 +26,11 @@ import * as queue from './queue'
 import * as socket from './socket'
 import { USER_MESSAGE } from '../util/userMessages'
 
-export interface CompileOnChange {
-  enabled: boolean
-}
-
 export interface Explain {
   enabled: boolean
 }
 
 export interface UserConfiguration {
-  compileOnChange: CompileOnChange
   explain: Explain
   extraJvmArgs: string
   extraFlixArgs: string
@@ -72,10 +67,6 @@ export function getExtensionVersion() {
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
   _.set(userConfiguration, 'userConfiguration', startEngineInput)
-}
-
-export function compileOnChangeEnabled() {
-  return startEngineInput?.userConfiguration.compileOnChange.enabled ?? true
 }
 
 export async function start(input: StartEngineInput) {

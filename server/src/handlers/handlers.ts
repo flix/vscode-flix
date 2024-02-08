@@ -148,10 +148,8 @@ export function handleExit() {
 }
 
 export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument>) {
-  if (engine.compileOnChangeEnabled()) {
-    const document = params.document
-    engine.updateUri(document.uri, document.getText())
-  }
+  const document = params.document
+  engine.updateUri(document.uri, document.getText())
 }
 
 /**

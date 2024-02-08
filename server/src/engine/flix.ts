@@ -32,7 +32,6 @@ export interface CompileOnSave {
 
 export interface CompileOnChange {
   enabled: boolean
-  delay: number
 }
 
 export interface Explain {
@@ -78,7 +77,6 @@ export function getExtensionVersion() {
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
   _.set(userConfiguration, 'userConfiguration', startEngineInput)
-  queue.resetEnqueueDebounced()
 }
 
 export function compileOnSaveEnabled() {
@@ -87,10 +85,6 @@ export function compileOnSaveEnabled() {
 
 export function compileOnChangeEnabled() {
   return startEngineInput?.userConfiguration.compileOnChange.enabled ?? true
-}
-
-export function compileOnChangeDelay() {
-  return startEngineInput?.userConfiguration.compileOnChange.delay ?? 300
 }
 
 export async function start(input: StartEngineInput) {
@@ -232,9 +226,7 @@ export function updateUri(uri: string, src: string) {
     src,
   }
 
-  // Skip the delay to make auto-complete work
-  const skipDelay = true
-  queue.enqueue(job, skipDelay)
+  queue.enqueue(job)
 }
 
 /**

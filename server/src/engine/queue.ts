@@ -58,8 +58,6 @@ function emptyWaitingForPriorityQueue() {
   return values
 }
 
-let enqueueDebounced: () => void = makeEnqueueDebounced()
-
 function handleEnqueue() {
   if (_.isEmpty(waitingForPriorityQueue)) {
     return
@@ -68,29 +66,17 @@ function handleEnqueue() {
   startQueue()
 }
 
-function makeEnqueueDebounced() {
-  return _.debounce(engine.compileOnChangeDelay(), handleEnqueue, { leading: true, trailing: true })
-}
-
-export function resetEnqueueDebounced() {
-  enqueueDebounced = makeEnqueueDebounced()
-}
-
-function enqueueWithPriority(job: jobs.EnqueuedJob, skipDelay?: boolean) {
+function enqueueWithPriority(job: jobs.EnqueuedJob) {
   waitingForPriorityQueue[job.uri!] = job
-  if (skipDelay) {
-    handleEnqueue()
-  } else {
-    enqueueDebounced()
-  }
+  handleEnqueue()
   return job
 }
 
-export function enqueue(job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
+export function enqueue(job: jobs.Job): jobs.EnqueuedJob {
   const enqueuedJob = jobToEnqueuedJob(job)
 
   if (isPriorityJob(enqueuedJob)) {
-    return enqueueWithPriority(enqueuedJob, skipDelay)
+    return enqueueWithPriority(enqueuedJob)
   }
 
   if (job.request === jobs.Request.lspCheck) {
@@ -112,7 +98,6 @@ export function enqueue(job: jobs.Job, skipDelay?: boolean): jobs.EnqueuedJob {
  * @param jobs
  */
 export function initialiseQueues(jobs: jobs.Job[]) {
-  resetEnqueueDebounced()
   queueRunning = false // make sure `startQueue` actually starts it
   for (const job of jobs) {
     const enqueuedJob = jobToEnqueuedJob(job)

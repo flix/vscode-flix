@@ -55,9 +55,6 @@ connection.onExit(handlers.handleExit)
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(handlers.handleChangeContent)
 
-// Document has been saved
-documents.onDidSave(handlers.handleSave)
-
 // Go to definition (from context menu or F12 usually)
 connection.onDefinition(handlers.handleGotoDefinition)
 

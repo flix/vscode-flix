@@ -26,22 +26,11 @@ import * as queue from './queue'
 import * as socket from './socket'
 import { USER_MESSAGE } from '../util/userMessages'
 
-export interface CompileOnSave {
-  enabled: boolean
-}
-
-export interface CompileOnChange {
-  enabled: boolean
-  delay: number
-}
-
 export interface Explain {
   enabled: boolean
 }
 
 export interface UserConfiguration {
-  compileOnSave: CompileOnSave
-  compileOnChange: CompileOnChange
   explain: Explain
   extraJvmArgs: string
   extraFlixArgs: string
@@ -78,19 +67,6 @@ export function getExtensionVersion() {
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
   _.set(userConfiguration, 'userConfiguration', startEngineInput)
-  queue.resetEnqueueDebounced()
-}
-
-export function compileOnSaveEnabled() {
-  return startEngineInput?.userConfiguration.compileOnSave.enabled ?? true
-}
-
-export function compileOnChangeEnabled() {
-  return startEngineInput?.userConfiguration.compileOnChange.enabled ?? true
-}
-
-export function compileOnChangeDelay() {
-  return startEngineInput?.userConfiguration.compileOnChange.delay ?? 300
 }
 
 export async function start(input: StartEngineInput) {
@@ -232,9 +208,7 @@ export function updateUri(uri: string, src: string) {
     src,
   }
 
-  // Skip the delay to make auto-complete work
-  const skipDelay = true
-  queue.enqueue(job, skipDelay)
+  queue.enqueue(job)
 }
 
 /**

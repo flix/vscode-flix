@@ -26,10 +26,6 @@ import * as queue from './queue'
 import * as socket from './socket'
 import { USER_MESSAGE } from '../util/userMessages'
 
-export interface CompileOnSave {
-  enabled: boolean
-}
-
 export interface CompileOnChange {
   enabled: boolean
 }
@@ -39,7 +35,6 @@ export interface Explain {
 }
 
 export interface UserConfiguration {
-  compileOnSave: CompileOnSave
   compileOnChange: CompileOnChange
   explain: Explain
   extraJvmArgs: string
@@ -77,10 +72,6 @@ export function getExtensionVersion() {
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
   _.set(userConfiguration, 'userConfiguration', startEngineInput)
-}
-
-export function compileOnSaveEnabled() {
-  return startEngineInput?.userConfiguration.compileOnSave.enabled ?? true
 }
 
 export function compileOnChangeEnabled() {

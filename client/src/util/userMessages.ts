@@ -72,6 +72,6 @@ export class USER_MESSAGE {
   }
 
   static FILE_NOT_PART_OF_PROJECT() {
-    return `Only files in root, src/** and test/** are included`
+    return `Flix will only load source files from \`*.flix\`, \`src/**\`, and \`test/**\``
   }
 }

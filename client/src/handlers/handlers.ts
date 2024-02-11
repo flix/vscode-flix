@@ -259,6 +259,22 @@ async function getJVMCmd(
 }
 
 /**
+ * Handle the user changing the active editor, to view a different file.
+ *
+ * If the new file is not part of the project, it shows a message to the user.
+ */
+export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
+  if (editor === undefined) {
+    return
+  }
+
+  const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
+  if (!included) {
+    vscode.window.showInformationMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+  }
+}
+
+/**
  * Run the given command in an existing (if already exists else new) terminal.
  *
  * @param context vscode.ExtensionContext

@@ -270,7 +270,7 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
 
   const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
   if (!included) {
-    vscode.window.showInformationMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+    vscode.window.showWarningMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
   }
 }
 

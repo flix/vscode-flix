@@ -202,22 +202,10 @@ export async function stop() {
 }
 
 /**
- * When a file is added and opened immediately,
- * {@linkcode updateUri} will be fired before {@linkcode addUri}.
- *
- * To get around this, we set a slight delay in showing the warning message.
- */
-const nonIncludedWarningTimers: Map<string, NodeJS.Timeout> = new Map()
-const warningDelayMs = 200
-
-/**
  * Add the given `uri` to the workspace.
  */
 export function addUri(uri: string) {
   currentWorkspaceFiles.add(uri)
-
-  const warningTimer = nonIncludedWarningTimers.get(uri)
-  clearTimeout(warningTimer)
 
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
@@ -235,18 +223,6 @@ export function addUri(uri: string) {
  */
 export function updateUri(uri: string, src: string) {
   if (!currentWorkspaceFiles.has(uri)) {
-    if (!nonIncludedWarningTimers.has(uri)) {
-      nonIncludedWarningTimers.set(
-        uri,
-        setTimeout(() => {
-          // Send warning message after delay
-          sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
-
-          nonIncludedWarningTimers.delete(uri)
-        }, warningDelayMs),
-      )
-    }
-
     return
   }
 

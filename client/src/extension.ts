@@ -214,6 +214,17 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     })
   })
 
+  vscode.window.onDidChangeActiveTextEditor(editor => {
+    if (editor === undefined) {
+      return
+    }
+
+    const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
+    if (!included) {
+      vscode.window.showInformationMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+    }
+  })
+
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })

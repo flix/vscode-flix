@@ -70,4 +70,8 @@ export class USER_MESSAGE {
   static TIMEOUT(timeMS: number) {
     return `Timeout after ${timeMS}ms`
   }
+
+  static FILE_NOT_PART_OF_PROJECT() {
+    return `Only files in root, src/** and test/** are included`
+  }
 }

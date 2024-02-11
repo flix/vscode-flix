@@ -268,6 +268,11 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
     return
   }
 
+  const isFlixFile = editor.document.uri.path.endsWith('.flix')
+  if (!isFlixFile) {
+    return
+  }
+
   const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
   if (!included) {
     vscode.window.showWarningMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())

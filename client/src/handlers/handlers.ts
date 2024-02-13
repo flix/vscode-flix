@@ -538,15 +538,21 @@ export function cmdDoc(context: vscode.ExtensionContext, launchOptions: LaunchOp
 }
 
 /**
- * show the ast of a given phase
- *
- * @param context vscode.ExtensionContext
- * @param phase   the name of the phase
+ * Prompt the user for a phase and show the AST for that phase.
  *
  * @returns function handler
  */
-export function showAst(client: LanguageClient, phase: string) {
+export function showAst(client: LanguageClient) {
   return async function handler() {
+    const phase = await vscode.window.showInputBox({
+      prompt: 'Enter the phase to show the AST for',
+      placeHolder: 'Phase',
+    })
+    console.log(phase)
+    if (phase === undefined) {
+      return
+    }
+
     client.sendNotification(jobs.Request.lspShowAst, {
       uri: vscode.window.activeTextEditor.document.uri.fsPath,
       phase: phase,

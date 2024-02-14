@@ -544,12 +544,12 @@ export function cmdDoc(context: vscode.ExtensionContext, launchOptions: LaunchOp
  */
 export function showAst(client: LanguageClient) {
   return async function handler() {
-    const phase = await vscode.window.showInputBox({
+    const phaseInput = await vscode.window.showInputBox({
       prompt: 'Enter the phase to show the AST for',
       placeHolder: 'Phase',
     })
-    console.log(phase)
-    if (phase === undefined) {
+    const phase = phaseInput?.trim()
+    if (phase === undefined || phase.length === 0) {
       return
     }
 

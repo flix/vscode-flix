@@ -214,6 +214,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     })
   })
 
+  vscode.window.onDidChangeActiveTextEditor(handlers.handleChangeEditor)
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })

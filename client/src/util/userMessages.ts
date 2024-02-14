@@ -70,4 +70,8 @@ export class USER_MESSAGE {
   static TIMEOUT(timeMS: number) {
     return `Timeout after ${timeMS}ms`
   }
+
+  static FILE_NOT_PART_OF_PROJECT() {
+    return `Flix will only load source files from \`*.flix\`, \`src/**\`, and \`test/**\``
+  }
 }

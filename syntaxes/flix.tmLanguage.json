@@ -104,10 +104,6 @@
           "match": "\\b(try|catch)\\b"
         },
         {
-          "name": "keyword.control.resume.flix",
-          "match": "\\b(resume)\\b"
-        },
-        {
           "name": "keyword.control.spawn.flix",
           "match": "\\b(spawn)\\b"
         },

@@ -72,10 +72,6 @@
           "match": "\\b(do)\\b"
         },
         {
-          "name": "keyword.control.for.flix",
-          "match": "\\b(for)\\b"
-        },
-        {
           "name": "keyword.control.applicativefor.flix",
           "match": "\\b(forA)\\b"
         },

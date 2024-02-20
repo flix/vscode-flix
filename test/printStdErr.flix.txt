@@ -1,3 +1,0 @@
-/// The following program can be used to print to standard err.
-def main(): Unit & Impure =
-    Console/StdErr.printLine("Hello World")

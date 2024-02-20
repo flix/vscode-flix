@@ -1,3 +1,0 @@
-/// The following program can be used to print to standard out.
-def main(): Unit & Impure =
-    Console.printLine("Hello World")

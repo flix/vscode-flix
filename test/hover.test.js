@@ -16,7 +16,7 @@
 
 const assert = require('assert')
 const vscode = require('vscode')
-const { getTestDocUri, activate, normalizeObject } = require('./util')
+const { getTestDocUri, activate } = require('./util')
 
 suite('Hover info', () => {
   let docUri

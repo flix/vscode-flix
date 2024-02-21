@@ -125,7 +125,7 @@
     "build": "node build.js",
     "watch": "tsc -b -w",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-    "test": "vscode-test"
+    "test": "npm run build && vscode-test"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",

@@ -27,11 +27,18 @@ enum StateKeys {
   installedFlixVersion = 'installedFlixVersion',
 }
 
-export function getInstalledFlixVersion(): FlixRelease {
+/**
+ * Get the installed Flix release if one exists.
+ *
+ * In the test environment this will always return `undefined` when called the first time in a test run,
+ * even if an installed Flix compiler exists.
+ * This happens because the extension's 'Memento' is reset between each run.
+ */
+export function getInstalledFlixVersion(): FlixRelease | undefined {
   return globalState?.get(StateKeys.installedFlixVersion)
 }
 
-export async function setInstalledFlixVersion(value) {
+export async function setInstalledFlixVersion(value: FlixRelease) {
   await globalState?.update(StateKeys.installedFlixVersion, value)
   return openFlixReleaseOverview(value)
 }

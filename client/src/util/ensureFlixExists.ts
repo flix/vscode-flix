@@ -40,8 +40,8 @@ export default async function ensureFlixExists({ globalStoragePath, workspaceFol
     }
     // 2. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)
-    if (fs.existsSync(filename)) {
-      const installedFlixRelease: FlixRelease = getInstalledFlixVersion()
+    const installedFlixRelease = getInstalledFlixVersion()
+    if (fs.existsSync(filename) && installedFlixRelease) {
       const thirtyMinutesInMilliseconds = 1000 * 60 * 30
 
       // skip if we checked under 30 minutes ago

@@ -29,11 +29,13 @@ async function activate(docUri) {
 
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
+
+  // This includes the time it takes for the compiler to download
   await ext.activate()
 
-  // Wait for activation, compiler download and compiler initialization
-  // TODO: Signal when extension is ready
-  await sleep(20000)
+  // Wait for compiler initialization
+  // TODO: Include this in the `ext.activate()`
+  await sleep(15000)
 
   doc = await vscode.workspace.openTextDocument(docUri)
   editor = await vscode.window.showTextDocument(doc)

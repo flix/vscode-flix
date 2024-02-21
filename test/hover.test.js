@@ -28,30 +28,19 @@ suite('Hover info', () => {
   test('None', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
-    assert.deepEqual(normalizeObject(r), [])
+    assert.deepStrictEqual(r, [])
   })
 
   test('Unit type', async () => {
     const position = new vscode.Position(1, 12)
+    vscode.Hover
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
-    assert.deepStrictEqual(normalizeObject(r), [
-      {
-        contents: [
-          {
-            // TODO: Find out why this is empty
-          },
-        ],
-        range: {
-          c: {
-            c: 1,
-            e: 12,
-          },
-          e: {
-            c: 1,
-            e: 16,
-          },
-        },
-      },
+    assert.deepStrictEqual(r, [
+      new vscode.Hover(
+        new vscode.MarkdownString('This string is not compared by `assert.deepStrictEqual()`'),
+        new vscode.Range(1, 12, 1, 16),
+      ),
     ])
+    assert.strictEqual(r[0].contents[0].value, '\n```flix\nType\n```\n')
   })
 })

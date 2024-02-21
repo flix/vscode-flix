@@ -24,6 +24,7 @@ let editor
  * Activates the extension in the `testWorkspace` directory and opens the document at `docUri`.
  */
 async function activate(docUri) {
+  vscode.workspace.workspaceFolders = []
   vscode.workspace.updateWorkspaceFolders(0, 0, { uri: getTestWorkspaceUri() })
 
   // The extensionId is `publisher.name` from package.json
@@ -55,29 +56,7 @@ function getTestDocUri(p) {
   return vscode.Uri.file(getTestDocPath(p))
 }
 
-/**
- * Recursively strips away all prototype properties from an object.
- * Useful for comparing objects in tests.
- */
-function normalizeObject(obj) {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(normalizeObject)
-  }
-
-  const normalized = {}
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      normalized[key] = normalizeObject(obj[key])
-    }
-  }
-  return normalized
-}
-
 module.exports = {
   activate,
   getTestDocUri,
-  normalizeObject,
 }

@@ -72,10 +72,6 @@
           "match": "\\b(do)\\b"
         },
         {
-          "name": "keyword.control.for.flix",
-          "match": "\\b(for)\\b"
-        },
-        {
           "name": "keyword.control.applicativefor.flix",
           "match": "\\b(forA)\\b"
         },
@@ -102,10 +98,6 @@
         {
           "name": "keyword.control.try.flix",
           "match": "\\b(try|catch)\\b"
-        },
-        {
-          "name": "keyword.control.resume.flix",
-          "match": "\\b(resume)\\b"
         },
         {
           "name": "keyword.control.spawn.flix",

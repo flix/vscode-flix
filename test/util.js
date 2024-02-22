@@ -28,11 +28,8 @@ async function activate(docUri) {
   const ext = vscode.extensions.getExtension('flix.flix')
 
   // This includes the time it takes for the compiler to download
+  // The time it takes for the compiler to start will be awaited in the first command sent to the extension
   await ext.activate()
-
-  // Wait for compiler initialization
-  // TODO: Include this in the `ext.activate()`
-  await sleep(15000)
 
   doc = await vscode.workspace.openTextDocument(docUri)
   editor = await vscode.window.showTextDocument(doc)

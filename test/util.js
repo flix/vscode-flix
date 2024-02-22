@@ -24,9 +24,6 @@ let editor
  * Activates the extension in the `testWorkspace` directory and opens the document at `docUri`.
  */
 async function activate(docUri) {
-  vscode.workspace.workspaceFolders = []
-  vscode.workspace.updateWorkspaceFolders(0, 0, { uri: getTestWorkspaceUri() })
-
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
 

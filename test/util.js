@@ -35,18 +35,8 @@ async function activate(docUri) {
   editor = await vscode.window.showTextDocument(doc)
 }
 
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-function getTestWorkspacePath() {
-  return path.resolve(__dirname, 'testWorkspace')
-}
-function getTestWorkspaceUri() {
-  return vscode.Uri.file(getTestWorkspacePath())
-}
 function getTestDocPath(p) {
-  return path.resolve(getTestWorkspacePath(), p)
+  return path.resolve(__dirname, 'testWorkspace', p)
 }
 function getTestDocUri(p) {
   return vscode.Uri.file(getTestDocPath(p))

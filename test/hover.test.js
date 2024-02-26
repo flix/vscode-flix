@@ -25,13 +25,13 @@ suite('Hover info', () => {
     await activate(docUri)
   })
 
-  test('None', async () => {
+  test('Hovering on an empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
     assert.deepStrictEqual(r, [])
   })
 
-  test('Unit type', async () => {
+  test('Hovering on Unit should show Type', async () => {
     const position = new vscode.Position(17, 12)
     vscode.Hover
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)

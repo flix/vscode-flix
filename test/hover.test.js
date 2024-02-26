@@ -21,7 +21,7 @@ const { getTestDocUri, activate } = require('./util')
 suite('Hover info', () => {
   let docUri
   suiteSetup(async () => {
-    docUri = getTestDocUri('Main.flix')
+    docUri = getTestDocUri('src/Main.flix')
     await activate(docUri)
   })
 

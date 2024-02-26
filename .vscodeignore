@@ -11,3 +11,5 @@ server
 client
 !server/out/server.js
 !client/out/extension.js
+test
+.vscode-test.js

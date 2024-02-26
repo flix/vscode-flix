@@ -17,9 +17,6 @@
 const path = require('path')
 const vscode = require('vscode')
 
-let doc
-let editor
-
 /**
  * Activates the extension in the `testWorkspace` directory and opens the document at `docUri`.
  */
@@ -31,8 +28,8 @@ async function activate(docUri) {
   // The time it takes for the compiler to start will be awaited in the first command sent to the extension
   await ext.activate()
 
-  doc = await vscode.workspace.openTextDocument(docUri)
-  editor = await vscode.window.showTextDocument(doc)
+  const doc = await vscode.workspace.openTextDocument(docUri)
+  await vscode.window.showTextDocument(doc)
 }
 
 function getTestDocPath(p) {

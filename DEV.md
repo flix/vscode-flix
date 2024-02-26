@@ -2,6 +2,10 @@
 
 Run `npm install` to ensure that the required dependencies are installed.
 
+## Testing
+
+The test suite can be run via `npm test`.
+
 ## Debugging
 
 Open the project in Visual Studio Code and find the menu `Run -> Start Debugging

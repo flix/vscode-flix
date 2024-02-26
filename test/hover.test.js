@@ -32,13 +32,13 @@ suite('Hover info', () => {
   })
 
   test('Unit type', async () => {
-    const position = new vscode.Position(1, 12)
+    const position = new vscode.Position(17, 12)
     vscode.Hover
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
     assert.deepStrictEqual(r, [
       new vscode.Hover(
         new vscode.MarkdownString('This string is not compared by `assert.deepStrictEqual()`'),
-        new vscode.Range(1, 12, 1, 16),
+        new vscode.Range(17, 12, 17, 16),
       ),
     ])
     assert.strictEqual(r[0].contents[0].value, '\n```flix\nType\n```\n')

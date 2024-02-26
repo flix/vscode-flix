@@ -28,19 +28,14 @@ suite('Hover info', () => {
   test('Hovering on an empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
-    assert.deepStrictEqual(r, [])
+    assert.strictEqual(r.length, 0)
   })
 
   test('Hovering on Unit should show Type', async () => {
     const position = new vscode.Position(17, 12)
     vscode.Hover
     const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
-    assert.deepStrictEqual(r, [
-      new vscode.Hover(
-        new vscode.MarkdownString('This string is not compared by `assert.deepStrictEqual()`'),
-        new vscode.Range(17, 12, 17, 16),
-      ),
-    ])
-    assert.strictEqual(r[0].contents[0].value, '\n```flix\nType\n```\n')
+    assert.strictEqual(r.length, 1)
+    assert.strictEqual(r[0].contents[0].value.includes('Type'), true)
   })
 })

@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-const path = require('path')
-const vscode = require('vscode')
+import * as path from 'path'
+import * as vscode from 'vscode'
 
 /**
  * Activates the extension in the `testWorkspace` directory and opens the document at `docUri`.
  */
-async function activate(docUri) {
+export async function activate(docUri: vscode.Uri) {
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
+  if (ext === undefined) {
+    throw new Error('Failed to activate extension')
+  }
 
   // This includes the time it takes for the compiler to download
   // The time it takes for the compiler to start will be awaited in the first command sent to the extension
@@ -32,14 +35,9 @@ async function activate(docUri) {
   await vscode.window.showTextDocument(doc)
 }
 
-function getTestDocPath(p) {
-  return path.resolve(__dirname, 'testWorkspace', p)
+function getTestDocPath(p: string) {
+  return path.resolve(__dirname, '../testWorkspace', p)
 }
-function getTestDocUri(p) {
+export function getTestDocUri(p: string) {
   return vscode.Uri.file(getTestDocPath(p))
-}
-
-module.exports = {
-  activate,
-  getTestDocUri,
 }

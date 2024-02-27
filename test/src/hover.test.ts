@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-const assert = require('assert')
-const vscode = require('vscode')
-const { getTestDocUri, activate } = require('./util')
+import * as assert from 'assert'
+import * as vscode from 'vscode'
+import { getTestDocUri, activate } from './util'
 
 suite('Hover info', () => {
-  let docUri
+  let docUri: vscode.Uri
   suiteSetup(async () => {
     docUri = getTestDocUri('src/Main.flix')
     await activate(docUri)
@@ -27,7 +27,7 @@ suite('Hover info', () => {
 
   test('Hovering on an empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
-    const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
+    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
     assert.strictEqual(r.length, 0)
   })
 
@@ -42,11 +42,12 @@ suite('Hover info', () => {
    * Asserts that hovering at the given `position` in the document shows exactly one message, which contains the `expected` string.
    */
   async function testHoverAtPosition(position, expected) {
-    const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
+    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
 
     assert.strictEqual(r.length, 1)
 
-    const actual = stripNewlines(r[0].contents[0].value)
+    const contents = r[0].contents[0] as vscode.MarkdownString
+    const actual = stripNewlines(contents.value)
     assert.strictEqual(actual.includes(expected), true, `Actual: ${actual}\nExpected: ${expected}`)
   }
 

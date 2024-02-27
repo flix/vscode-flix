@@ -22,7 +22,7 @@ export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) 
 }
 
 /**
- * Creates a persistent shared repl on startup.
+ * Creates a persistent shared REPL on startup.
  */
 export async function createSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   if (FLIX_TERMINAL === null) {
@@ -42,9 +42,9 @@ export async function createSharedRepl(context: vscode.ExtensionContext, launchO
 }
 
 /**
- * Ensures that a repl still exists and creates a new one if not.
+ * Ensures that a REPL still exists and creates a new one if not.
  *
- * @returns Whether or not a new repl was created.
+ * @returns Whether or not a new REPL was created.
  */
 async function ensureReplExists(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   const missing = FLIX_TERMINAL === null
@@ -280,7 +280,7 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
 }
 
 /**
- * Run the given command in an existing (if already exists else new) terminal.
+ * Create a handler to run the given command in an existing (if already exists else new) REPL.
  *
  * @param context vscode.ExtensionContext
  *
@@ -292,7 +292,7 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
  *
  * @returns function handler
  */
-function runCmd<A extends unknown[]>(
+function runReplCmd<A extends unknown[]>(
   context: vscode.ExtensionContext,
   launchOptions: LaunchOptions = defaultLaunchOptions,
   cmd: string | ((...args: A) => string) | ((...args: A) => Promise<string>),
@@ -319,9 +319,9 @@ function runCmd<A extends unknown[]>(
 }
 
 /**
- * Run main without any custom arguments
+ * Run main without any custom arguments.
  *
- * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files>` to an existing (if already exists else new) terminal.
+ * Sends command `:eval <entryPoint>()` to an existing (if already exists else new) REPL.
  *
  * @param context vscode.ExtensionContext
  *
@@ -330,13 +330,13 @@ function runCmd<A extends unknown[]>(
  * @return function handler
  */
 export function runMain(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, (entryPoint: string) => `:eval ${entryPoint}()`)
+  return runReplCmd(context, launchOptions, (entryPoint: string) => `:eval ${entryPoint}()`)
 }
 
 /**
- * Run main with user provided arguments
+ * Run main with user provided arguments.
  *
- * Sends command `java -jar <path_to_flix.jar> <paths_to_all_flix_files> --args <arguments>` to an existing (if already exists else new) terminal.
+ * Sends command `:eval <entryPoint>(<arg1>, <arg2>, ...)` to an existing (if already exists else new) REPL.
  *
  * @param context vscode.ExtensionContext
  *
@@ -345,7 +345,7 @@ export function runMain(context: vscode.ExtensionContext, launchOptions: LaunchO
  * @return function handler
  */
 export function runMainWithArgs(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, async (entryPoint: string) => {
+  return runReplCmd(context, launchOptions, async (entryPoint: string) => {
     const input = await takeInputFromUser()
     if (input === undefined) {
       return ''
@@ -436,7 +436,7 @@ export function makeHandleRunJobWithProgress(
 }
 
 /**
- * Returns a terminal with the given name (new if already not exists)
+ * Returns a terminal with the given name (new if already not exists).
  *
  * @param name name of the terminal
  *
@@ -454,7 +454,7 @@ function getTerminal(name: string) {
 }
 
 /**
- * creates a new project in the current directory using command `java -jar flix.jar init`
+ * creates a new project in the current directory using command `:init`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -463,11 +463,11 @@ function getTerminal(name: string) {
  * @returns function handler
  */
 export function cmdInit(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':init')
+  return runReplCmd(context, launchOptions, ':init')
 }
 
 /**
- * checks the current project for errors using command `java -jar flix.jar check`
+ * checks the current project for errors using command `:check`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -477,11 +477,11 @@ export function cmdInit(context: vscode.ExtensionContext, launchOptions: LaunchO
  */
 
 export function cmdCheck(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':check')
+  return runReplCmd(context, launchOptions, ':check')
 }
 
 /**
- * builds (i.e. compiles) the current project using command `java -jar flix.jar build`
+ * builds (i.e. compiles) the current project using command `:build`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -490,11 +490,11 @@ export function cmdCheck(context: vscode.ExtensionContext, launchOptions: Launch
  * @returns function handler
  */
 export function cmdBuild(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':build')
+  return runReplCmd(context, launchOptions, ':build')
 }
 
 /**
- * builds a jar-file from the current project using command `java -jar flix.jar build-jar`
+ * builds a jar-file from the current project using command `:jar`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -503,11 +503,11 @@ export function cmdBuild(context: vscode.ExtensionContext, launchOptions: Launch
  * @returns function handler
  */
 export function cmdBuildJar(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':jar')
+  return runReplCmd(context, launchOptions, ':jar')
 }
 
 /**
- * builds a fpkg-file from the current project using command `java -jar flix.jar build-pkg`
+ * builds a fpkg-file from the current project using command `:pkg
  *
  * @param context vscode.ExtensionContext
  *
@@ -516,11 +516,11 @@ export function cmdBuildJar(context: vscode.ExtensionContext, launchOptions: Lau
  * @returns function handler
  */
 export function cmdBuildPkg(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':pkg')
+  return runReplCmd(context, launchOptions, ':pkg')
 }
 
 /**
- * runs main for the current project using command `java -jar flix.jar run`
+ * runs main for the current project using command `:run main()`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -529,11 +529,11 @@ export function cmdBuildPkg(context: vscode.ExtensionContext, launchOptions: Lau
  * @returns function handler
  */
 export function cmdRunProject(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':eval main()')
+  return runReplCmd(context, launchOptions, ':eval main()')
 }
 
 /**
- * runs all the tests for the current project using command `java -jar flix.jar test`
+ * runs all the tests for the current project using command `:test`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -542,11 +542,11 @@ export function cmdRunProject(context: vscode.ExtensionContext, launchOptions: L
  * @returns function handler
  */
 export function cmdTests(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':test')
+  return runReplCmd(context, launchOptions, ':test')
 }
 
 /**
- * builds the documentation for the current project using the command `java -jar flix.jar doc`
+ * builds the documentation for the current project using the command `:doc`.
  *
  * @param context vscode.ExtensionContext
  *
@@ -555,7 +555,7 @@ export function cmdTests(context: vscode.ExtensionContext, launchOptions: Launch
  * @returns function handler
  */
 export function cmdDoc(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
-  return runCmd(context, launchOptions, ':doc')
+  return runReplCmd(context, launchOptions, ':doc')
 }
 
 /**

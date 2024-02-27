@@ -34,14 +34,14 @@ suite('Hover info', () => {
   /**
    * Returns the given string, `s`, with all newlines replaced by a space.
    */
-  function stripNewlines(s) {
+  function stripNewlines(s: string) {
     return s.replaceAll(/(\r\n|\n|\r)/g, ' ')
   }
 
   /**
    * Asserts that hovering at the given `position` in the document shows exactly one message, which contains the `expected` string.
    */
-  async function testHoverAtPosition(position, expected) {
+  async function testHoverAtPosition(position: vscode.Position, expected: string) {
     const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
 
     assert.strictEqual(r.length, 1)

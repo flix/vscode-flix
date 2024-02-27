@@ -31,11 +31,50 @@ suite('Hover info', () => {
     assert.strictEqual(r.length, 0)
   })
 
+  /**
+   * Returns the given string, `s`, with all newlines replaced by a space.
+   */
+  function stripNewlines(s) {
+    return s.replaceAll(/(\r\n|\n|\r)/g, ' ')
+  }
+
+  /**
+   * Asserts that hovering at the given `position` in the document shows exactly one message, which contains the `expected` string.
+   */
+  async function testHoverAtPosition(position, expected) {
+    const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
+
+    assert.strictEqual(r.length, 1)
+
+    const actual = stripNewlines(r[0].contents[0].value)
+    assert.strictEqual(actual.includes(expected), true, `Actual: ${actual}\nExpected: ${expected}`)
+  }
+
   test('Hovering on Unit should show Type', async () => {
     const position = new vscode.Position(17, 12)
-    vscode.Hover
-    const r = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)
-    assert.strictEqual(r.length, 1)
-    assert.strictEqual(r[0].contents[0].value.includes('Type'), true)
+    await testHoverAtPosition(position, 'Type')
+  })
+
+  test('Hovering on IO should show Eff', async () => {
+    const position = new vscode.Position(17, 19)
+    await testHoverAtPosition(position, 'Eff')
+  })
+
+  test('Hovering on Shape.Rectangle instantiation should show Shape', async () => {
+    const position = new vscode.Position(18, 13)
+    await testHoverAtPosition(position, 'Shape')
+  })
+
+  test('Hovering on area()-call should show def', async () => {
+    const position = new vscode.Position(18, 12)
+    await testHoverAtPosition(position, 'def area(s: Shape): Int32')
+  })
+
+  test('Hovering on area()-call should show doc', async () => {
+    const position = new vscode.Position(18, 12)
+    await testHoverAtPosition(
+      position,
+      'Computes the area of the given shape using pattern matching and basic arithmetic.',
+    )
   })
 })

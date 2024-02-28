@@ -5,3 +5,4 @@ client/server
 notes
 target
 flix.jar
+*.vsix

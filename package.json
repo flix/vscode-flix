@@ -128,15 +128,18 @@
     "vscode:prepublish": "npm run build",
     "build": "node build.js",
     "watch": "tsc -b -w",
-    "postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "test": "npm run build && tsc --build ./test && vscode-test"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.19.11",
+    "@types/vscode": "^1.43.0",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.9",
     "esbuild": "^0.17.19",
     "eslint": "^8.1.0",
-    "mocha": "^10.2.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.4"
   },

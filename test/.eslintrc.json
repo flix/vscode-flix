@@ -1,0 +1,10 @@
+{
+  "extends": ["../.eslintrc.json"],
+  "globals": {
+    // Included Mocha globals
+    "suite": true,
+    "suiteSetup": true,
+    "suiteTeardown": true,
+    "test": true
+  }
+}

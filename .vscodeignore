@@ -1,24 +1,28 @@
-.vscode
+# Meta
 .github
+.vscode
 
-*.ts
-*.map
-
-tsconfig.json
+# NPM
 node_modules
-.vscode-test.js
-build.js
 
-server
+# TypeScript
+tsconfig.json
+
+# Ignore files
+.eslintignore
+.gitignore
+.prettierignore
+
+# Sub projects
 client
-test
 java
-!server/out/server.js
+server
+test
 !client/out/extension.js
 !java/CheckJavaVersion.class
+!server/out/server.js
 
-.eslintignore
-.prettierignore
-.gitignore
-
+# Other
+.vscode-test.js
+build.js
 DEV.md

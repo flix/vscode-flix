@@ -61,8 +61,6 @@ async function launchRepl(context: vscode.ExtensionContext, launchOptions: Launc
     args.push('--explain')
   }
   args.push(...getExtraFlixArgs())
-
-  console.log([cmd, ...args])
   flixTerminal = vscode.window.createTerminal(flixTerminalName, cmd, args)
 }
 

@@ -55,7 +55,14 @@ async function ensureReplExists(context: vscode.ExtensionContext, launchOptions:
  * Launches a new REPL as a shell process.
  */
 async function launchRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  const { cmd, args } = await getJVMCmd(context, launchOptions)
+  const { cmd, args } = await getJvmCmd(context, launchOptions)
+  args.push('repl')
+  if (vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
+    args.push('--explain')
+  }
+  args.push(...getExtraFlixArgs())
+
+  console.log([cmd, ...args])
   flixTerminal = vscode.window.createTerminal(flixTerminalName, cmd, args)
 }
 
@@ -96,29 +103,35 @@ async function getFlixFilename(context: vscode.ExtensionContext, launchOptions: 
 }
 
 /**
- * Generate a java command to compile the flix program.
- * @param context vscode.ExtensionContext
- * @param launchOptions LaunchOptions
- * @returns string[]
+ * Generate a java command to run the Flix compiler.
  */
-async function getJVMCmd(
-  context: vscode.ExtensionContext,
-  launchOptions: LaunchOptions = defaultLaunchOptions,
-  entryPoint?: string,
-) {
+async function getJvmCmd(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   const args: string[] = []
-
+  args.push(...getExtraJvmArgs())
   const flixFilename = await getFlixFilename(context, launchOptions)
-  const jvm: string = vscode.workspace.getConfiguration('flix').get('extraJvmArgs')
-
-  if (jvm.length !== 0) {
-    args.push(...jvm.split(' '))
-  }
   args.push(...['-jar', flixFilename])
-  if (entryPoint && entryPoint.length > 0) {
-    args.push(...['--entrypoint', entryPoint])
-  }
   return { cmd: 'java', args }
+}
+
+/**
+ * An array of string arguments entered by user in flix extension settings `Extra JVM Args`.
+ */
+function getExtraJvmArgs() {
+  return parseArgs(vscode.workspace.getConfiguration('flix').get('extraJvmArgs'))
+}
+/**
+ * An array of string arguments entered by user in flix extension settings `Extra Flix Args`.
+ */
+function getExtraFlixArgs() {
+  return parseArgs(vscode.workspace.getConfiguration('flix').get('extraFlixArgs'))
+}
+
+function parseArgs(args: string) {
+  if (args.length === 0) {
+    return []
+  } else {
+    return args.split(' ')
+  }
 }
 
 /**

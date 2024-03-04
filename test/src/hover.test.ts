@@ -16,13 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate } from './util'
+import { getTestDocUri, activate, open } from './util'
 
 suite('Hover info', () => {
   let docUri: vscode.Uri
   suiteSetup(async () => {
     docUri = getTestDocUri('src/Main.flix')
-    await activate(docUri)
+    await activate()
+    await open(docUri)
   })
 
   test('Hovering on an empty line should not show anything', async () => {

@@ -124,8 +124,12 @@ function getExtraFlixArgs() {
   return parseArgs(vscode.workspace.getConfiguration('flix').get('extraFlixArgs'))
 }
 
-function parseArgs(args: string) {
-  if (args.length === 0) {
+/**
+ * Parses the argument string into a list of arguments.
+ */
+function parseArgs(args: string): Array<string> {
+  const trimmed = args.trim()
+  if (trimmed === '') {
     return []
   } else {
     return args.split(' ')

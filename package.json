@@ -66,6 +66,10 @@
       {
         "command": "flix.showAst",
         "title": "Flix: Show AST"
+      },
+      {
+        "command": "flix.startRepl",
+        "title": "Flix: Start REPL"
       }
     ],
     "languages": [

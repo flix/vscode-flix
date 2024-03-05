@@ -135,9 +135,6 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
   registerCommand('flix.runMain', handlers.runMain(context, launchOptions))
-  //registerCommand('flix.runMainWithArgs', handlers.runMainWithArgs(context, launchOptions))
-  //registerCommand('flix.runMainNewTerminal', handlers.runMainNewTerminal(context, launchOptions))
-  //registerCommand('flix.runMainNewTerminalWithArgs', handlers.runMainNewTerminalWithArgs(context, launchOptions))
 
   registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
   registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
@@ -149,8 +146,6 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.cmdDoc', handlers.cmdDoc(context, launchOptions))
   registerCommand('flix.showAst', handlers.showAst(client))
   registerCommand('flix.startRepl', handlers.startRepl(context, launchOptions))
-  //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
-  //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
 
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)

@@ -253,7 +253,7 @@ async function startSession(
     eventEmitter.emit(jobs.Request.internalReady)
 
     // start the Flix runner (but only after the Flix LSP instance has started.)
-    handlers.createSharedRepl(context, launchOptions)
+    handlers.initSharedRepl(context, launchOptions)
   })
 
   client.onNotification(jobs.Request.internalFinishedJob, function handler() {

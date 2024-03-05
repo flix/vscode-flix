@@ -338,3 +338,15 @@ export function showAst(client: LanguageClient) {
     })
   }
 }
+
+/**
+ * Start the REPL, or bring it to the front if it already exists.
+ *
+ * @returns function handler
+ */
+export function startRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+  return async () => {
+    await ensureReplExists(context, launchOptions)
+    flixTerminal?.show()
+  }
+}

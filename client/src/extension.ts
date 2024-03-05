@@ -148,6 +148,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
   registerCommand('flix.cmdDoc', handlers.cmdDoc(context, launchOptions))
   registerCommand('flix.showAst', handlers.showAst(client))
+  registerCommand('flix.startRepl', handlers.startRepl(context, launchOptions))
   //registerCommand('flix.cmdTestWithFilter', handlers.cmdTestWithFilter(context, launchOptions))
   //registerCommand('flix.cmdRepl', handlers.cmdRepl(context, launchOptions))
 

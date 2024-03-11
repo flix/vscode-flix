@@ -19,33 +19,23 @@ import * as vscode from 'vscode'
 import { activate, getTestDocUri, sleep } from './util'
 
 suite('Source file manipulation', () => {
-  const doc1Uri = getTestDocUri('src/Temp1.flix')
-  const doc1Content = `def foo(): Unit = bar()`
+  const doc1Uri = getTestDocUri('src/Main.flix')
 
-  const doc2Uri = getTestDocUri('src/Temp2.flix')
-  const doc2Content = `def bar(): Unit = ()`
+  const doc2Uri = getTestDocUri('src/Area.flix')
+  let doc2Content: string
 
   async function addFile(uri: vscode.Uri, contents: string) {
     await vscode.workspace.fs.writeFile(uri, Buffer.from(contents))
+    await sleep(1000)
   }
 
   suiteSetup(async () => {
     await activate()
-    await addFile(doc1Uri, doc1Content)
-  })
-  suiteTeardown(async () => {
-    try {
-      await vscode.workspace.fs.delete(doc1Uri)
-    } catch {
-      // Ignore
-    }
+    doc2Content = (await vscode.workspace.fs.readFile(doc2Uri)).toString()
   })
   teardown(async () => {
-    try {
-      await vscode.workspace.fs.delete(doc2Uri)
-    } catch {
-      // Ignore
-    }
+    // Restore the original content of the file after each test
+    await addFile(doc2Uri, doc2Content)
   })
 
   async function docIsAdded() {
@@ -53,19 +43,19 @@ suite('Source file manipulation', () => {
     // TODO: Do this in a smarter way
     await sleep(1000)
 
-    // If Temp2 is not added, then Temp1 will contain a resolution error on the call to bar()
+    // If Area.flix is not present in the compiler, then Main.flix will contain a resolution error on the call to area()
     const r = vscode.languages.getDiagnostics(doc1Uri)
     return r.length === 0
   }
 
-  test('Created file should be added', async () => {
-    await addFile(doc2Uri, doc2Content)
-    assert.strictEqual(await docIsAdded(), true)
+  test('Deleted file should be removed', async () => {
+    await vscode.workspace.fs.delete(doc2Uri)
+    assert.strictEqual(await docIsAdded(), false)
   })
 
-  test('Deleted file should be removed', async () => {
-    await addFile(doc2Uri, doc2Content)
+  test('Created file should be added', async () => {
     await vscode.workspace.fs.delete(doc2Uri)
+    addFile(doc2Uri, doc2Content)
     assert.strictEqual(await docIsAdded(), false)
   })
 })

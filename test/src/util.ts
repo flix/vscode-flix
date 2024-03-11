@@ -18,9 +18,9 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 /**
- * Activates the extension in the `testWorkspace` directory and opens the document at `docUri`.
+ * Activates the extension in the `testWorkspace` directory.
  */
-export async function activate(docUri: vscode.Uri) {
+export async function activate() {
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
   if (ext === undefined) {
@@ -30,7 +30,12 @@ export async function activate(docUri: vscode.Uri) {
   // This includes the time it takes for the compiler to download
   // The time it takes for the compiler to start will be awaited in the first command sent to the extension
   await ext.activate()
+}
 
+/**
+ * Opens the document at `docUri` in the main editor.
+ */
+export async function open(docUri: vscode.Uri) {
   const doc = await vscode.workspace.openTextDocument(docUri)
   await vscode.window.showTextDocument(doc)
 }
@@ -40,4 +45,11 @@ function getTestDocPath(p: string) {
 }
 export function getTestDocUri(p: string) {
   return vscode.Uri.file(getTestDocPath(p))
+}
+
+/**
+ * Sleeps for `ms` milliseconds.
+ */
+export async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

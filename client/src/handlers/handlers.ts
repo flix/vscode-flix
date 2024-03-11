@@ -61,7 +61,15 @@ async function launchRepl(context: vscode.ExtensionContext, launchOptions: Launc
     args.push('--explain')
   }
   args.push(...getExtraFlixArgs())
-  flixTerminal = vscode.window.createTerminal(flixTerminalName, cmd, args)
+  flixTerminal = vscode.window.createTerminal({
+    name: flixTerminalName,
+    shellPath: cmd,
+    shellArgs: args,
+
+    // The terminal will not be kept alive when restarting VSCode.
+    // This is necessary in the case where flix.jar has been removed while VSCode has been closed.
+    isTransient: true,
+  })
 }
 
 async function handleUnsavedFiles() {

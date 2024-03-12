@@ -8,7 +8,6 @@ import { USER_MESSAGE } from '../util/userMessages'
 
 const _ = require('lodash/fp')
 
-const flixTerminalName = 'Flix REPL'
 let flixTerminal: vscode.Terminal | null = null
 
 export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) {
@@ -21,14 +20,7 @@ export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) 
  * Creates and initializes persistent shared REPL on startup.
  */
 export async function initSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  const existing = vscode.window.terminals.find(terminal => terminal.name === flixTerminalName)
-
-  if (existing !== undefined) {
-    flixTerminal = existing
-  } else {
-    await launchRepl(context, launchOptions)
-  }
-
+  await launchRepl(context, launchOptions)
   vscode.window.onDidCloseTerminal(async terminal => {
     if ((await terminal.processId) === (await flixTerminal?.processId)) {
       flixTerminal = null
@@ -61,7 +53,15 @@ async function launchRepl(context: vscode.ExtensionContext, launchOptions: Launc
     args.push('--explain')
   }
   args.push(...getExtraFlixArgs())
-  flixTerminal = vscode.window.createTerminal(flixTerminalName, cmd, args)
+  flixTerminal = vscode.window.createTerminal({
+    name: 'Flix REPL',
+    shellPath: cmd,
+    shellArgs: args,
+
+    // The terminal will not be kept alive when restarting VSCode.
+    // This is necessary in the case where flix.jar has been removed while VSCode has been closed.
+    isTransient: true,
+  })
 }
 
 async function handleUnsavedFiles() {

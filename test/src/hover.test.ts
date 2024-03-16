@@ -53,27 +53,27 @@ suite('Hover info', () => {
   }
 
   test('Hovering on Unit should show Type', async () => {
-    const position = new vscode.Position(17, 12)
+    const position = new vscode.Position(9, 12)
     await testHoverAtPosition(position, 'Type')
   })
 
   test('Hovering on IO should show Eff', async () => {
-    const position = new vscode.Position(17, 19)
+    const position = new vscode.Position(9, 19)
     await testHoverAtPosition(position, 'Eff')
   })
 
   test('Hovering on Shape.Rectangle instantiation should show Shape', async () => {
-    const position = new vscode.Position(18, 13)
+    const position = new vscode.Position(10, 13)
     await testHoverAtPosition(position, 'Shape')
   })
 
   test('Hovering on area()-call should show def', async () => {
-    const position = new vscode.Position(18, 12)
+    const position = new vscode.Position(10, 12)
     await testHoverAtPosition(position, 'def area(s: Shape): Int32')
   })
 
   test('Hovering on area()-call should show doc', async () => {
-    const position = new vscode.Position(18, 12)
+    const position = new vscode.Position(10, 12)
     await testHoverAtPosition(
       position,
       'Computes the area of the given shape using pattern matching and basic arithmetic.',

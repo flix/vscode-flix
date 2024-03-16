@@ -56,6 +56,6 @@ suite('Source file manipulation', () => {
   test('Created file should be added', async () => {
     await vscode.workspace.fs.delete(doc2Uri)
     addFile(doc2Uri, doc2Content)
-    assert.strictEqual(await docIsAdded(), false)
+    assert.strictEqual(await docIsAdded(), true)
   })
 })

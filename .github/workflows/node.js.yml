@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Read package.json
       id: package
-      # Reads the contents of `pacakge.json` into `steps.package.outputs.content`
+      # Reads the contents of `package.json` into `steps.package.outputs.content`
       run: |
         {
           echo 'content<<EOF'

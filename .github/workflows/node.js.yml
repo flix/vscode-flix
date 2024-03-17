@@ -20,18 +20,18 @@ jobs:
       id: package
       # Reads the contents of `pacakge.json` into `steps.package.outputs.content`
       run: |
-        content=`cat ./package.json`
-        content="${content//'%'/'%25'}"
-        content="${content//$'\n'/'%0A'}"
-        content="${content//$'\r'/'%0D'}"
-        echo "::set-output name=content::$content"
+        {
+          echo 'content<<EOF'
+          cat ./package.json
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
     - name: Extract minimum version
       id: minver
       # Reads the contents of the `engines.vscode` field into `steps.minver.outputs.version` with the leading ^ removed.
       run: |
         version=${{ fromJson(steps.package.outputs.content).engines.vscode }}
         version=${version#^}
-        echo "::set-output name=version::$version"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
 
   check:
     runs-on: ubuntu-latest

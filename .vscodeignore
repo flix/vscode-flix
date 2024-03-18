@@ -1,15 +1,28 @@
-.vscode/**
-**/*.ts
-**/*.map
-.gitignore
-**/tsconfig.json
-**/tsconfig.base.json
-contributing.md
-.travis.yml
+# Meta
+.github
+.vscode
+
+# NPM
 node_modules
-server
+
+# TypeScript
+tsconfig.json
+
+# Ignore files
+.eslintignore
+.gitignore
+.prettierignore
+
+# Sub projects
 client
-!server/out/server.js
-!client/out/extension.js
+java
+server
 test
+!client/out/extension.js
+!java/CheckJavaVersion.class
+!server/out/server.js
+
+# Other
 .vscode-test.js
+build.js
+DEV.md

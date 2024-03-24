@@ -61,4 +61,8 @@ suite('Diagnostics', () => {
   test('Name error should be shown', async () => {
     await testDiagnostics('NameError.flix', "Duplicate definition of 'sum'.")
   })
+
+  test('Resolution error should be shown', async () => {
+    await testDiagnostics('ResolutionError.flix', "Cyclic type aliases: 'Even' references 'Odd' references 'Even'")
+  })
 })

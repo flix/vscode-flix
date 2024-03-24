@@ -26,7 +26,6 @@ suite('Source file manipulation', () => {
 
   async function addFile(uri: vscode.Uri, contents: string) {
     await vscode.workspace.fs.writeFile(uri, Buffer.from(contents))
-    await sleep(1000)
   }
 
   suiteSetup(async () => {
@@ -39,10 +38,6 @@ suite('Source file manipulation', () => {
   })
 
   async function docIsAdded() {
-    // Wait for the diagnostics to be reported
-    // TODO: Do this in a smarter way
-    await sleep(1000)
-
     // If Area.flix is not present in the compiler, then Main.flix will contain a resolution error on the call to area()
     const r = vscode.languages.getDiagnostics(doc1Uri)
     return r.length === 0
@@ -50,12 +45,14 @@ suite('Source file manipulation', () => {
 
   test('Deleted file should be removed', async () => {
     await vscode.workspace.fs.delete(doc2Uri)
+    await sleep(1000)
     assert.strictEqual(await docIsAdded(), false)
   })
 
   test('Created file should be added', async () => {
     await vscode.workspace.fs.delete(doc2Uri)
-    addFile(doc2Uri, doc2Content)
+    await addFile(doc2Uri, doc2Content)
+    await sleep(4000)
     assert.strictEqual(await docIsAdded(), true)
   })
 })

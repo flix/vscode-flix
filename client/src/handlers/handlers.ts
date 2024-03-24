@@ -317,6 +317,19 @@ export function cmdDoc(context: vscode.ExtensionContext, launchOptions: LaunchOp
 }
 
 /**
+ * Shows dependencies which have newer versions available using the command `:outdated`.
+ *
+ * @param context vscode.ExtensionContext
+ *
+ * @param launchOptions LaunchOptions
+ *
+ * @returns function handler
+ */
+export function cmdOutdated(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+  return runReplCmd(context, launchOptions, ':outdated')
+}
+
+/**
  * Prompt the user for a phase and show the AST for that phase.
  *
  * @returns function handler

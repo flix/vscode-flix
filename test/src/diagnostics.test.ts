@@ -65,4 +65,8 @@ suite('Diagnostics', () => {
   test('Resolution error should be shown', async () => {
     await testDiagnostics('ResolutionError.flix', "Cyclic type aliases: 'Even' references 'Odd' references 'Even'")
   })
+
+  test('Type error should be shown', async () => {
+    await testDiagnostics('TypeError.flix', "Expected type 'String' but found type: 'Float64'.")
+  })
 })

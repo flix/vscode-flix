@@ -24,36 +24,32 @@ suite('Diagnostics', () => {
   })
 
   /**
-   * Copy a file from the `latent` directory to the `src` directory,
-   * and add teardown hook to remove it again after the test.
+   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing the `expected` string.
    *
-   * @param name the filename of the file to copy, e.g. `WeederError.flix`
+   * @param fileName The name of the file to copy, e.g. `WeederError.flix`
    */
-  async function activateLatent(name: string) {
-    const latentUri = getTestDocUri(`latent/${name}`)
-    const srcUri = getTestDocUri(`src/${name}`)
+  async function testDiagnostics(fileName: string, expected: string) {
+    const latentUri = getTestDocUri(`latent/${fileName}`)
+    const srcUri = getTestDocUri(`src/${fileName}`)
 
     await vscode.workspace.fs.copy(latentUri, srcUri)
     await sleep(4000)
 
+    // Delete the file after the test
     teardown(async () => {
       await vscode.workspace.fs.delete(srcUri)
       await sleep(1000)
     })
-  }
 
-  function assertContainsDiagnostic(docUri: vscode.Uri, message: string) {
-    const diagnostics = vscode.languages.getDiagnostics(docUri)
+    const diagnostics = vscode.languages.getDiagnostics(srcUri)
     assert.strictEqual(
-      diagnostics.some(d => d.message.includes(message)),
+      diagnostics.some(d => d.message.includes(expected)),
       true,
-      `Actual: ${JSON.stringify(diagnostics)}\nExpected: ${message}`,
+      `Actual: ${JSON.stringify(diagnostics)}\nExpected: ${expected}`,
     )
   }
 
   test('Weeder error should be shown', async () => {
-    const docUri = getTestDocUri('src/WeederError.flix')
-    await activateLatent('WeederError.flix')
-    assertContainsDiagnostic(docUri, "Multiple declarations of the formal parameter 'a'.")
+    await testDiagnostics('WeederError.flix', "Multiple declarations of the formal parameter 'a'.")
   })
 })

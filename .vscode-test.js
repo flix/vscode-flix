@@ -5,7 +5,7 @@ const { defineConfig } = require('@vscode/test-cli')
  * - `stable`
  * - `1.80.0`
  */
-let version = process.env.VSCODE_VERSION
+const version = process.env.VSCODE_VERSION
 
 module.exports = defineConfig({
   version,

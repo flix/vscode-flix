@@ -16,14 +16,26 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, activate, open, sleep } from './util'
 
 suite('Hover info', () => {
-  let docUri: vscode.Uri
+  const docUri = getTestDocUri('src/Main.flix')
+
+  const brokenDocUriLatent = getTestDocUri('latent/Broken.flix')
+  const brokenDocUri = getTestDocUri('src/Broken.flix')
+
   suiteSetup(async () => {
-    docUri = getTestDocUri('src/Main.flix')
     await activate()
     await open(docUri)
+  })
+  teardown(async () => {
+    // Restore original content of the workspace after each test
+    try {
+      await vscode.workspace.fs.delete(brokenDocUri)
+      await sleep(2000)
+    } catch {
+      // File does not exist - no need to delete
+    }
   })
 
   test('Hovering on an empty line should not show anything', async () => {
@@ -78,5 +90,14 @@ suite('Hover info', () => {
       position,
       'Computes the area of the given shape using pattern matching and basic arithmetic.',
     )
+  })
+
+  test('Hovering on area()-call in broken project should still show def', async () => {
+    await vscode.workspace.fs.copy(brokenDocUriLatent, brokenDocUri)
+    await sleep(1000)
+
+    const position = new vscode.Position(10, 12)
+    await testHoverAtPosition(position, '(Information may not be current)')
+    await testHoverAtPosition(position, 'def area(s: Shape): Int32')
   })
 })

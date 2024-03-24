@@ -73,4 +73,8 @@ suite('Diagnostics', () => {
   test('Redundancy error should be shown', async () => {
     await testDiagnostics('RedundancyError.flix', 'Shadowed name.')
   })
+
+  test('Safety error should be shown', async () => {
+    await testDiagnostics('SafetyError.flix', 'Missing default case.')
+  })
 })

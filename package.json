@@ -64,6 +64,10 @@
         "title": "Flix: doc"
       },
       {
+        "command": "flix.cmdOutdated",
+        "title": "Flix: outdated"
+      },
+      {
         "command": "flix.showAst",
         "title": "Flix: Show AST"
       },

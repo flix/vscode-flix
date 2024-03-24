@@ -19,8 +19,17 @@ import * as vscode from 'vscode'
 import { getTestDocUri, activate, sleep } from './util'
 
 suite('Diagnostics', () => {
+  /** The optional URI of the document which should be deleted after each test. */
+  let tempDocUri: vscode.Uri | null = null
+
   suiteSetup(async () => {
     await activate()
+  })
+  teardown(async () => {
+    if (tempDocUri !== null) {
+      await vscode.workspace.fs.delete(tempDocUri)
+      await sleep(1000)
+    }
   })
 
   /**
@@ -33,13 +42,9 @@ suite('Diagnostics', () => {
     const srcUri = getTestDocUri(`src/${fileName}`)
 
     await vscode.workspace.fs.copy(latentUri, srcUri)
-    await sleep(4000)
-
     // Delete the file after the test
-    teardown(async () => {
-      await vscode.workspace.fs.delete(srcUri)
-      await sleep(1000)
-    })
+    tempDocUri = srcUri
+    await sleep(4000)
 
     const diagnostics = vscode.languages.getDiagnostics(srcUri)
     assert.strictEqual(
@@ -51,5 +56,9 @@ suite('Diagnostics', () => {
 
   test('Weeder error should be shown', async () => {
     await testDiagnostics('WeederError.flix', "Multiple declarations of the formal parameter 'a'.")
+  })
+
+  test('Name error should be shown', async () => {
+    await testDiagnostics('NameError.flix', "Duplicate definition of 'sum'.")
   })
 })

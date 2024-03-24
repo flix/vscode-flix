@@ -69,4 +69,8 @@ suite('Diagnostics', () => {
   test('Type error should be shown', async () => {
     await testDiagnostics('TypeError.flix', "Expected type 'String' but found type: 'Float64'.")
   })
+
+  test('Redundancy error should be shown', async () => {
+    await testDiagnostics('RedundancyError.flix', 'Shadowed name.')
+  })
 })

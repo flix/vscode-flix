@@ -265,6 +265,19 @@ export function cmdBuildJar(context: vscode.ExtensionContext, launchOptions: Lau
 }
 
 /**
+ * Builds a fatjar-file from the current project using command `:fatjar`.
+ *
+ * @param context vscode.ExtensionContext
+ *
+ * @param launchOptions LaunchOptions
+ *
+ * @returns function handler
+ */
+export function cmdBuildFatjar(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+  return runReplCmd(context, launchOptions, ':fatjar')
+}
+
+/**
  * builds a fpkg-file from the current project using command `:pkg
  *
  * @param context vscode.ExtensionContext

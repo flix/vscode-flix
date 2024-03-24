@@ -48,6 +48,10 @@
         "title": "Flix: build-jar"
       },
       {
+        "command": "flix.cmdBuildFatjar",
+        "title": "Flix: build-fatjar"
+      },
+      {
         "command": "flix.cmdBuildPkg",
         "title": "Flix: build-pkg"
       },

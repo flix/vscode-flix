@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
+import { EventEmitter } from 'events'
 
 import * as jobs from '../engine/jobs'
 import ensureFlixExists from './../util/ensureFlixExists'
@@ -375,4 +376,12 @@ export function startRepl(context: vscode.ExtensionContext, launchOptions: Launc
     await ensureReplExists(context, launchOptions)
     flixTerminal?.show()
   }
+}
+
+export function allJobsFinished(client: LanguageClient, eventEmitter: EventEmitter) {
+  return () =>
+    new Promise(resolve => {
+      client.sendNotification(jobs.Request.internalFinishedAllJobs)
+      eventEmitter.once(jobs.Request.internalFinishedAllJobs, resolve)
+    })
 }

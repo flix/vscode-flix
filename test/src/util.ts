@@ -55,11 +55,22 @@ export async function sleep(ms: number) {
 }
 
 /**
+ * Waits for the processing of a newly added or deleted file to finish.
+ */
+async function processFileChange() {
+  // Wait for the file system watcher to pick up the change
+  await sleep(500)
+
+  // Wait for the compiler to process the change
+  await vscode.commands.executeCommand('flix.allJobsFinished')
+}
+
+/**
  * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
  */
 export async function addFile(uri: vscode.Uri, content: string) {
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
-  await sleep(6000)
+  await processFileChange()
 }
 
 /**
@@ -67,7 +78,7 @@ export async function addFile(uri: vscode.Uri, content: string) {
  */
 export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
   await vscode.workspace.fs.copy(from, to)
-  await sleep(6000)
+  await processFileChange()
 }
 
 /**
@@ -77,5 +88,5 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  */
 export async function deleteFile(uri: vscode.Uri) {
   await vscode.workspace.fs.delete(uri)
-  await sleep(2000)
+  await processFileChange()
 }

@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, sleep } from './util'
+import { getTestDocUri, activate, open, sleep, copyFile, deleteFile } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
@@ -31,8 +31,7 @@ suite('Hover info', () => {
   teardown(async () => {
     // Restore original content of the workspace after each test
     try {
-      await vscode.workspace.fs.delete(brokenDocUri)
-      await sleep(2000)
+      await deleteFile(brokenDocUri)
     } catch {
       // File does not exist - no need to delete
     }
@@ -93,8 +92,7 @@ suite('Hover info', () => {
   })
 
   test('Hovering on area()-call in broken project should still show def', async () => {
-    await vscode.workspace.fs.copy(brokenDocUriLatent, brokenDocUri)
-    await sleep(1000)
+    await copyFile(brokenDocUriLatent, brokenDocUri)
 
     const position = new vscode.Position(10, 12)
     await testHoverAtPosition(position, '(Information may not be current)')

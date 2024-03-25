@@ -53,3 +53,29 @@ export function getTestDocUri(p: string) {
 export async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+/**
+ * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
+ */
+export async function addFile(uri: vscode.Uri, content: string) {
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
+  await sleep(6000)
+}
+
+/**
+ * Copy the file from `from` to `to`, and wait for the compiler to process this.
+ */
+export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
+  await vscode.workspace.fs.copy(from, to)
+  await sleep(6000)
+}
+
+/**
+ * Delete the file at `uri`, and wait for the compiler to process this.
+ *
+ * Throws if the file does not exist.
+ */
+export async function deleteFile(uri: vscode.Uri) {
+  await vscode.workspace.fs.delete(uri)
+  await sleep(2000)
+}

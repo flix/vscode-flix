@@ -16,17 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, getTestDocUri, sleep } from './util'
+import { activate, addFile, deleteFile, getTestDocUri, sleep } from './util'
 
 suite('Source file manipulation', () => {
   const doc1Uri = getTestDocUri('src/Main.flix')
 
   const doc2Uri = getTestDocUri('src/Area.flix')
   let doc2Content: string
-
-  async function addFile(uri: vscode.Uri, contents: string) {
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(contents))
-  }
 
   suiteSetup(async () => {
     await activate()
@@ -44,15 +40,13 @@ suite('Source file manipulation', () => {
   }
 
   test('Deleted file should be removed', async () => {
-    await vscode.workspace.fs.delete(doc2Uri)
-    await sleep(1000)
+    await deleteFile(doc2Uri)
     assert.strictEqual(await docIsAdded(), false)
   })
 
   test('Created file should be added', async () => {
-    await vscode.workspace.fs.delete(doc2Uri)
+    await deleteFile(doc2Uri)
     await addFile(doc2Uri, doc2Content)
-    await sleep(4000)
     assert.strictEqual(await docIsAdded(), true)
   })
 })

@@ -15,6 +15,10 @@ module.exports = defineConfig({
   mocha: {
     // Downloading compiler takes a long time
     timeout: 120000,
+
+    // Only highlight tests taking more than 30s
+    slow: 30000,
+
     color: true,
   },
 })

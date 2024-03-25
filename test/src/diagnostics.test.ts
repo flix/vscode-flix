@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, sleep } from './util'
+import { getTestDocUri, activate, sleep, copyFile, deleteFile } from './util'
 
 suite('Diagnostics', () => {
   /** The optional URI of the document which should be deleted after each test. */
@@ -27,8 +27,7 @@ suite('Diagnostics', () => {
   })
   teardown(async () => {
     if (tempDocUri !== null) {
-      await vscode.workspace.fs.delete(tempDocUri)
-      await sleep(1000)
+      await deleteFile(tempDocUri)
     }
   })
 
@@ -41,10 +40,9 @@ suite('Diagnostics', () => {
     const latentUri = getTestDocUri(`latent/${fileName}`)
     const srcUri = getTestDocUri(`src/${fileName}`)
 
-    await vscode.workspace.fs.copy(latentUri, srcUri)
     // Delete the file after the test
     tempDocUri = srcUri
-    await sleep(4000)
+    await copyFile(latentUri, srcUri)
 
     const diagnostics = vscode.languages.getDiagnostics(srcUri)
     assert.strictEqual(

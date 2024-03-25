@@ -59,7 +59,7 @@ export async function sleep(ms: number) {
  */
 export async function addFile(uri: vscode.Uri, content: string) {
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
-  await sleep(4000)
+  await sleep(6000)
 }
 
 /**
@@ -67,7 +67,7 @@ export async function addFile(uri: vscode.Uri, content: string) {
  */
 export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
   await vscode.workspace.fs.copy(from, to)
-  await sleep(4000)
+  await sleep(6000)
 }
 
 /**

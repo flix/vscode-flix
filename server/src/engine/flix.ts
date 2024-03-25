@@ -263,3 +263,7 @@ export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: an
   }
   return queue.enqueue(job)
 }
+
+export function unfinishedJobs() {
+  return queue.unfinishedJobs()
+}

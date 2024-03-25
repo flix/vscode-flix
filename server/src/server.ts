@@ -43,6 +43,8 @@ connection.onNotification(jobs.Request.apiRemJar, handlers.handleRemJar)
 // Show ast
 connection.onNotification(jobs.Request.lspShowAst, handlers.handleShowAst)
 
+connection.onNotification(jobs.Request.internalFinishedAllJobs, handlers.handleFinishedAllJobs)
+
 // Cleanup after exit
 connection.onExit(handlers.handleExit)
 

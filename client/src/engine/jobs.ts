@@ -52,6 +52,7 @@ export enum Request {
   internalMessage = 'ext/message', // Internal Extension Request
   internalError = 'ext/error', // Internal Extension Request
   internalFinishedJob = 'ext/finished', // Internal Extension Request
+  internalFinishedAllJobs = 'ext/finishedAll', // Internal Extension Request
   internalDiagnostics = 'ext/diagnostics', // Internal Extension Request
   internalReplaceConfiguration = 'ext/replaceConfiguration', // Internal Extension Request
 }

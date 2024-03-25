@@ -192,3 +192,10 @@ export async function terminateQueue() {
   })
   emptyQueue()
 }
+
+/**
+ * The number of jobs which have been added to the queue, but have yet to be processed.
+ */
+export function unfinishedJobs() {
+  return priorityQueue.length + taskQueue.length + socket.unprocessedRequests()
+}

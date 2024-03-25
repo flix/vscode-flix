@@ -59,7 +59,7 @@ export async function sleep(ms: number) {
  */
 async function processFileChange() {
   // Wait for the file system watcher to pick up the change
-  await sleep(500)
+  await sleep(1000)
 
   // Wait for the compiler to process the change
   await vscode.commands.executeCommand('flix.allJobsFinished')

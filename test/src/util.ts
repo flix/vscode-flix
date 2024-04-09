@@ -63,6 +63,9 @@ async function processFileChange() {
 
   // Wait for the compiler to process the change
   await vscode.commands.executeCommand('flix.allJobsFinished')
+
+  // Wait for the diagnostics to be updated
+  await sleep(1000)
 }
 
 /**

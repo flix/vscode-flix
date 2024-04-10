@@ -10,6 +10,17 @@ const _ = require('lodash/fp')
 
 let flixTerminal: vscode.Terminal | null = null
 
+/**
+ * Request that the server should disconnect. Returns promise that will resolve when the server has been reconnected.
+ * Used for testing purposes.
+ */
+export function simulateDisconnect(client: LanguageClient) {
+  return async () => {
+    client.sendNotification(jobs.Request.apiDisconnect)
+    await new Promise(r => client.onNotification(jobs.Request.internalReady, r))
+  }
+}
+
 export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) {
   return function handler() {
     client.sendNotification(request)

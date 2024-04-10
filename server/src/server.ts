@@ -19,6 +19,8 @@ connection.onInitialize(handlers.handleInitialize)
 // The user has changed something in the configuration
 connection.onNotification(jobs.Request.internalReplaceConfiguration, handlers.handleReplaceConfiguration)
 
+connection.onNotification(jobs.Request.apiDisconnect, handlers.handleDisconnect)
+
 // Event happens once after either startup or a restart - starts the engine
 connection.onNotification(jobs.Request.internalReady, handlers.handleReady)
 

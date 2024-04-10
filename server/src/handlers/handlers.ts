@@ -92,6 +92,14 @@ export function handleReplaceConfiguration(userConfiguration: engine.UserConfigu
 }
 
 /**
+ * Simulates the language server disconnecting. To await reconnection, listen for the {@linkcode jobs.Request.internalReady} on the client side.
+ * Used for testing.
+ */
+export function handleDisconnect() {
+  engine.simulateDisconnect()
+}
+
+/**
  * Runs when both client and server are ready.
  */
 export function handleReady(engineInput: engine.StartEngineInput) {

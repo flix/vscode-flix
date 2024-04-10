@@ -15,10 +15,7 @@ let flixTerminal: vscode.Terminal | null = null
  * Used for testing purposes.
  */
 export function simulateDisconnect(client: LanguageClient) {
-  return async () => {
-    client.sendNotification(jobs.Request.apiDisconnect)
-    await new Promise(r => client.onNotification(jobs.Request.internalReady, r))
-  }
+  return () => client.sendNotification(jobs.Request.apiDisconnect)
 }
 
 export function makeHandleRunJob(client: LanguageClient, request: jobs.Request) {

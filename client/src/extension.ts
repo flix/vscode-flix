@@ -134,6 +134,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
+  registerCommand('flix.simulateDisconnect', handlers.simulateDisconnect(client))
   registerCommand('flix.runMain', handlers.runMain(context, launchOptions))
 
   registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))

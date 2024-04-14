@@ -128,6 +128,23 @@ export const handleShowAst = enqueueUnlessHasErrors(
   hasErrorsHandlerForCommands,
 )
 
+/**
+ * Request a response to be sent when all jobs are finished.
+ */
+export function handleFinishedAllJobs() {
+  if (engine.unfinishedJobs() === 0) {
+    // If already idle, send notification immediately
+    sendNotification(jobs.Request.internalFinishedAllJobs)
+  } else {
+    socket.eventEmitter.on('any', function handler() {
+      if (engine.unfinishedJobs() === 0) {
+        sendNotification(jobs.Request.internalFinishedAllJobs)
+        socket.eventEmitter.removeListener('any', handler)
+      }
+    })
+  }
+}
+
 function makeShowAstJob(params: any) {
   return {
     request: jobs.Request.lspShowAst,

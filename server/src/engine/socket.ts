@@ -209,4 +209,13 @@ function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   clearTimer(flixResponse.id)
   // ask queue to process next item
   setTimeout(queue.processQueue, 0)
+
+  eventEmitter.emit('any')
+}
+
+/**
+ * The number of sent requests which have not yet received a response.
+ */
+export function unprocessedRequests() {
+  return Object.keys(sentMessagesMap).length
 }

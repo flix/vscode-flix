@@ -149,6 +149,12 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.showAst', handlers.showAst(client))
   registerCommand('flix.startRepl', handlers.startRepl(context, launchOptions))
 
+  // Register commands for testing
+
+  // Returns a promise resolving when all jobs are completely finished and the server is idle.
+  // While most other commands can be awaited directly, this is useful for stuff like file creation, which indirectely triggers an asynchronous job.
+  registerCommand('flix.allJobsFinished', handlers.allJobsFinished(client, eventEmitter))
+
   // watch for changes on the file system (delete, create, rename .flix files)
   flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
@@ -246,7 +252,7 @@ async function startSession(
   })
 
   // Handle when server has answered back after getting the notification above
-  client.onNotification(jobs.Request.internalReady, function handler() {
+  client.onNotification(jobs.Request.internalReady, () => {
     // waits for server to answer back after having started successfully
     eventEmitter.emit(jobs.Request.internalReady)
 
@@ -254,10 +260,14 @@ async function startSession(
     handlers.initSharedRepl(context, launchOptions)
   })
 
-  client.onNotification(jobs.Request.internalFinishedJob, function handler() {
+  client.onNotification(jobs.Request.internalFinishedJob, () => {
     // only one job runs at once, so currently not trying to distinguish
     eventEmitter.emit(jobs.Request.internalFinishedJob)
   })
+
+  client.onNotification(jobs.Request.internalFinishedAllJobs, () =>
+    eventEmitter.emit(jobs.Request.internalFinishedAllJobs),
+  )
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
 

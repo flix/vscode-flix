@@ -71,7 +71,7 @@ async function processFileChange() {
 /**
  * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
  */
-export async function addFile(uri: vscode.Uri, content: string) {
+export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
   await processFileChange()
 }
@@ -90,6 +90,6 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  * Throws if the file does not exist.
  */
 export async function deleteFile(uri: vscode.Uri) {
-  await vscode.workspace.fs.delete(uri)
+  await vscode.workspace.fs.delete(uri, { useTrash: true })
   await processFileChange()
 }

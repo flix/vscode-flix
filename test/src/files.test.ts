@@ -16,37 +16,60 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, addFile, deleteFile, getTestDocUri, sleep } from './util'
+import { activate, addFile, deleteFile, getTestDocUri } from './util'
 
-suite('Source file manipulation', () => {
+suite('File manipulation', () => {
   const doc1Uri = getTestDocUri('src/Main.flix')
 
   const doc2Uri = getTestDocUri('src/Area.flix')
-  let doc2Content: string
+  let doc2Content: Uint8Array
+
+  const jarUri = getTestDocUri('lib/external/SquareArea.jar')
+  let jarContent: Uint8Array
+
+  const fpkgUri = getTestDocUri('lib/circleArea.fpkg')
+  let fpkgContent: Uint8Array
 
   suiteSetup(async () => {
     await activate()
-    doc2Content = (await vscode.workspace.fs.readFile(doc2Uri)).toString()
+    doc2Content = await vscode.workspace.fs.readFile(doc2Uri)
+    jarContent = await vscode.workspace.fs.readFile(jarUri)
+    fpkgContent = await vscode.workspace.fs.readFile(fpkgUri)
   })
   teardown(async () => {
     // Restore the original content of the file after each test
     await addFile(doc2Uri, doc2Content)
+    await addFile(jarUri, jarContent)
+    await addFile(fpkgUri, fpkgContent)
   })
 
-  async function docIsAdded() {
-    // If Area.flix is not present in the compiler, then Main.flix will contain a resolution error on the call to area()
-    const r = vscode.languages.getDiagnostics(doc1Uri)
+  async function workspaceValid() {
+    // If all files are not present in the compiler, then Main.flix will contain a resolution error
+    const r = [...vscode.languages.getDiagnostics(doc1Uri), ...vscode.languages.getDiagnostics(doc2Uri)]
     return r.length === 0
   }
 
-  test('Deleted file should be removed', async () => {
+  test('Deleted source-file should be removed', async () => {
     await deleteFile(doc2Uri)
-    assert.strictEqual(await docIsAdded(), false)
+    assert.strictEqual(await workspaceValid(), false)
   })
 
-  test('Created file should be added', async () => {
+  test('Created source-file should be added', async () => {
     await deleteFile(doc2Uri)
     await addFile(doc2Uri, doc2Content)
-    assert.strictEqual(await docIsAdded(), true)
+    assert.strictEqual(await workspaceValid(), true)
   })
+
+  test('Deleted fpkg-file should be removed', async () => {
+    await deleteFile(fpkgUri)
+    assert.strictEqual(await workspaceValid(), false)
+  })
+
+  test('Created fpkg-file should be added', async () => {
+    await deleteFile(fpkgUri)
+    await addFile(fpkgUri, fpkgContent)
+    assert.strictEqual(await workspaceValid(), true)
+  })
+
+  // TODO: Test for jar-file. This file is locked by the process, so it cannot be deleted and added again.
 })

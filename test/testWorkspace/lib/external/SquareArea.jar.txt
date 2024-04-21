@@ -1,0 +1,12 @@
+SquareArea.jar contains the compiled class file for the following Java code:
+
+```
+package dev.flix;
+
+public class SquareArea {
+  /**
+   * Compute the area of a square given its side length.
+   */
+  public static int squareArea(int w) { return w * w; }
+}
+```

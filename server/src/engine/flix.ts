@@ -69,11 +69,6 @@ export function updateUserConfiguration(userConfiguration: UserConfiguration) {
   _.set(userConfiguration, 'userConfiguration', startEngineInput)
 }
 
-export function simulateDisconnect() {
-  const job = { request: jobs.Request.apiDisconnect }
-  queue.enqueue(job)
-}
-
 export async function start(input: StartEngineInput) {
   if (flixInstance || socket.isOpen()) {
     await stop()

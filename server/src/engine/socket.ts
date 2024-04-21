@@ -33,10 +33,10 @@ let webSocketOpen = false
 export const eventEmitter = new EventEmitter()
 
 // keep track of messages sent so we can handle response timeouts
-interface sentMessagesMap {
+interface SentMessagesMap {
   [id: string]: NodeJS.Timeout
 }
-const sentMessagesMap: sentMessagesMap = {}
+const sentMessagesMap: SentMessagesMap = {}
 const MESSAGE_TIMEOUT_SECONDS = 30
 
 export interface FlixResult {
@@ -169,29 +169,34 @@ export async function closeSocket() {
   }
 }
 
-export function sendMessage(job: jobs.EnqueuedJob, retries = 0) {
+export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true, retries = 0) {
   if (isClosed()) {
     if (retries > 2) {
       const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
-      return sendNotification(jobs.Request.internalError, {
+      sendNotification(jobs.Request.internalError, {
         message: errorMessage,
         actions: [],
       })
+      return
     }
     setTimeout(() => {
-      sendMessage(job, retries + 1)
+      sendMessage(job, expectResponse, retries + 1)
     }, 1000)
     return
   }
-  // register a timer to handle timeouts
-  sentMessagesMap[job.id] = setTimeout(() => {
-    delete sentMessagesMap[job.id]
-    sendNotification(jobs.Request.internalError, {
-      message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
-      actions: [],
-    })
-    setTimeout(queue.processQueue, 0)
-  }, MESSAGE_TIMEOUT_SECONDS * 1000)
+
+  if (expectResponse) {
+    // register a timer to handle timeouts
+    sentMessagesMap[job.id] = setTimeout(() => {
+      delete sentMessagesMap[job.id]
+      sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.RESPONSE_TIMEOUT(MESSAGE_TIMEOUT_SECONDS),
+        actions: [],
+      })
+      setTimeout(queue.processQueue, 0)
+    }, MESSAGE_TIMEOUT_SECONDS * 1000)
+  }
+
   // send job as string
   webSocket.send(JSON.stringify(job))
 }

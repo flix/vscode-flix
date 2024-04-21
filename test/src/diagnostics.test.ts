@@ -33,8 +33,6 @@ suite('Diagnostics', () => {
 
   /**
    * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing the `expected` string.
-   *
-   * @param fileName The name of the file to copy, e.g. `WeederError.flix`
    */
   async function testDiagnostics(fileName: string, expected: string) {
     const latentUri = getTestDocUri(`latent/${fileName}`)

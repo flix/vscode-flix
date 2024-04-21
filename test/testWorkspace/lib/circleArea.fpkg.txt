@@ -1,0 +1,6 @@
+circleArea.fpkg contains a single function that computes the area of a circle given its radius:
+
+```
+/// Compute the area of a circle given its radius.
+def circleArea(r: Int32): Int32 = 3 * (r * r)
+```

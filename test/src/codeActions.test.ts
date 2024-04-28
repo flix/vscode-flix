@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, sleep, copyFile, deleteFile, tryDeleteFile } from './util'
+import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
 
 suite('Code actions', () => {
   const docUriLatent = getTestDocUri('latent/UnusedFunction.flix')

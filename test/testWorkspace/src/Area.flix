@@ -9,3 +9,6 @@ def area(s: Shape): Int32 = {
         case Shape.Rectangle(h, w) => h * w
     }
 }
+
+@Test
+def testSquareArea(): Bool = Assert.eq(area(Shape.Square(5)), 25)

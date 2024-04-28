@@ -16,9 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri } from './util'
+import { activate, getTestDocUri } from './util'
 
 suite('Server disconnect', () => {
+  suiteSetup(async () => {
+    await activate()
+  })
+
   test('When server is disconnected a reconnection should happen automatically', async () => {
     await vscode.commands.executeCommand('flix.simulateDisconnect')
 

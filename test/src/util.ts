@@ -40,6 +40,13 @@ export async function open(docUri: vscode.Uri) {
   await vscode.window.showTextDocument(doc)
 }
 
+/**
+ * Types the given `text` in the editor at the current position.
+ */
+export async function typeText(text: string) {
+  await vscode.commands.executeCommand('type', { text })
+}
+
 function getTestDocPath(p: string) {
   return path.resolve(__dirname, '../testWorkspace', p)
 }

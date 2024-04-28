@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
+import { getTestDocUri, activate, open } from './util'
 
 suite('Code lenses', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')

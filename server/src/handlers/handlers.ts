@@ -96,7 +96,8 @@ export function handleReplaceConfiguration(userConfiguration: engine.UserConfigu
  * Used for testing.
  */
 export function handleDisconnect() {
-  engine.simulateDisconnect()
+  const expectResponse = false
+  socket.sendMessage({ id: 'disconnect', request: jobs.Request.apiDisconnect }, expectResponse)
 }
 
 /**

@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, activate } from './util'
 
-suite('Code actions', () => {
+suite('Find references', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
 

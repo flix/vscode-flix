@@ -46,6 +46,7 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         - 18.x
         - 20.x
+        - 22.x
 
     steps: 
     - uses: actions/checkout@v4

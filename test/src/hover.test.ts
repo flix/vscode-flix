@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, sleep, copyFile, deleteFile } from './util'
+import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
@@ -29,12 +29,7 @@ suite('Hover info', () => {
     await open(docUri)
   })
   teardown(async () => {
-    // Restore original content of the workspace after each test
-    try {
-      await deleteFile(brokenDocUri)
-    } catch {
-      // File does not exist - no need to delete
-    }
+    await tryDeleteFile(brokenDocUri)
   })
 
   test('Hovering on an empty line should not show anything', async () => {

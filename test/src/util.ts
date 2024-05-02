@@ -40,6 +40,13 @@ export async function open(docUri: vscode.Uri) {
   await vscode.window.showTextDocument(doc)
 }
 
+/**
+ * Types the given `text` in the editor at the current position.
+ */
+export async function typeText(text: string) {
+  await vscode.commands.executeCommand('type', { text })
+}
+
 function getTestDocPath(p: string) {
   return path.resolve(__dirname, '../testWorkspace', p)
 }
@@ -92,4 +99,15 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
 export async function deleteFile(uri: vscode.Uri) {
   await vscode.workspace.fs.delete(uri, { useTrash: true })
   await processFileChange()
+}
+
+/**
+ * Tries to delete the file at `uri`, but does nothing if the file does not exist.
+ */
+export async function tryDeleteFile(uri: vscode.Uri) {
+  try {
+    await deleteFile(uri)
+  } catch {
+    // File does not exist - no need to delete
+  }
 }

@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, sleep, copyFile, deleteFile } from './util'
+import { getTestDocUri, activate, copyFile, deleteFile } from './util'
 
 suite('Diagnostics', () => {
   /** The optional URI of the document which should be deleted after each test. */

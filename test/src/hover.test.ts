@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
+import { getTestDocUri, activate, open, copyFile, tryDeleteFile, clearWorkspace } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
@@ -25,8 +25,11 @@ suite('Hover info', () => {
   const brokenDocUri = getTestDocUri('src/Broken.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('hover')
     await open(docUri)
+  })
+  suiteTeardown(async () => {
+    await clearWorkspace()
   })
   teardown(async () => {
     await tryDeleteFile(brokenDocUri)

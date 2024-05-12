@@ -16,23 +16,20 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
+import { getTestDocUri, activate, open, clearWorkspace } from './util'
 
 suite('Code actions', () => {
-  const docUriLatent = getTestDocUri('latent/UnusedFunction.flix')
   const docUri = getTestDocUri('src/UnusedFunction.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('codeActions')
+    await open(docUri)
   })
   teardown(async () => {
-    await tryDeleteFile(docUri)
+    await clearWorkspace()
   })
 
   test('Should propose prefixing unused def with underscore', async () => {
-    await copyFile(docUriLatent, docUri)
-    await open(docUri)
-
     const position = new vscode.Position(1, 8)
     const range = new vscode.Range(position, position)
     const r = (await vscode.commands.executeCommand(

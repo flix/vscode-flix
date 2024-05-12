@@ -10,7 +10,7 @@ const version = process.env.VSCODE_VERSION
 module.exports = defineConfig({
   version,
   files: ['test/out/**/*.test.js'],
-  workspaceFolder: 'test/testWorkspace',
+  workspaceFolder: 'test/activeWorkspace/',
 
   mocha: {
     // Downloading compiler takes a long time

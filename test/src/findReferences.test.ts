@@ -16,14 +16,17 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate } from './util'
+import { getTestDocUri, activate, clearWorkspace } from './util'
 
 suite('Find references', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('findReferences')
+  })
+  suiteTeardown(async () => {
+    await clearWorkspace()
   })
 
   test('Should find references to enum case', async () => {

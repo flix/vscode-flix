@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, copyFile, deleteFile, clearWorkspace } from './util'
+import { getTestDocUri, activate, copyFile, deleteFile } from './util'
 
 suite('Diagnostics', () => {
   /** The optional URI of the document which should be deleted after each test. */
@@ -24,9 +24,6 @@ suite('Diagnostics', () => {
 
   suiteSetup(async () => {
     await activate('diagnostics')
-  })
-  suiteTeardown(async () => {
-    await clearWorkspace()
   })
   teardown(async () => {
     if (tempDocUri !== null) {

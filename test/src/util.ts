@@ -18,36 +18,30 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 /**
- * Activates the extension and copies the contents of the given workspace directory into the test workspace.
+ * Activates the extension and copies the contents of the given test workspace directory into the extive workspace.
  *
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */
 export async function activate(testWorkspaceName: string) {
-  console.log('=======================1')
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
   if (ext === undefined) {
     throw new Error('Failed to activate extension')
   }
 
-  console.log('=======================2')
+  await copyWorkspace(testWorkspaceName)
+
   // This includes the time it takes for the compiler to download
   // The time it takes for the compiler to start will be awaited in the first command sent to the extension
   await ext.activate()
-
-  console.log('=======================3')
-  // Copy the contents of the given workspace directory into the test workspace
-  const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
-  const activeWorkspacePath = path.resolve(__dirname, '../activeWorkspace')
-  await copyDirContents(vscode.Uri.file(testWorkspacePath), vscode.Uri.file(activeWorkspacePath))
-
-  console.log('=======================4')
 }
 
 /**
- * Clears the test workspace.
+ * Clears the test workspace, and copies the contents of the given test workspace directory into the active workspace.
+ *
+ * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */
-export async function clearWorkspace() {
+async function copyWorkspace(testWorkspaceName: string) {
   vscode.commands.executeCommand('workbench.action.closeAllEditors')
 
   const activeWorkspaceUri = vscode.workspace.workspaceFolders![0].uri
@@ -57,12 +51,10 @@ export async function clearWorkspace() {
   // Delete all files except .gitkeep and flix.jar
   const namesToDelete = names.filter(name => name !== '.gitkeep' && name !== 'flix.jar')
   const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(activeWorkspaceUri, name))
-
   await Promise.allSettled(urisToDelete.map(deleteFile))
 
-  // Restart the compiler to clear diagnostics
-  // TODO: Find out why this doesn't work when files are removed
-  await vscode.commands.executeCommand('flix.internalRestart')
+  const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
+  await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
 }
 
 /**
@@ -147,7 +139,18 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  * Throws if the file does not exist.
  */
 export async function deleteFile(uri: vscode.Uri) {
-  await vscode.workspace.fs.delete(uri, { recursive: true, useTrash: true })
+  const stat = await vscode.workspace.fs.stat(uri)
+  if (stat.type === vscode.FileType.Directory) {
+    // If the file is a directory, then delete all files in the directory before deleting the directory itself,
+    // to trigger file-system events for each file individually.
+    // TODO: Make the extension aware that deleting a directory should result in deleting all files in the directory.
+    const contents = await vscode.workspace.fs.readDirectory(uri)
+    const names = contents.map(([name, _]) => name)
+    const uris = names.map(name => vscode.Uri.joinPath(uri, name))
+    await Promise.allSettled(uris.map(deleteFile))
+  }
+
+  await vscode.workspace.fs.delete(uri)
   await processFileChange()
 }
 

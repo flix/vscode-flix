@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, clearWorkspace } from './util'
+import { getTestDocUri, activate, open } from './util'
 
 suite('Code actions', () => {
   const docUri = getTestDocUri('src/UnusedFunction.flix')
@@ -24,9 +24,6 @@ suite('Code actions', () => {
   suiteSetup(async () => {
     await activate('codeActions')
     await open(docUri)
-  })
-  teardown(async () => {
-    await clearWorkspace()
   })
 
   test('Should propose prefixing unused def with underscore', async () => {

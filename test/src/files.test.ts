@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, addFile, clearWorkspace, deleteFile, getTestDocUri } from './util'
+import { activate, addFile, deleteFile, getTestDocUri } from './util'
 
 suite('File manipulation', () => {
   const doc1Uri = getTestDocUri('src/Main.flix')
@@ -36,9 +36,6 @@ suite('File manipulation', () => {
     // Restore the original content of the files before each test
     await addFile(doc2Uri, doc2Content)
     await addFile(fpkgUri, fpkgContent)
-  })
-  suiteTeardown(async () => {
-    await clearWorkspace()
   })
 
   async function workspaceValid() {

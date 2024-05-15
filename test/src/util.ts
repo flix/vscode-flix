@@ -45,13 +45,32 @@ async function copyWorkspace(testWorkspaceName: string) {
   vscode.commands.executeCommand('workbench.action.closeAllEditors')
 
   const activeWorkspaceUri = vscode.workspace.workspaceFolders![0].uri
-  const contents = await vscode.workspace.fs.readDirectory(activeWorkspaceUri)
-  const names = contents.map(([name, _]) => name)
 
-  // Delete all files except .gitkeep and flix.jar
-  const namesToDelete = names.filter(name => name !== '.gitkeep' && name !== 'flix.jar')
-  const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(activeWorkspaceUri, name))
-  await Promise.allSettled(urisToDelete.map(deleteFile))
+  /** Recursively clears all safe files from the given directory. */
+  async function clearDir(uri: vscode.Uri) {
+    const contents = await vscode.workspace.fs.readDirectory(uri)
+
+    // Recurse into subdirectories
+    const dirs = contents.filter(([_, type]) => type === vscode.FileType.Directory)
+    const dirUris = dirs.map(([name, _]) => vscode.Uri.joinPath(uri, name))
+    await Promise.allSettled(dirUris.map(clearDir))
+
+    const files = contents.filter(([_, type]) => type !== vscode.FileType.Directory)
+    const fileNames = files.map(([name, _]) => name)
+
+    // Delete all files except .gitkeep and flix.jar
+    const namesToKeep = ['.gitkeep', 'flix.jar']
+
+    // Be careful, and only delete files with known extensions
+    const extensionsToDelete = ['flix', 'toml', 'jar', 'fpkg', 'txt']
+
+    const namesToDelete = fileNames.filter(
+      name => namesToKeep.includes(name) || !extensionsToDelete.includes(name.split('.').at(-1)),
+    )
+    const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
+    await Promise.allSettled(urisToDelete.map(deleteFile))
+  }
+  await clearDir(activeWorkspaceUri)
 
   const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
   await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
@@ -139,17 +158,6 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  * Throws if the file does not exist.
  */
 export async function deleteFile(uri: vscode.Uri) {
-  const stat = await vscode.workspace.fs.stat(uri)
-  if (stat.type === vscode.FileType.Directory) {
-    // If the file is a directory, then delete all files in the directory before deleting the directory itself,
-    // to trigger file-system events for each file individually.
-    // TODO: Make the extension aware that deleting a directory should result in deleting all files in the directory.
-    const contents = await vscode.workspace.fs.readDirectory(uri)
-    const names = contents.map(([name, _]) => name)
-    const uris = names.map(name => vscode.Uri.joinPath(uri, name))
-    await Promise.allSettled(uris.map(deleteFile))
-  }
-
   await vscode.workspace.fs.delete(uri)
   await processFileChange()
 }

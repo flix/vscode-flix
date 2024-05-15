@@ -65,7 +65,7 @@ async function copyWorkspace(testWorkspaceName: string) {
     const extensionsToDelete = ['flix', 'toml', 'jar', 'fpkg', 'txt']
 
     const namesToDelete = fileNames.filter(
-      name => namesToKeep.includes(name) || !extensionsToDelete.includes(name.split('.').at(-1)),
+      name => !namesToKeep.includes(name) && extensionsToDelete.includes(name.split('.').at(-1)),
     )
     const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
     await Promise.allSettled(urisToDelete.map(deleteFile))

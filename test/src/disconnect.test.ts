@@ -20,7 +20,7 @@ import { activate, getTestDocUri, sleep } from './util'
 
 suite('Server disconnect', () => {
   suiteSetup(async () => {
-    await activate()
+    await activate('disconnect')
   })
 
   test('When server is disconnected a reconnection should happen automatically', async () => {

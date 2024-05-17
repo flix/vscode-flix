@@ -23,7 +23,7 @@ suite('Diagnostics', () => {
   let tempDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {
-    await activate()
+    await activate('diagnostics')
   })
   teardown(async () => {
     if (tempDocUri !== null) {

@@ -16,16 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, tryDeleteFile, addFile, typeText } from './util'
+import { getTestDocUri, activate, open, typeText, addFile } from './util'
 
 suite('Completions', () => {
   const docUri = getTestDocUri('src/Temp.flix')
 
   suiteSetup(async () => {
-    await activate()
-  })
-  teardown(async () => {
-    await tryDeleteFile(docUri)
+    await activate('completions')
   })
 
   test('Should propose completing mod', async () => {
@@ -33,7 +30,6 @@ suite('Completions', () => {
     await open(docUri)
     await typeText('mo')
 
-    // TODO: Figure out why this returns all possible keywords, which is not what is shown in the editor
     const position = new vscode.Position(0, 2)
     const r = (await vscode.commands.executeCommand(
       'vscode.executeCompletionItemProvider',

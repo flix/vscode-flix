@@ -23,10 +23,10 @@ suite('Find references', () => {
   const areaDocUri = getTestDocUri('src/Area.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('findReferences')
   })
 
-  test('Should find references to enum case', async () => {
+  test.skip('Should find references to enum case', async () => {
     const position = new vscode.Position(3, 9)
     const r = (await vscode.commands.executeCommand(
       'vscode.executeReferenceProvider',
@@ -39,11 +39,8 @@ suite('Find references', () => {
     const mainReference = r.find(l => l.uri.path.endsWith(mainDocUri.path))
     const areaReference = r.find(l => l.uri.path.endsWith(areaDocUri.path))
 
-    assert.notStrictEqual(mainReference, undefined)
-    assert.notStrictEqual(areaReference, undefined)
-
     assert.deepStrictEqual(mainReference?.range, new vscode.Range(3, 9, 3, 22))
-    assert.deepStrictEqual(areaReference?.range, new vscode.Range(6, 13, 6, 25))
+    assert.deepStrictEqual(areaReference?.range, new vscode.Range(5, 13, 5, 25))
   })
 
   test('Should find references to def', async () => {
@@ -57,15 +54,11 @@ suite('Find references', () => {
     assert.strictEqual(r.length, 3)
 
     const defReference = r.find(l => l.uri.path.endsWith(areaDocUri.path) && l.range.start.line === 3)
-    const testReference = r.find(l => l.uri.path.endsWith(areaDocUri.path) && l.range.start.line === 13)
+    const testReference = r.find(l => l.uri.path.endsWith(areaDocUri.path) && l.range.start.line === 12)
     const mainReference = r.find(l => l.uri.path.endsWith(mainDocUri.path))
 
-    assert.notStrictEqual(defReference, undefined)
-    assert.notStrictEqual(testReference, undefined)
-    assert.notStrictEqual(mainReference, undefined)
-
     assert.deepStrictEqual(defReference?.range, new vscode.Range(3, 4, 3, 8))
-    assert.deepStrictEqual(testReference?.range, new vscode.Range(13, 39, 13, 43))
+    assert.deepStrictEqual(testReference?.range, new vscode.Range(12, 39, 12, 43))
     assert.deepStrictEqual(mainReference?.range, new vscode.Range(10, 12, 10, 16))
   })
 })

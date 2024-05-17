@@ -6,5 +6,7 @@ client/server
 .vscode-test
 notes
 target
+test/activeWorkspace
+!test/activeWorkspace/.gitkeep
 flix.jar
 *.vsix

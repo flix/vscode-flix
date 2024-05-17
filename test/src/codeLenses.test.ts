@@ -23,7 +23,7 @@ suite('Code lenses', () => {
   const areaDocUri = getTestDocUri('src/Area.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('codeLenses')
   })
 
   test('Should propose running main function', async () => {

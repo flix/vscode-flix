@@ -24,22 +24,17 @@ suite('File manipulation', () => {
   const doc2Uri = getTestDocUri('src/Area.flix')
   let doc2Content: Uint8Array
 
-  const jarUri = getTestDocUri('lib/external/SquareArea.jar')
-  let jarContent: Uint8Array
-
   const fpkgUri = getTestDocUri('lib/circleArea.fpkg')
   let fpkgContent: Uint8Array
 
   suiteSetup(async () => {
-    await activate()
+    await activate('files')
     doc2Content = await vscode.workspace.fs.readFile(doc2Uri)
-    jarContent = await vscode.workspace.fs.readFile(jarUri)
     fpkgContent = await vscode.workspace.fs.readFile(fpkgUri)
   })
-  teardown(async () => {
-    // Restore the original content of the file after each test
+  setup(async () => {
+    // Restore the original content of the files before each test
     await addFile(doc2Uri, doc2Content)
-    await addFile(jarUri, jarContent)
     await addFile(fpkgUri, fpkgContent)
   })
 

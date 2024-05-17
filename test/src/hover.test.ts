@@ -25,7 +25,7 @@ suite('Hover info', () => {
   const brokenDocUri = getTestDocUri('src/Broken.flix')
 
   suiteSetup(async () => {
-    await activate()
+    await activate('hover')
     await open(docUri)
   })
   teardown(async () => {

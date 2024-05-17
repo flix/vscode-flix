@@ -4,7 +4,12 @@ Run `npm install` to ensure that the required dependencies are installed.
 
 ## Testing
 
-The test suite can be run via `npm test`.
+The test suite can be run via `npm test`, or via the 
+[Extension Test Runner](https://marketplace.visualstudio.com/items?itemName=ms-vscode.extension-test-runner)
+for more granular control. When using the Extension Test Runner, use `npm run watch` to make sure the TypeScript 
+files are compiled on save.
+
+To run the tests with a custom build of the compiler, place the `flix.jar` file into the `test/activeWorkspace/` directory.
 
 ## Debugging
 

@@ -59,12 +59,7 @@ suite('Goto definition', () => {
   }
 
   test('Go to area definition', async () => {
-    await testGotoDefinition(
-      mainDocUri,
-      new vscode.Position(10, 12),
-      areaDocUri,
-      new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 8)),
-    )
+    await testGotoDefinition(mainDocUri, new vscode.Position(10, 12), areaDocUri, new vscode.Range(3, 4, 3, 8))
   })
 
   test('Go to Equatable.equals definition', async () => {
@@ -72,7 +67,7 @@ suite('Goto definition', () => {
       equatableDocUri,
       new vscode.Position(9, 51),
       equatableDocUri,
-      new vscode.Range(new vscode.Position(2, 12), new vscode.Position(2, 18)),
+      new vscode.Range(2, 12, 2, 18),
     )
   })
 
@@ -81,7 +76,7 @@ suite('Goto definition', () => {
       equatableDocUri,
       new vscode.Position(7, 15),
       equatableDocUri,
-      new vscode.Range(new vscode.Position(6, 19), new vscode.Position(6, 20)),
+      new vscode.Range(6, 19, 6, 20),
     )
   })
 
@@ -90,7 +85,7 @@ suite('Goto definition', () => {
       equatableDocUri,
       new vscode.Position(9, 58),
       equatableDocUri,
-      new vscode.Range(new vscode.Position(9, 23), new vscode.Position(9, 25)),
+      new vscode.Range(9, 23, 9, 25),
     )
   })
 
@@ -99,44 +94,24 @@ suite('Goto definition', () => {
       equatableDocUri,
       new vscode.Position(22, 21),
       equatableDocUri,
-      new vscode.Range(new vscode.Position(20, 8), new vscode.Position(20, 13)),
+      new vscode.Range(20, 8, 20, 13),
     )
   })
 
   test.skip('Go to case definition', async () => {
-    await testGotoDefinition(
-      areaDocUri,
-      new vscode.Position(12, 50),
-      mainDocUri,
-      new vscode.Range(new vscode.Position(4, 9), new vscode.Position(4, 22)),
-    )
+    await testGotoDefinition(areaDocUri, new vscode.Position(12, 50), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
   test.skip('Go to case definition from match-case', async () => {
-    await testGotoDefinition(
-      areaDocUri,
-      new vscode.Position(6, 19),
-      mainDocUri,
-      new vscode.Range(new vscode.Position(4, 9), new vscode.Position(4, 22)),
-    )
+    await testGotoDefinition(areaDocUri, new vscode.Position(6, 19), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
   test('Go to enum definition', async () => {
-    await testGotoDefinition(
-      areaDocUri,
-      new vscode.Position(3, 12),
-      mainDocUri,
-      new vscode.Range(new vscode.Position(1, 0), new vscode.Position(6, 1)),
-    )
+    await testGotoDefinition(areaDocUri, new vscode.Position(3, 12), mainDocUri, new vscode.Range(1, 0, 6, 1))
   })
 
   test('Go to effect definition', async () => {
-    await testGotoDefinition(
-      rewindDocUri,
-      new vscode.Position(14, 30),
-      rewindDocUri,
-      new vscode.Range(new vscode.Position(2, 4), new vscode.Position(2, 10)),
-    )
+    await testGotoDefinition(rewindDocUri, new vscode.Position(14, 30), rewindDocUri, new vscode.Range(2, 4, 2, 10))
   })
 
   test('Go to type-variable definition', async () => {
@@ -144,7 +119,7 @@ suite('Goto definition', () => {
       equatableDocUri,
       new vscode.Position(2, 22),
       equatableDocUri,
-      new vscode.Range(new vscode.Position(1, 16), new vscode.Position(1, 17)),
+      new vscode.Range(1, 16, 1, 17),
     )
   })
 })

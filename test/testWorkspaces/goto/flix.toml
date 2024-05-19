@@ -1,0 +1,6 @@
+[package]
+name        = "vscode-flix-test"
+description = "test"
+version     = "0.1.0"
+flix        = "0.44.0"
+authors     = ["John Doe <john@example.com>"]

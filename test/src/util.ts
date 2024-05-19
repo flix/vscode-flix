@@ -89,6 +89,8 @@ export async function open(docUri: vscode.Uri) {
  */
 export async function typeText(text: string) {
   await vscode.commands.executeCommand('type', { text })
+  await vscode.window.activeTextEditor.document.save()
+  await processFileChange()
 }
 
 function getTestDocPath(p: string) {
@@ -112,12 +114,8 @@ async function processFileChange() {
   // Wait for the file system watcher to pick up the change
   await sleep(1000)
 
-  try {
-    // Wait for the compiler to process the change
-    await vscode.commands.executeCommand('flix.allJobsFinished')
-  } catch {
-    // Compiler is not running
-  }
+  // Wait for the compiler to process the change
+  await vscode.commands.executeCommand('flix.allJobsFinished')
 
   // Wait for the diagnostics to be updated
   await sleep(1000)

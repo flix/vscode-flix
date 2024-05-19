@@ -78,6 +78,11 @@
       {
         "command": "flix.startRepl",
         "title": "Flix: Start REPL"
+      },
+      {
+        "command": "flix.allJobsFinished",
+        "title": "Flix (debugging): Wait for the compiler to finish processing",
+        "enablement": "false"
       }
     ],
     "languages": [

@@ -172,3 +172,10 @@ export async function tryDeleteFile(uri: vscode.Uri) {
     // File does not exist - no need to delete
   }
 }
+
+/**
+ * Pretty print the given `val` as a JSON string.
+ */
+export function stringify(val: unknown): string {
+  return JSON.stringify(val, null, 2)
+}

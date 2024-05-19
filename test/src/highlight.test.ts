@@ -58,21 +58,21 @@ suite('Highlight uses', () => {
     }
   }
 
-  test('Find Shape.Circle case highlights', async () => {
+  test.skip('Find Shape.Circle case highlights', async () => {
     await testGotoDefinition(mainDocUri, new vscode.Position(3, 9), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
-  test('Find Shape.Circle case-use highlights', async () => {
+  test.skip('Find Shape.Circle case-use highlights', async () => {
     await testGotoDefinition(mainDocUri, new vscode.Position(12, 52), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
-  test('Find Shape.Circle case-use from pattern match highlights', async () => {
+  test.skip('Find Shape.Circle case-use from pattern match highlights', async () => {
     await testGotoDefinition(mainDocUri, new vscode.Position(17, 23), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),

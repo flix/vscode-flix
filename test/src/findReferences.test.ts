@@ -26,39 +26,30 @@ suite('Find references', () => {
     await activate('findReferences')
   })
 
-  test.skip('Should find references to enum case', async () => {
-    const position = new vscode.Position(3, 9)
+  async function testFindReferences(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {
     const r = (await vscode.commands.executeCommand(
       'vscode.executeReferenceProvider',
-      mainDocUri,
+      uri,
       position,
     )) as vscode.Location[]
 
-    assert.strictEqual(r.length, 2)
+    const actualRanges = r.map(h => h.range)
 
-    const mainReference = r.find(l => l.uri.path.endsWith(mainDocUri.path))
-    const areaReference = r.find(l => l.uri.path.endsWith(areaDocUri.path))
+    assert.deepStrictEqual(actualRanges.sort(), expectedRanges.sort())
+  }
 
-    assert.deepStrictEqual(mainReference?.range, new vscode.Range(3, 9, 3, 22))
-    assert.deepStrictEqual(areaReference?.range, new vscode.Range(5, 13, 5, 25))
+  test.skip('Should find references to enum case', async () => {
+    await testFindReferences(mainDocUri, new vscode.Position(3, 9), [
+      new vscode.Range(3, 9, 3, 22),
+      new vscode.Range(5, 13, 5, 25),
+    ])
   })
 
   test('Should find references to def', async () => {
-    const position = new vscode.Position(3, 4)
-    const r = (await vscode.commands.executeCommand(
-      'vscode.executeReferenceProvider',
-      areaDocUri,
-      position,
-    )) as vscode.Location[]
-
-    assert.strictEqual(r.length, 3)
-
-    const defReference = r.find(l => l.uri.path.endsWith(areaDocUri.path) && l.range.start.line === 3)
-    const testReference = r.find(l => l.uri.path.endsWith(areaDocUri.path) && l.range.start.line === 12)
-    const mainReference = r.find(l => l.uri.path.endsWith(mainDocUri.path))
-
-    assert.deepStrictEqual(defReference?.range, new vscode.Range(3, 4, 3, 8))
-    assert.deepStrictEqual(testReference?.range, new vscode.Range(12, 39, 12, 43))
-    assert.deepStrictEqual(mainReference?.range, new vscode.Range(10, 12, 10, 16))
+    await testFindReferences(areaDocUri, new vscode.Position(3, 4), [
+      new vscode.Range(3, 4, 3, 8),
+      new vscode.Range(12, 39, 12, 43),
+      new vscode.Range(10, 12, 10, 16),
+    ])
   })
 })

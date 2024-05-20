@@ -16,20 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, copyFile, tryDeleteFile } from './util'
+import { getTestDocUri, activate, open, typeText } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
 
-  const brokenDocUriLatent = getTestDocUri('latent/Broken.flix')
-  const brokenDocUri = getTestDocUri('src/Broken.flix')
-
   suiteSetup(async () => {
     await activate('hover')
     await open(docUri)
-  })
-  teardown(async () => {
-    await tryDeleteFile(brokenDocUri)
   })
 
   test('Hovering on an empty line should not show anything', async () => {
@@ -87,7 +81,11 @@ suite('Hover info', () => {
   })
 
   test('Hovering on area()-call in broken project should still show def', async () => {
-    await copyFile(brokenDocUriLatent, brokenDocUri)
+    // Create a syntax error
+    // `def area(s: Shape): Int32`    ->     `def area(s: Shape)asdf: Int32`
+    const editor = vscode.window.activeTextEditor
+    editor.selection = new vscode.Selection(new vscode.Position(14, 18), new vscode.Position(14, 18))
+    await typeText('asdf')
 
     const position = new vscode.Position(10, 12)
     await testHoverAtPosition(position, '(Information may not be current)')

@@ -40,7 +40,7 @@ suite('Highlight uses', () => {
     assert.strictEqual(r, undefined)
   })
 
-  async function testGotoDefinition(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {
+  async function testHighlight(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {
     const r = (await vscode.commands.executeCommand(
       'vscode.executeDocumentHighlights',
       uri,
@@ -59,21 +59,21 @@ suite('Highlight uses', () => {
   }
 
   test.skip('Find Shape.Circle case highlights', async () => {
-    await testGotoDefinition(mainDocUri, new vscode.Position(3, 9), [
+    await testHighlight(mainDocUri, new vscode.Position(3, 9), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
   test.skip('Find Shape.Circle case-use highlights', async () => {
-    await testGotoDefinition(mainDocUri, new vscode.Position(12, 52), [
+    await testHighlight(mainDocUri, new vscode.Position(12, 52), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
   test.skip('Find Shape.Circle case-use from pattern match highlights', async () => {
-    await testGotoDefinition(mainDocUri, new vscode.Position(17, 23), [
+    await testHighlight(mainDocUri, new vscode.Position(17, 23), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(12, 52, 12, 58),
       new vscode.Range(17, 17, 17, 29),
@@ -81,20 +81,20 @@ suite('Highlight uses', () => {
   })
 
   test('Find area function highlights', async () => {
-    await testGotoDefinition(areaDocUri, new vscode.Position(3, 4), [
+    await testHighlight(areaDocUri, new vscode.Position(3, 4), [
       new vscode.Range(3, 4, 3, 8),
       new vscode.Range(12, 39, 12, 43),
     ])
   })
   test('Find area function-use highlights', async () => {
-    await testGotoDefinition(areaDocUri, new vscode.Position(12, 39), [
+    await testHighlight(areaDocUri, new vscode.Position(12, 39), [
       new vscode.Range(3, 4, 3, 8),
       new vscode.Range(12, 39, 12, 43),
     ])
   })
 
   test('Find Equatable.equals signature highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(2, 12), [
+    await testHighlight(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Range(2, 12, 2, 18),
       new vscode.Range(9, 51, 9, 57),
       new vscode.Range(22, 14, 22, 20),
@@ -103,7 +103,7 @@ suite('Highlight uses', () => {
     ])
   })
   test('Find Equatable.equals signature-use highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(29, 20), [
+    await testHighlight(equatableDocUri, new vscode.Position(29, 20), [
       new vscode.Range(2, 12, 2, 18),
       new vscode.Range(9, 51, 9, 57),
       new vscode.Range(22, 14, 22, 20),
@@ -113,14 +113,14 @@ suite('Highlight uses', () => {
   })
 
   test('Find Day type alias highlights', async () => {
-    await testGotoDefinition(dateDocUri, new vscode.Position(18, 11), [
+    await testHighlight(dateDocUri, new vscode.Position(18, 11), [
       new vscode.Range(18, 11, 18, 14),
       new vscode.Range(21, 23, 21, 26),
     ])
   })
 
   test('Find Aef associated effect highlights', async () => {
-    await testGotoDefinition(dividableDocUri, new vscode.Position(6, 9), [
+    await testHighlight(dividableDocUri, new vscode.Position(6, 9), [
       new vscode.Range(6, 9, 6, 12),
       new vscode.Range(7, 33, 7, 46),
       new vscode.Range(11, 9, 11, 12),
@@ -128,7 +128,7 @@ suite('Highlight uses', () => {
   })
 
   test('Find DivByZero effect highlights', async () => {
-    await testGotoDefinition(dividableDocUri, new vscode.Position(1, 4), [
+    await testHighlight(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Range(1, 4, 1, 13),
       new vscode.Range(11, 15, 11, 24),
       new vscode.Range(12, 45, 12, 54),
@@ -136,59 +136,59 @@ suite('Highlight uses', () => {
   })
 
   test('Find DivByZero.throw operation highlights', async () => {
-    await testGotoDefinition(dividableDocUri, new vscode.Position(2, 12), [
+    await testHighlight(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Range(2, 12, 2, 17),
       new vscode.Range(13, 23, 13, 38),
     ])
   })
   test('Find DivByZero.throw operation-use highlights', async () => {
-    await testGotoDefinition(dividableDocUri, new vscode.Position(13, 23), [
+    await testHighlight(dividableDocUri, new vscode.Position(13, 23), [
       new vscode.Range(2, 12, 2, 17),
       new vscode.Range(13, 23, 13, 38),
     ])
   })
 
   test('Find function parameter highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(6, 19), [
+    await testHighlight(equatableDocUri, new vscode.Position(6, 19), [
       new vscode.Range(6, 19, 6, 20),
       new vscode.Range(7, 15, 7, 16),
     ])
   })
   test('Find function parameter-use highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(7, 15), [
+    await testHighlight(equatableDocUri, new vscode.Position(7, 15), [
       new vscode.Range(6, 19, 6, 20),
       new vscode.Range(7, 15, 7, 16),
     ])
   })
 
   test('Find match-extracted variable highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(9, 23), [
+    await testHighlight(equatableDocUri, new vscode.Position(9, 23), [
       new vscode.Range(9, 23, 9, 25),
       new vscode.Range(9, 58, 9, 60),
     ])
   })
   test('Find match-extracted variable-use highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(9, 58), [
+    await testHighlight(equatableDocUri, new vscode.Position(9, 58), [
       new vscode.Range(9, 23, 9, 25),
       new vscode.Range(9, 58, 9, 60),
     ])
   })
 
   test('Find let-bound variable highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(20, 8), [
+    await testHighlight(equatableDocUri, new vscode.Position(20, 8), [
       new vscode.Range(20, 8, 20, 13),
       new vscode.Range(22, 21, 22, 26),
     ])
   })
   test('Find let-bound variable-use highlights', async () => {
-    await testGotoDefinition(equatableDocUri, new vscode.Position(22, 21), [
+    await testHighlight(equatableDocUri, new vscode.Position(22, 21), [
       new vscode.Range(20, 8, 20, 13),
       new vscode.Range(22, 21, 22, 26),
     ])
   })
 
   test('Find record label highlights', async () => {
-    await testGotoDefinition(recordsDocUri, new vscode.Position(3, 6), [
+    await testHighlight(recordsDocUri, new vscode.Position(3, 6), [
       new vscode.Range(2, 13, 2, 14),
       new vscode.Range(2, 48, 2, 49),
       new vscode.Range(3, 6, 3, 7),

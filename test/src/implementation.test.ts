@@ -46,20 +46,7 @@ suite('Find implementations', () => {
       l instanceof vscode.Location ? l : new vscode.Location(l.targetUri, l.targetRange),
     )
 
-    for (const expectedLocation of expectedLocations) {
-      assert.ok(
-        actualLocations.some(
-          l => l.uri.toString() === expectedLocation.uri.toString() && l.range.isEqual(expectedLocation.range),
-        ),
-        `Expected location ${stringify(expectedLocation)} not found in ${stringify(actualLocations)}`,
-      )
-    }
-    assert.ok(
-      actualLocations.length === expectedLocations.length,
-      `Expected locations ${stringify(expectedLocations)} not same length as actual locations ${stringify(
-        actualLocations,
-      )}`,
-    )
+    assert.deepStrictEqual(actualLocations.sort(), expectedLocations.sort())
   }
 
   test('Find Dividable trait implementation', async () => {

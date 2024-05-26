@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, stringify } from './util'
+import { getTestDocUri, activate, normalizeLocation } from './util'
 
 suite('Find implementations', () => {
   const dividableDocUri = getTestDocUri('src/Dividable.flix')
@@ -42,9 +42,7 @@ suite('Find implementations', () => {
       position,
     )
 
-    const actualLocations = r.map(l =>
-      l instanceof vscode.Location ? l : new vscode.Location(l.targetUri, l.targetRange),
-    )
+    const actualLocations = r.map(normalizeLocation)
 
     assert.deepStrictEqual(actualLocations.sort(), expectedLocations.sort())
   }

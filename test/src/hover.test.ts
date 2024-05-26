@@ -80,7 +80,7 @@ suite('Hover info', () => {
     )
   })
 
-  test('Hovering on area()-call in broken project should still show def', async () => {
+  test('Hovering on area()-call with broken definition should still show info', async () => {
     // Create a syntax error
     // `def area(s: Shape): Int32`    ->     `def area(s: Shape)asdf: Int32`
     const editor = vscode.window.activeTextEditor

@@ -18,7 +18,7 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 /**
- * Activates the extension and copies the contents of the given test workspace directory into the extive workspace.
+ * Activates the extension and copies the contents of the given test workspace directory into the active workspace.
  *
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */

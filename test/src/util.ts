@@ -77,6 +77,8 @@ async function copyWorkspace(testWorkspaceName: string) {
   }
   await clearDir(activeWorkspaceUri)
 
+  await processFileChange()
+
   const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
   await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
 }

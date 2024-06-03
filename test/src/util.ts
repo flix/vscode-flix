@@ -23,6 +23,11 @@ import * as vscode from 'vscode'
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */
 export async function activate(testWorkspaceName: string) {
+  // Fail tests if an error message is displayed
+  vscode.window.showErrorMessage = (message: string) => {
+    throw new Error(`Error message displayed: ${message}`)
+  }
+
   // The extensionId is `publisher.name` from package.json
   const ext = vscode.extensions.getExtension('flix.flix')
   if (ext === undefined) {

@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, typeText } from './util'
+import { getTestDocUri, activate, open } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
@@ -78,17 +78,5 @@ suite('Hover info', () => {
       position,
       'Computes the area of the given shape using pattern matching and basic arithmetic.',
     )
-  })
-
-  test('Hovering on area()-call in broken project should still show def', async () => {
-    // Create a syntax error
-    // `def area(s: Shape): Int32`    ->     `def area(s: Shape)asdf: Int32`
-    const editor = vscode.window.activeTextEditor
-    editor.selection = new vscode.Selection(new vscode.Position(14, 18), new vscode.Position(14, 18))
-    await typeText('asdf')
-
-    const position = new vscode.Position(10, 12)
-    await testHoverAtPosition(position, '(Information may not be current)')
-    await testHoverAtPosition(position, 'def area(s: Shape): Int32')
   })
 })

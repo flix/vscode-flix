@@ -16,11 +16,11 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, getTestDocUri, sleep } from './util'
+import { init, getTestDocUri, sleep } from './util'
 
 suite('Server disconnect', () => {
   suiteSetup(async () => {
-    await activate('disconnect')
+    await init('disconnect')
   })
 
   test('When server is disconnected a reconnection should happen automatically', async () => {

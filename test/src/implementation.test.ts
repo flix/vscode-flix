@@ -16,13 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, normalizeLocation } from './util'
+import { getTestDocUri, init, normalizeLocation } from './util'
 
 suite('Find implementations', () => {
   const dividableDocUri = getTestDocUri('src/Dividable.flix')
 
   suiteSetup(async () => {
-    await activate('implementation')
+    await init('implementation')
   })
 
   test('Empty line should not show anything', async () => {

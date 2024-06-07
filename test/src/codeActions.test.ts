@@ -16,13 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, init, open } from './util'
 
 suite('Code actions', () => {
   const docUri = getTestDocUri('src/UnusedFunction.flix')
 
   suiteSetup(async () => {
-    await activate('codeActions')
+    await init('codeActions')
     await open(docUri)
   })
 

@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, stringify } from './util'
+import { getTestDocUri, init, stringify } from './util'
 
 suite('Highlight uses', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
@@ -27,7 +27,7 @@ suite('Highlight uses', () => {
   const recordsDocUri = getTestDocUri('src/Records.flix')
 
   suiteSetup(async () => {
-    await activate('highlight')
+    await init('highlight')
   })
 
   test('Empty line should not show anything', async () => {

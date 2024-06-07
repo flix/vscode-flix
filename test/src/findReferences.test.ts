@@ -16,14 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate } from './util'
+import { getTestDocUri, init } from './util'
 
 suite('Find references', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
 
   suiteSetup(async () => {
-    await activate('findReferences')
+    await init('findReferences')
   })
 
   async function testFindReferences(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {

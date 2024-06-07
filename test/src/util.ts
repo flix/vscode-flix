@@ -22,7 +22,7 @@ import * as vscode from 'vscode'
  *
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */
-export async function activate(testWorkspaceName: string) {
+export async function init(testWorkspaceName: string) {
   // Fail tests if an error message is displayed
   vscode.window.showErrorMessage = (message: string) => {
     throw new Error(`Error message displayed: ${message}`)

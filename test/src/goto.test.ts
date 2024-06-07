@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate } from './util'
+import { getTestDocUri, init } from './util'
 
 suite('Goto definition', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
@@ -25,7 +25,7 @@ suite('Goto definition', () => {
   const rewindDocUri = getTestDocUri('src/Rewind.flix')
 
   suiteSetup(async () => {
-    await activate('goto')
+    await init('goto')
   })
 
   test('Going to definition of empty line should not show anything', async () => {

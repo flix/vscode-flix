@@ -16,14 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, init, open } from './util'
 
 suite('Code lenses', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
 
   suiteSetup(async () => {
-    await activate('codeLenses')
+    await init('codeLenses')
   })
 
   test('Should propose running main function', async () => {

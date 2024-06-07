@@ -16,13 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, typeText, addFile } from './util'
+import { getTestDocUri, init, open, typeText, addFile } from './util'
 
 suite('Completions', () => {
   const docUri = getTestDocUri('src/Temp.flix')
 
   suiteSetup(async () => {
-    await activate('completions')
+    await init('completions')
   })
 
   test('Should propose completing mod', async () => {

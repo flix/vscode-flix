@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, init, open } from './util'
 
 suite('Rename', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
@@ -26,7 +26,7 @@ suite('Rename', () => {
   const recordsDocUri = getTestDocUri('src/Records.flix')
 
   suiteSetup(async () => {
-    await activate('rename')
+    await init('rename')
   })
 
   test('Renaming empty line should fail', async () => {

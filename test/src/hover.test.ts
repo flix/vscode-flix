@@ -16,13 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, init, open } from './util'
 
 suite('Hover info', () => {
   const docUri = getTestDocUri('src/Main.flix')
 
   suiteSetup(async () => {
-    await activate('hover')
+    await init('hover')
     await open(docUri)
   })
 

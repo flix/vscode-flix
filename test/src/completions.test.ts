@@ -31,11 +31,11 @@ suite('Completions', () => {
     await typeText('mo')
 
     const position = new vscode.Position(0, 2)
-    const r = (await vscode.commands.executeCommand(
+    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
       'vscode.executeCompletionItemProvider',
       docUri,
       position,
-    )) as vscode.CompletionList
+    )
 
     assert.strictEqual(
       r.items.some(i => i.label === 'mod'),

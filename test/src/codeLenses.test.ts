@@ -28,7 +28,7 @@ suite('Code lenses', () => {
 
   test('Should propose running main function', async () => {
     await open(mainDocUri)
-    const r = (await vscode.commands.executeCommand('vscode.executeCodeLensProvider', mainDocUri)) as vscode.CodeLens[]
+    const r = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', mainDocUri)
     assert.strictEqual(
       r.some(l => l.command?.command === 'flix.runMain'),
       true,
@@ -37,7 +37,7 @@ suite('Code lenses', () => {
 
   test('Should propose running test function', async () => {
     await open(areaDocUri)
-    const r = (await vscode.commands.executeCommand('vscode.executeCodeLensProvider', areaDocUri)) as vscode.CodeLens[]
+    const r = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', areaDocUri)
     assert.strictEqual(
       r.some(l => l.command?.command === 'flix.runMain' && l.command?.arguments?.[0] === 'testSquareArea'),
       true,

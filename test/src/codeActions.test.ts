@@ -29,11 +29,11 @@ suite('Code actions', () => {
   test('Should propose prefixing unused def with underscore', async () => {
     const position = new vscode.Position(1, 8)
     const range = new vscode.Range(position, position)
-    const r = (await vscode.commands.executeCommand(
+    const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
       'vscode.executeCodeActionProvider',
       docUri,
       range,
-    )) as vscode.CodeAction[]
+    )
 
     assert.strictEqual(r.length, 1)
     assert.strictEqual(r[0].title, 'Prefix unused function with underscore')

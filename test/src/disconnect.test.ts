@@ -32,7 +32,7 @@ suite('Server disconnect', () => {
     // Ensure that the server is reconnected
     const docUri = getTestDocUri('src/Main.flix')
     const position = new vscode.Position(9, 12)
-    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
+    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
     const contents = r[0].contents[0] as vscode.MarkdownString
     assert.strictEqual(contents.value.includes('Type'), true)
   })

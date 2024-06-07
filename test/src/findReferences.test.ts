@@ -27,11 +27,7 @@ suite('Find references', () => {
   })
 
   async function testFindReferences(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {
-    const r = (await vscode.commands.executeCommand(
-      'vscode.executeReferenceProvider',
-      uri,
-      position,
-    )) as vscode.Location[]
+    const r = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, position)
 
     const actualRanges = r.map(h => h.range)
 

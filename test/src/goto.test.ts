@@ -30,10 +30,11 @@ suite('Goto definition', () => {
 
   test('Going to definition of empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
-    const r = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', mainDocUri, position)) as (
-      | vscode.Location
-      | vscode.LocationLink
-    )[]
+    const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
+      'vscode.executeDefinitionProvider',
+      mainDocUri,
+      position,
+    )
     assert.strictEqual(r.length, 0)
   })
 
@@ -43,10 +44,11 @@ suite('Goto definition', () => {
     expectedUri: vscode.Uri,
     expectedRange: vscode.Range,
   ) {
-    const r = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', uri, position)) as (
-      | vscode.Location
-      | vscode.LocationLink
-    )[]
+    const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
+      'vscode.executeDefinitionProvider',
+      uri,
+      position,
+    )
 
     assert.strictEqual(r.length, 1)
     const location = r[0]

@@ -32,20 +32,20 @@ suite('Highlight uses', () => {
 
   test('Empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
-    const r = (await vscode.commands.executeCommand(
+    const r = await vscode.commands.executeCommand<vscode.DocumentHighlight[]>(
       'vscode.executeDocumentHighlights',
       mainDocUri,
       position,
-    )) as vscode.DocumentHighlight[]
+    )
     assert.strictEqual(r, undefined)
   })
 
   async function testHighlight(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {
-    const r = (await vscode.commands.executeCommand(
+    const r = await vscode.commands.executeCommand<vscode.DocumentHighlight[]>(
       'vscode.executeDocumentHighlights',
       uri,
       position,
-    )) as vscode.DocumentHighlight[]
+    )
 
     const actualRanges = r.map(h => h.range)
 

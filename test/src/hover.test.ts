@@ -28,7 +28,7 @@ suite('Hover info', () => {
 
   test('Hovering on an empty line should not show anything', async () => {
     const position = new vscode.Position(0, 0)
-    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
+    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
     assert.strictEqual(r.length, 0)
   })
 
@@ -43,7 +43,7 @@ suite('Hover info', () => {
    * Asserts that hovering at the given `position` in the document shows exactly one message, which contains the `expected` string.
    */
   async function testHoverAtPosition(position: vscode.Position, expected: string) {
-    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
+    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
 
     assert.strictEqual(r.length, 1)
 

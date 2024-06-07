@@ -1,4 +1,4 @@
-
+// Blank line
 /// We derive the traits Eq, Order, and ToString for the enum Month
 enum Month with Eq, Order, ToString {
     case January

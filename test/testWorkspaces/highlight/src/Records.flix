@@ -1,4 +1,4 @@
-
+// Blank line
 /// Returns the record `r` with a new value of its `x` label.
 def setX(r: {x = Int32, y = Int32}, v: Int32): {x = Int32, y = Int32} =
     { x = v | r }

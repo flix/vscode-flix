@@ -1,4 +1,4 @@
-
+// Blank line
 eff DivByZero {
     pub def throw(): Void
 }

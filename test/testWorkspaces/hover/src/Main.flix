@@ -1,4 +1,4 @@
-
+// Blank line
 /// An algebraic data type for shapes.
 enum Shape {
     case Circle(Int32),          // circle radius

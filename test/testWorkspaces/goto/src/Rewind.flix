@@ -1,4 +1,4 @@
-
+// Blank line
 
 eff Rewind {
     pub def save(label: String): Unit

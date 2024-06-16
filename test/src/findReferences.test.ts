@@ -31,10 +31,10 @@ suite('Find references', () => {
 
     const actualRanges = r.map(h => h.range)
 
-    assert.deepStrictEqual(actualRanges.sort(), expectedRanges.sort())
+    assert.deepStrictEqual(new Set(actualRanges), new Set(expectedRanges))
   }
 
-  test.skip('Should find references to enum case', async () => {
+  test('Should find references to enum case', async () => {
     await testFindReferences(mainDocUri, new vscode.Position(3, 9), [
       new vscode.Range(3, 9, 3, 22),
       new vscode.Range(5, 13, 5, 25),

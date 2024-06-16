@@ -100,11 +100,11 @@ suite('Goto definition', () => {
     )
   })
 
-  test.skip('Go to case definition', async () => {
+  test('Go to case definition', async () => {
     await testGotoDefinition(areaDocUri, new vscode.Position(12, 50), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
-  test.skip('Go to case definition from match-case', async () => {
+  test('Go to case definition from match-case', async () => {
     await testGotoDefinition(areaDocUri, new vscode.Position(6, 19), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 

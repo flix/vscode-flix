@@ -68,9 +68,9 @@ suite('Rename', () => {
       uri.toString(),
       edit.map(r => r.range),
     ])
-    const expectedRangesString = expectedRanges.map(([uri, edit]) => [uri.toString(), edit])
+    const expectedRangesString: [string, vscode.Range[]][] = expectedRanges.map(([uri, edit]) => [uri.toString(), edit])
 
-    assert.deepStrictEqual(actualRangesString.sort(), expectedRangesString.sort())
+    assert.deepStrictEqual(new Set(actualRangesString), new Set(expectedRangesString))
   }
 
   test('Rename Shape.Circle case', async () => {

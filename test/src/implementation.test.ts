@@ -44,7 +44,7 @@ suite('Find implementations', () => {
 
     const actualLocations = r.map(normalizeLocation)
 
-    assert.deepStrictEqual(actualLocations.sort(), expectedLocations.sort())
+    assert.deepStrictEqual(new Set(actualLocations), new Set(expectedLocations))
   }
 
   test('Find Dividable trait implementation', async () => {

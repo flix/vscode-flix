@@ -27,6 +27,18 @@ suite('Code actions', () => {
     await init('codeActions')
   })
 
+  test('Empty line should not suggest code actions', async () => {
+    await open(mainDocUri)
+
+    const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+      'vscode.executeCodeActionProvider',
+      mainDocUri,
+      new vscode.Range(0, 0, 0, 0),
+    )
+
+    assert.strictEqual(r.length, 0)
+  })
+
   async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedTitle: string) {
     await open(docUri)
 
@@ -76,5 +88,9 @@ suite('Code actions', () => {
     test('Should propose prefixing unused case with underscore', async () => {
       await testCodeAction(areaDocUri, new vscode.Position(5, 13), 'Prefix unused case with underscore')
     })
+  })
+
+  suite('Missing trait instances', () => {
+    // TODO: See https://github.com/flix/flix/issues/7906
   })
 })

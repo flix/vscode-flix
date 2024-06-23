@@ -22,6 +22,7 @@ suite('Code actions', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
   const dividableDocUri = getTestDocUri('src/Dividable.flix')
+  const dateDocUri = getTestDocUri('src/Date.flix')
 
   suiteSetup(async () => {
     await init('codeActions')
@@ -55,6 +56,20 @@ suite('Code actions', () => {
       `Code action '${expectedTitle}' not found in. Instead found: ${stringify(r)}`,
     )
   }
+
+  suite('Undefined names', () => {
+    test('Should propose using Date.earlierDate def', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(43, 4), 'use Date.earlierDate')
+    })
+
+    test('Should propose using Date.Month enum', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'use Date.Month')
+    })
+
+    test('Should propose introducing new Month enum', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'Introduce new enum Month')
+    })
+  })
 
   suite('Prefix unused with underscore', () => {
     test('Should propose prefixing unused local variable with underscore', async () => {

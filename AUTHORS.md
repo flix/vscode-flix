@@ -9,3 +9,5 @@ By adding your name to this document, you agree to release all your contribution
 - [Nicola Dardanis](https://github.com/nicdard)
 - [Magnus Holm Rasmussen](https://github.com/mR4smussen)
 - [Holger Dal Mogensen](https://github.com/sockmaster27)
+- [Jakob Schneider Villumsen](https://github.com/jaschdoc)
+

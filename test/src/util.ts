@@ -23,7 +23,8 @@ import * as vscode from 'vscode'
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
  */
 export async function init(testWorkspaceName: string) {
-  // Fail tests if an error message is displayed
+  // Show errors in the console
+  // TODO: Fail tests if an error message is displayed
   vscode.window.showErrorMessage = (message: string) => {
     throw new Error(`Error message displayed: ${message}`)
   }
@@ -63,11 +64,11 @@ async function copyWorkspace(testWorkspaceName: string) {
     const files = contents.filter(([_, type]) => type !== vscode.FileType.Directory)
     const fileNames = files.map(([name, _]) => name)
 
-    // Delete all files except .gitkeep and flix.jar
-    const namesToKeep = ['.gitkeep', 'flix.jar']
-
     // Be careful, and only delete files with known extensions
     const extensionsToDelete = ['flix', 'toml', 'jar', 'fpkg', 'txt']
+
+    // Always keep .gitkeep and flix.jar
+    const namesToKeep = ['.gitkeep', 'flix.jar']
 
     const namesToDelete = fileNames.filter(
       name => !namesToKeep.includes(name) && extensionsToDelete.includes(name.split('.').at(-1)),

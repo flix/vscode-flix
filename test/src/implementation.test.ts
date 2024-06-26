@@ -25,7 +25,7 @@ suite('Find implementations', () => {
     await init('implementation')
   })
 
-  test('Empty line should not show anything', async () => {
+  test('Should not show anything on empty line', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
       'vscode.executeImplementationProvider',
@@ -47,7 +47,7 @@ suite('Find implementations', () => {
     assert.deepStrictEqual(new Set(actualLocations), new Set(expectedLocations))
   }
 
-  test('Find Dividable trait implementation', async () => {
+  test('Should find Dividable trait implementation', async () => {
     await testImplementations(dividableDocUri, new vscode.Position(5, 6), [
       new vscode.Location(dividableDocUri, new vscode.Range(10, 9, 10, 18)),
     ])

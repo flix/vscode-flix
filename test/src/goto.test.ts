@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init } from './util'
 
-suite('Goto definition', () => {
+suite('Go to definition', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
   const equatableDocUri = getTestDocUri('src/Equatable.flix')
@@ -28,7 +28,7 @@ suite('Goto definition', () => {
     await init('goto')
   })
 
-  test('Going to definition of empty line should not show anything', async () => {
+  test('Should not show anything when going to definition of empty line', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
       'vscode.executeDefinitionProvider',
@@ -60,11 +60,11 @@ suite('Goto definition', () => {
     assert.deepStrictEqual(receivedRange, expectedRange)
   }
 
-  test('Go to area definition', async () => {
+  test('Should go to definition of area def', async () => {
     await testGotoDefinition(mainDocUri, new vscode.Position(10, 12), areaDocUri, new vscode.Range(3, 4, 3, 8))
   })
 
-  test('Go to Equatable.equals definition', async () => {
+  test('Should go to definition of Equatable.equals signature', async () => {
     await testGotoDefinition(
       equatableDocUri,
       new vscode.Position(9, 51),
@@ -73,7 +73,7 @@ suite('Goto definition', () => {
     )
   })
 
-  test('Go to function parameter definition', async () => {
+  test('Should go to definition of x formal parameter', async () => {
     await testGotoDefinition(
       equatableDocUri,
       new vscode.Position(7, 15),
@@ -82,7 +82,7 @@ suite('Goto definition', () => {
     )
   })
 
-  test('Go to match-extracted variable definition', async () => {
+  test('Should go to definition of v1 match-extracted variable', async () => {
     await testGotoDefinition(
       equatableDocUri,
       new vscode.Position(9, 58),
@@ -91,7 +91,7 @@ suite('Goto definition', () => {
     )
   })
 
-  test('Go to let-bound variable definition', async () => {
+  test('Should go to definition of first let-bound variable', async () => {
     await testGotoDefinition(
       equatableDocUri,
       new vscode.Position(22, 21),
@@ -100,23 +100,23 @@ suite('Goto definition', () => {
     )
   })
 
-  test('Go to case definition', async () => {
+  test('Should go to definition of Shape.Square enum case', async () => {
     await testGotoDefinition(areaDocUri, new vscode.Position(12, 50), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
-  test('Go to case definition from match-case', async () => {
+  test('Should go to definition of Shape.Square enum case from match-case', async () => {
     await testGotoDefinition(areaDocUri, new vscode.Position(6, 19), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
-  test('Go to enum definition', async () => {
+  test('Should go to definition of Shape enum', async () => {
     await testGotoDefinition(areaDocUri, new vscode.Position(3, 12), mainDocUri, new vscode.Range(1, 0, 6, 1))
   })
 
-  test('Go to effect definition', async () => {
+  test('Should go to definition of Rewind effect', async () => {
     await testGotoDefinition(rewindDocUri, new vscode.Position(14, 30), rewindDocUri, new vscode.Range(2, 4, 2, 10))
   })
 
-  test('Go to type-variable definition', async () => {
+  test('Should go to definition of t type-variable', async () => {
     await testGotoDefinition(
       equatableDocUri,
       new vscode.Position(2, 22),

@@ -29,7 +29,7 @@ suite('Rename', () => {
     await init('rename')
   })
 
-  test('Renaming empty line should fail', async () => {
+  test('Should fail to rename empty line', async () => {
     await open(mainDocUri)
     const position = new vscode.Position(0, 0)
     const newName = 'NewName'
@@ -73,78 +73,78 @@ suite('Rename', () => {
     assert.deepStrictEqual(new Set(actualRangesString), new Set(expectedRangesString))
   }
 
-  test('Rename Shape.Circle case', async () => {
+  test('Should rename Shape.Circle case', async () => {
     await testRename(mainDocUri, new vscode.Position(3, 9), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
-  test('Rename Shape.Circle case-use', async () => {
+  test('Should rename Shape.Circle case-use', async () => {
     await testRename(mainDocUri, new vscode.Position(12, 52), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
-  test('Rename Shape.Circle case-use from pattern match', async () => {
+  test('Should rename Shape.Circle case-use from pattern match', async () => {
     await testRename(mainDocUri, new vscode.Position(17, 23), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
 
-  test('Rename area function', async () => {
+  test('Should rename area function', async () => {
     await testRename(areaDocUri, new vscode.Position(3, 4), [
       [areaDocUri, [new vscode.Range(3, 4, 3, 8), new vscode.Range(12, 39, 12, 43)]],
       [mainDocUri, [new vscode.Range(10, 12, 10, 16)]],
     ])
   })
-  test('Rename area function-use', async () => {
+  test('Should rename area function-use', async () => {
     await testRename(areaDocUri, new vscode.Position(12, 39), [
       [areaDocUri, [new vscode.Range(3, 4, 3, 8), new vscode.Range(12, 39, 12, 43)]],
       [mainDocUri, [new vscode.Range(10, 12, 10, 16)]],
     ])
   })
 
-  test('Rename Day type alias', async () => {
+  test('Should rename Day type alias', async () => {
     await testRename(dateDocUri, new vscode.Position(18, 11), [
       [dateDocUri, [new vscode.Range(18, 11, 18, 14), new vscode.Range(21, 23, 21, 26)]],
     ])
   })
 
-  test('Rename function parameter', async () => {
+  test('Should rename function parameter', async () => {
     await testRename(equatableDocUri, new vscode.Position(6, 19), [
       [equatableDocUri, [new vscode.Range(6, 19, 6, 20), new vscode.Range(7, 15, 7, 16)]],
     ])
   })
-  test('Rename function parameter-use', async () => {
+  test('Should rename function parameter-use', async () => {
     await testRename(equatableDocUri, new vscode.Position(7, 15), [
       [equatableDocUri, [new vscode.Range(6, 19, 6, 20), new vscode.Range(7, 15, 7, 16)]],
     ])
   })
 
-  test('Rename match-extracted variable', async () => {
+  test('Should rename match-extracted variable', async () => {
     await testRename(equatableDocUri, new vscode.Position(9, 23), [
       [equatableDocUri, [new vscode.Range(9, 23, 9, 25), new vscode.Range(9, 58, 9, 60)]],
     ])
   })
-  test('Rename match-extracted variable-use', async () => {
+  test('Should rename match-extracted variable-use', async () => {
     await testRename(equatableDocUri, new vscode.Position(9, 58), [
       [equatableDocUri, [new vscode.Range(9, 23, 9, 25), new vscode.Range(9, 58, 9, 60)]],
     ])
   })
 
-  test('Rename let-bound variable', async () => {
+  test('Should rename let-bound variable', async () => {
     await testRename(equatableDocUri, new vscode.Position(20, 8), [
       [equatableDocUri, [new vscode.Range(20, 8, 20, 13), new vscode.Range(22, 21, 22, 26)]],
     ])
   })
-  test('Rename let-bound variable-use', async () => {
+  test('Should rename let-bound variable-use', async () => {
     await testRename(equatableDocUri, new vscode.Position(22, 21), [
       [equatableDocUri, [new vscode.Range(20, 8, 20, 13), new vscode.Range(22, 21, 22, 26)]],
     ])
   })
 
-  test('Rename record label', async () => {
+  test('Should rename record label', async () => {
     await testRename(recordsDocUri, new vscode.Position(3, 6), [
       [
         recordsDocUri,

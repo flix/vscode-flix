@@ -26,7 +26,7 @@ suite('Hover info', () => {
     await open(docUri)
   })
 
-  test('Hovering on an empty line should not show anything', async () => {
+  test('Should not show anything when hovering on empty line', async () => {
     const position = new vscode.Position(0, 0)
     const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
     assert.strictEqual(r.length, 0)
@@ -52,27 +52,27 @@ suite('Hover info', () => {
     assert.strictEqual(actual.includes(expected), true, `Actual: ${actual}\nExpected: ${expected}`)
   }
 
-  test('Hovering on Unit should show Type', async () => {
+  test('Should show Type when hovering on Unit', async () => {
     const position = new vscode.Position(9, 12)
     await testHoverAtPosition(position, 'Type')
   })
 
-  test('Hovering on IO should show Eff', async () => {
+  test('Should show Eff when hovering on IO', async () => {
     const position = new vscode.Position(9, 19)
     await testHoverAtPosition(position, 'Eff')
   })
 
-  test('Hovering on Shape.Rectangle instantiation should show Shape', async () => {
+  test('Should show Shape when hovering on Shape.Rectangle instantiation', async () => {
     const position = new vscode.Position(10, 13)
     await testHoverAtPosition(position, 'Shape')
   })
 
-  test('Hovering on area()-call should show def', async () => {
+  test('Should show def when hovering on area()-call', async () => {
     const position = new vscode.Position(10, 12)
     await testHoverAtPosition(position, 'def area(s: Shape): Int32')
   })
 
-  test('Hovering on area()-call should show doc', async () => {
+  test('Should show doc when hovering on area()-call', async () => {
     const position = new vscode.Position(10, 12)
     await testHoverAtPosition(
       position,

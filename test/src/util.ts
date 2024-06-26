@@ -74,10 +74,9 @@ async function copyWorkspace(testWorkspaceName: string) {
       name => !namesToKeep.includes(name) && extensionsToDelete.includes(name.split('.').at(-1)),
     )
     const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
-    await Promise.allSettled(urisToDelete.map(deleteFile))
+    await Promise.allSettled(urisToDelete.map(uri => vscode.workspace.fs.delete(uri)))
   }
   await clearDir(activeWorkspaceUri)
-
   await processFileChange()
 
   const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
@@ -147,7 +146,7 @@ export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
 
   const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
 
-  await Promise.allSettled(uris.map(({ from, to }) => copyFile(from, to)))
+  await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
   await processFileChange()
 }
 

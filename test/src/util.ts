@@ -187,9 +187,21 @@ export function stringify(val: unknown): string {
 }
 
 /**
+ * Normalize the given `uri` to a canonical form.
+ */
+function normalizeUri(uri: vscode.Uri) {
+  // Strip out unnecessary information such as _formatted
+  return vscode.Uri.parse(uri.toString())
+}
+
+/**
  * Returns the given `location` (which can be either a {@linkcode vscode.Location} or {@linkcode vscode.LocationLink})
- * as a {@linkcode vscode.Location}.
+ * as a {@linkcode vscode.Location} in a canonical form.
  */
 export function normalizeLocation(location: vscode.Location | vscode.LocationLink) {
-  return location instanceof vscode.Location ? location : new vscode.Location(location.targetUri, location.targetRange)
+  if (location instanceof vscode.Location) {
+    return new vscode.Location(normalizeUri(location.uri), location.range)
+  } else {
+    return new vscode.Location(normalizeUri(location.targetUri), location.targetRange)
+  }
 }

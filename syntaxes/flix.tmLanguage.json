@@ -124,6 +124,10 @@
           "match": "\\bfix\\b"
         },
         {
+          "name": "keyword.operator.new.flix",
+          "match": "\\b(new)\\b"
+        },
+        {
           "name": "keyword.declaration.flix",
           "match": "\\b(eff|def|law|enum|case|type|alias|trait|instance|with|without|opaque|mod)\\b"
         },

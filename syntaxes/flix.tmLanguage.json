@@ -108,6 +108,10 @@
           "match": "\\b(par)\\b"
         },
         {
+          "name": "keyword.control.unsafe.flix",
+          "match": "\\b(unsafe)\\b"
+        },
+        {
           "name": "keyword.control.ast.flix",
           "match": "\\b(branch|jumpto)\\b"
         },

@@ -20,5 +20,11 @@ module.exports = defineConfig({
     slow: 30000,
 
     color: true,
+
+    allowUncaught: false,
+  },
+
+  env: {
+    NODE_OPTIONS: '--unhandled-rejections=strict',
   },
 })

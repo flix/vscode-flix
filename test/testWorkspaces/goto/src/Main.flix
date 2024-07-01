@@ -6,6 +6,6 @@ enum Shape {
     case Rectangle(Int32, Int32) // height and width
 }
 
-// Computes the area of a 2 by 4.
+/// Computes the area of a 2 by 4.
 def main(): Unit \ IO =
     println(area(Shape.Rectangle(2, 4)))

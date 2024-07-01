@@ -16,26 +16,96 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open } from './util'
+import { getTestDocUri, init, open, stringify } from './util'
 
 suite('Code actions', () => {
-  const docUri = getTestDocUri('src/UnusedFunction.flix')
+  const mainDocUri = getTestDocUri('src/Main.flix')
+  const areaDocUri = getTestDocUri('src/Area.flix')
+  const dividableDocUri = getTestDocUri('src/Dividable.flix')
+  const dateDocUri = getTestDocUri('src/Date.flix')
 
   suiteSetup(async () => {
-    await activate('codeActions')
-    await open(docUri)
+    await init('codeActions')
   })
 
-  test('Should propose prefixing unused def with underscore', async () => {
-    const position = new vscode.Position(1, 8)
-    const range = new vscode.Range(position, position)
-    const r = (await vscode.commands.executeCommand(
+  test('Empty line should not suggest code actions', async () => {
+    await open(mainDocUri)
+
+    const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+      'vscode.executeCodeActionProvider',
+      mainDocUri,
+      new vscode.Range(0, 0, 0, 0),
+    )
+
+    assert.strictEqual(r.length, 0)
+  })
+
+  async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedTitle: string) {
+    await open(docUri)
+
+    const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
       'vscode.executeCodeActionProvider',
       docUri,
-      range,
-    )) as vscode.CodeAction[]
+      new vscode.Range(position, position),
+    )
 
-    assert.strictEqual(r.length, 1)
-    assert.strictEqual(r[0].title, 'Prefix unused function with underscore')
+    const action = r.find(a => a.title.includes(expectedTitle))
+    assert.notStrictEqual(
+      action,
+      undefined,
+      `Code action '${expectedTitle}' not found in. Instead found: ${stringify(r)}`,
+    )
+  }
+
+  suite('Undefined names', () => {
+    test('Should propose using Date.earlierDate def', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(43, 4), 'use Date.earlierDate')
+    })
+
+    test('Should propose using Date.Month enum', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'use Date.Month')
+    })
+
+    test('Should propose introducing new Month enum', async () => {
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'Introduce new enum Month')
+    })
+  })
+
+  suite('Prefix unused with underscore', () => {
+    test('Should propose prefixing unused local variable with underscore', async () => {
+      await testCodeAction(mainDocUri, new vscode.Position(4, 8), 'Prefix unused variable with underscore')
+    })
+    test('Should propose prefixing unused match-case variable with underscore', async () => {
+      await testCodeAction(mainDocUri, new vscode.Position(8, 18), 'Prefix unused variable with underscore')
+    })
+
+    test('Should propose prefixing unused def with underscore', async () => {
+      await testCodeAction(areaDocUri, new vscode.Position(9, 8), 'Prefix unused function with underscore')
+    })
+
+    test('Should propose prefixing unused formal parameter with underscore', async () => {
+      await testCodeAction(areaDocUri, new vscode.Position(9, 13), 'Prefix unused parameter with underscore')
+    })
+
+    test('Should propose prefixing unused type parameter with underscore', async () => {
+      await testCodeAction(areaDocUri, new vscode.Position(3, 15), 'Prefix unused type parameter with underscore')
+    })
+
+    test('Should propose prefixing unused effect with underscore', async () => {
+      await testCodeAction(dividableDocUri, new vscode.Position(8, 8), 'Prefix unused effect with underscore')
+    })
+
+    // See https://github.com/flix/flix/issues/7896
+    test.skip('Should propose prefixing unused enum with underscore', async () => {
+      await testCodeAction(areaDocUri, new vscode.Position(3, 9), 'Prefix unused enum with underscore')
+    })
+
+    test('Should propose prefixing unused case with underscore', async () => {
+      await testCodeAction(areaDocUri, new vscode.Position(5, 13), 'Prefix unused case with underscore')
+    })
+  })
+
+  suite('Missing trait instances', () => {
+    // TODO: See https://github.com/flix/flix/issues/7906
   })
 })

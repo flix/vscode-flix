@@ -16,14 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, getTestDocUri, sleep } from './util'
+import { init, getTestDocUri, sleep } from './util'
 
 suite('Server disconnect', () => {
   suiteSetup(async () => {
-    await activate('disconnect')
+    await init('disconnect')
   })
 
-  test('When server is disconnected a reconnection should happen automatically', async () => {
+  test('Should reconnect automatically when server is disconnected', async () => {
     await vscode.commands.executeCommand('flix.simulateDisconnect')
 
     // Wait for the server to disconnect, otherwise the next command will hang
@@ -32,7 +32,7 @@ suite('Server disconnect', () => {
     // Ensure that the server is reconnected
     const docUri = getTestDocUri('src/Main.flix')
     const position = new vscode.Position(9, 12)
-    const r = (await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position)) as vscode.Hover[]
+    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
     const contents = r[0].contents[0] as vscode.MarkdownString
     assert.strictEqual(contents.value.includes('Type'), true)
   })

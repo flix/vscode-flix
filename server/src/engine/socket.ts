@@ -23,7 +23,6 @@ import { getPort } from 'portfinder'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
-const _ = require('lodash/fp')
 const WebSocket = require('ws')
 
 let webSocket: any
@@ -60,6 +59,7 @@ export interface FlixResult {
     },
   ]
   reportPath: string
+  targetUri?: string
 }
 
 export interface FlixResponse {
@@ -120,7 +120,7 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
 }
 
 async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
-  const uriPort = _.toInteger(uri.slice(-4))
+  const uriPort = parseInt(uri.slice(-4))
   getPort({ port: uriPort }, (err, freePort) => {
     if (uriPort === freePort) {
       // This happens if the previously used port is now free
@@ -145,7 +145,9 @@ function clearTimer(id: string) {
 }
 
 function clearAllTimers() {
-  _.each(clearTimer, _.keys(sentMessagesMap))
+  for (const id of Object.keys(sentMessagesMap)) {
+    clearTimer(id)
+  }
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))

@@ -50,27 +50,27 @@ suite('Diagnostics', () => {
     )
   }
 
-  test('Shoudl show weeder error', async () => {
+  test('Should show weeder error', async () => {
     await testDiagnostics('WeederError.flix', "Multiple declarations of the formal parameter 'a'.")
   })
 
-  test('Shoudl show name error', async () => {
+  test('Should show name error', async () => {
     await testDiagnostics('NameError.flix', "Duplicate definition of 'sum'.")
   })
 
-  test('Shoudl show resolution error', async () => {
+  test('Should show resolution error', async () => {
     await testDiagnostics('ResolutionError.flix', "Cyclic type aliases: 'Even' references 'Odd' references 'Even'")
   })
 
-  test('Shoudl show type error', async () => {
+  test('Should show type error', async () => {
     await testDiagnostics('TypeError.flix', "Expected type 'String' but found type: 'Float64'.")
   })
 
-  test('Shoudl show redundancy error', async () => {
+  test('Should show redundancy error', async () => {
     await testDiagnostics('RedundancyError.flix', 'Shadowed name.')
   })
 
-  test('Shoudl show safety error', async () => {
+  test('Should show safety error', async () => {
     await testDiagnostics('SafetyError.flix', 'Missing default case.')
   })
 })

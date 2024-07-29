@@ -16,53 +16,45 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { activate, addFile, deleteFile, getTestDocUri } from './util'
+import { init, addFile, deleteFile, getTestDocUri } from './util'
 
 suite('File manipulation', () => {
-  const doc1Uri = getTestDocUri('src/Main.flix')
-
-  const doc2Uri = getTestDocUri('src/Area.flix')
-  let doc2Content: Uint8Array
-
+  const mainDocUri = getTestDocUri('src/Main.flix')
+  const areaDocUri = getTestDocUri('src/Area.flix')
   const fpkgUri = getTestDocUri('lib/circleArea.fpkg')
-  let fpkgContent: Uint8Array
 
-  suiteSetup(async () => {
-    await activate('files')
-    doc2Content = await vscode.workspace.fs.readFile(doc2Uri)
-    fpkgContent = await vscode.workspace.fs.readFile(fpkgUri)
-  })
   setup(async () => {
     // Restore the original content of the files before each test
-    await addFile(doc2Uri, doc2Content)
-    await addFile(fpkgUri, fpkgContent)
+    await init('files')
   })
 
   async function workspaceValid() {
     // If all files are not present in the compiler, then Main.flix will contain a resolution error
-    const r = [...vscode.languages.getDiagnostics(doc1Uri), ...vscode.languages.getDiagnostics(doc2Uri)]
+    const r = [...vscode.languages.getDiagnostics(mainDocUri), ...vscode.languages.getDiagnostics(areaDocUri)]
     return r.length === 0
   }
 
-  test('Deleted source-file should be removed', async () => {
-    await deleteFile(doc2Uri)
+  test('Should remove deleted source-file', async () => {
+    await deleteFile(areaDocUri)
     assert.strictEqual(await workspaceValid(), false)
   })
 
-  test('Created source-file should be added', async () => {
-    await deleteFile(doc2Uri)
-    await addFile(doc2Uri, doc2Content)
+  test('Should add created source-file', async () => {
+    const content = await vscode.workspace.fs.readFile(areaDocUri)
+    await deleteFile(areaDocUri)
+    await addFile(areaDocUri, content)
     assert.strictEqual(await workspaceValid(), true)
   })
 
-  test('Deleted fpkg-file should be removed', async () => {
+  test('Should remove deleted fpkg-file', async () => {
     await deleteFile(fpkgUri)
     assert.strictEqual(await workspaceValid(), false)
   })
 
-  test('Created fpkg-file should be added', async () => {
+  test('Should add created fpkg-file', async () => {
+    const content = await vscode.workspace.fs.readFile(fpkgUri)
     await deleteFile(fpkgUri)
-    await addFile(fpkgUri, fpkgContent)
+    await addFile(fpkgUri, content)
     assert.strictEqual(await workspaceValid(), true)
   })
 

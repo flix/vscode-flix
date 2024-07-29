@@ -21,7 +21,6 @@ import { fileURLToPath } from 'url'
 import { sendNotification } from '../server'
 import { USER_MESSAGE } from '../util/userMessages'
 
-const _ = require('lodash/fp')
 const fs = require('fs')
 
 let jobCounter = 0
@@ -53,13 +52,13 @@ function jobToEnqueuedJob(job: jobs.Job) {
 }
 
 function emptyWaitingForPriorityQueue() {
-  const values = _.values(waitingForPriorityQueue)
+  const values = Object.values(waitingForPriorityQueue)
   waitingForPriorityQueue = {}
   return values
 }
 
 function handleEnqueue() {
-  if (_.isEmpty(waitingForPriorityQueue)) {
+  if (Object.values(waitingForPriorityQueue).length === 0) {
     return
   }
   priorityQueue.push(...emptyWaitingForPriorityQueue())
@@ -82,7 +81,7 @@ export function enqueue(job: jobs.Job): jobs.EnqueuedJob {
   if (job.request === jobs.Request.lspCheck) {
     // there's a special rule for lsp/check:
     // there can only be one and it has to be in the beginning
-    taskQueue = _.reject({ request: jobs.Request.lspCheck }, taskQueue)
+    taskQueue = taskQueue.filter(({ request }) => request !== jobs.Request.lspCheck)
     taskQueue.unshift(enqueuedJob)
   } else {
     taskQueue.push(enqueuedJob)
@@ -116,18 +115,18 @@ export function initialiseQueues(jobs: jobs.Job[]) {
  * Otherwise take the first item off taskQueue.
  */
 function dequeue() {
-  if (_.isEmpty(priorityQueue)) {
-    if (_.isEmpty(taskQueue)) {
+  if (priorityQueue.length === 0) {
+    if (taskQueue.length === 0) {
       return undefined
     }
-    const first = _.first(taskQueue)
+    const first = taskQueue[0]
     taskQueue.shift()
     return first
   } else {
     // priorityQueue has items
-    const first = _.first(priorityQueue)
+    const first = priorityQueue[0]
     priorityQueue.shift()
-    if (_.isEmpty(priorityQueue)) {
+    if (priorityQueue.length === 0) {
       enqueue({
         request: jobs.Request.lspCheck,
       })
@@ -156,7 +155,7 @@ export async function processQueue() {
     // VSCode might ask us to do things before we're up and running - wait for next processQueue call
     return
   }
-  const job: jobs.EnqueuedJob = dequeue()
+  const job = dequeue()
   if (job) {
     try {
       if (job.request === jobs.Request.apiAddUri && !job.src) {

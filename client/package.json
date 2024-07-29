@@ -13,11 +13,9 @@
     "vscode": "^1.43.0"
   },
   "dependencies": {
-    "lodash": "^4.17.21",
     "vscode-languageclient": "^8.0.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.191",
     "@types/vscode": "^1.74.0"
   }
 }

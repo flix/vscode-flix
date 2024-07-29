@@ -16,7 +16,6 @@
 
 const path = require('path')
 const ChildProcess = require('child_process')
-const _ = require('lodash/fp')
 
 interface JavaVersion {
   majorVersion: number | undefined
@@ -28,7 +27,10 @@ const unknownJavaVersion: JavaVersion = {
   versionString: undefined,
 }
 
-const getMajorVersion = _.flow(_.split('.'), _.first, _.parseInt(10))
+function getMajorVersion(versionString: string): number {
+  const majorString = versionString.split('.')[0]
+  return parseInt(majorString)
+}
 
 export default async function javaMajorVersion(rootPath: string): Promise<JavaVersion> {
   return new Promise(resolve => {
@@ -45,7 +47,7 @@ export default async function javaMajorVersion(rootPath: string): Promise<JavaVe
         const majorVersion = getMajorVersion(stdout) || 0
         return resolve({
           majorVersion,
-          versionString: _.trim(stdout),
+          versionString: stdout.trim(),
         })
       },
     )

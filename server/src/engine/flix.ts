@@ -19,7 +19,6 @@ import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder'
-import * as _ from 'lodash'
 
 import * as jobs from './jobs'
 import * as queue from './queue'
@@ -62,11 +61,11 @@ export function getFlixFilename() {
 }
 
 export function getExtensionVersion() {
-  return _.get(startEngineInput, 'extensionVersion', '(unknown version)')
+  return startEngineInput.extensionVersion ?? '(unknown version)'
 }
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
-  _.set(userConfiguration, 'userConfiguration', startEngineInput)
+  startEngineInput.userConfiguration = userConfiguration
 }
 
 export async function start(input: StartEngineInput) {
@@ -75,7 +74,7 @@ export async function start(input: StartEngineInput) {
   }
 
   // copy input to local var for later use
-  startEngineInput = _.clone(input)
+  startEngineInput = { ...input }
 
   const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
 
@@ -136,9 +135,9 @@ export async function start(input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen() {
           flixRunning = true
-          const addUriJobs = _.map(workspaceFiles, uri => ({ uri, request: jobs.Request.apiAddUri }))
-          const addPkgJobs = _.map(workspacePkgs, uri => ({ uri, request: jobs.Request.apiAddPkg }))
-          const addJarJobs = _.map(workspaceJars, uri => ({ uri, request: jobs.Request.apiAddJar }))
+          const addUriJobs = workspaceFiles.map(uri => ({ uri, request: jobs.Request.apiAddUri }))
+          const addPkgJobs = workspacePkgs.map(uri => ({ uri, request: jobs.Request.apiAddPkg }))
+          const addJarJobs = workspaceJars.map(uri => ({ uri, request: jobs.Request.apiAddJar }))
           const Jobs: jobs.Job[] = [...addUriJobs, ...addPkgJobs, ...addJarJobs]
           queue.initialiseQueues(Jobs)
           handleVersion()

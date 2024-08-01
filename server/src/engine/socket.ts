@@ -24,8 +24,6 @@ import { StatusCode } from '../util/statusCodes'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import WebSocket from 'ws'
 
-const _ = require('lodash/fp')
-
 let webSocket: ReconnectingWebSocket
 let webSocketOpen = false
 
@@ -60,6 +58,7 @@ export interface FlixResult {
     },
   ]
   reportPath: string
+  targetUri?: string
 }
 
 export interface FlixResponse {
@@ -124,7 +123,9 @@ function clearTimer(id: string) {
 }
 
 function clearAllTimers() {
-  _.each(clearTimer, _.keys(sentMessagesMap))
+  for (const id of Object.keys(sentMessagesMap)) {
+    clearTimer(id)
+  }
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))

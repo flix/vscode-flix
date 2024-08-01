@@ -16,14 +16,14 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, copyFile, deleteFile } from './util'
+import { getTestDocUri, init, copyFile, deleteFile } from './util'
 
 suite('Diagnostics', () => {
   /** The optional URI of the document which should be deleted after each test. */
   let tempDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {
-    await activate('diagnostics')
+    await init('diagnostics')
   })
   teardown(async () => {
     if (tempDocUri !== null) {
@@ -50,27 +50,27 @@ suite('Diagnostics', () => {
     )
   }
 
-  test('Weeder error should be shown', async () => {
+  test('Should show weeder error', async () => {
     await testDiagnostics('WeederError.flix', "Multiple declarations of the formal parameter 'a'.")
   })
 
-  test('Name error should be shown', async () => {
+  test('Should show name error', async () => {
     await testDiagnostics('NameError.flix', "Duplicate definition of 'sum'.")
   })
 
-  test('Resolution error should be shown', async () => {
+  test('Should show resolution error', async () => {
     await testDiagnostics('ResolutionError.flix', "Cyclic type aliases: 'Even' references 'Odd' references 'Even'")
   })
 
-  test('Type error should be shown', async () => {
+  test('Should show type error', async () => {
     await testDiagnostics('TypeError.flix', "Expected type 'String' but found type: 'Float64'.")
   })
 
-  test('Redundancy error should be shown', async () => {
+  test('Should show redundancy error', async () => {
     await testDiagnostics('RedundancyError.flix', 'Shadowed name.')
   })
 
-  test('Safety error should be shown', async () => {
+  test('Should show safety error', async () => {
     await testDiagnostics('SafetyError.flix', 'Missing default case.')
   })
 })

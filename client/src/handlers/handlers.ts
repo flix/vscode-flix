@@ -7,8 +7,6 @@ import ensureFlixExists from './../util/ensureFlixExists'
 import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN } from './../extension'
 import { USER_MESSAGE } from '../util/userMessages'
 
-const _ = require('lodash/fp')
-
 let flixTerminal: vscode.Terminal | null = null
 
 /**
@@ -101,7 +99,7 @@ async function handleUnsavedFiles() {
  */
 async function getFlixFilename(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   const globalStoragePath = context.globalStorageUri.fsPath
-  const workspaceFolders = _.map(_.flow(_.get('uri'), _.get('fsPath')), vscode.workspace.workspaceFolders)
+  const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)
   return await ensureFlixExists({
     globalStoragePath,
     workspaceFolders,

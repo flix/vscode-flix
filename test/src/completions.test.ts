@@ -16,13 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, activate, open, typeText, addFile } from './util'
+import { getTestDocUri, init, open, typeText, addFile } from './util'
 
 suite('Completions', () => {
   const docUri = getTestDocUri('src/Temp.flix')
 
   suiteSetup(async () => {
-    await activate('completions')
+    await init('completions')
   })
 
   test('Should propose completing mod', async () => {
@@ -31,11 +31,11 @@ suite('Completions', () => {
     await typeText('mo')
 
     const position = new vscode.Position(0, 2)
-    const r = (await vscode.commands.executeCommand(
+    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
       'vscode.executeCompletionItemProvider',
       docUri,
       position,
-    )) as vscode.CompletionList
+    )
 
     assert.strictEqual(
       r.items.some(i => i.label === 'mod'),

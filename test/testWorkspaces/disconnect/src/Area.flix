@@ -1,4 +1,4 @@
-
+// Blank line
 /// Computes the area of the given shape using
 /// pattern matching and basic arithmetic.
 def area(s: Shape): Int32 = {

@@ -75,7 +75,7 @@ export function handleInitialize(_params: InitializeParams) {
             'type',
             'typeParameter',
             'variable',
-            'struct'
+            'struct',
           ],
           tokenModifiers: ['declaration'],
         },

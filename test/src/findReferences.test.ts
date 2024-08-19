@@ -181,6 +181,8 @@ suite('Find references', () => {
       new vscode.Location(recordsDocUri, new vscode.Range(13, 14, 13, 15)),
       new vscode.Location(recordsDocUri, new vscode.Range(15, 7, 15, 8)),
       new vscode.Location(recordsDocUri, new vscode.Range(15, 14, 15, 15)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 8, 15, 9)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 15, 15, 16)),
     ])
   })
 })

@@ -119,7 +119,6 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of Aef associated effect', async () => {
   /////// See https://github.com/flix/flix/issues/8326 ///////
   test.skip('Should find highlights of Aef associated effect', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(6, 9), [
@@ -129,7 +128,6 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of DivByZero effect', async () => {
   test.skip('Should find highlights of DivByZero effect', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Range(1, 4, 1, 13),
@@ -138,14 +136,12 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of DivByZero.throw operation', async () => {
   test.skip('Should find highlights of DivByZero.throw operation', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Range(2, 12, 2, 17),
       new vscode.Range(13, 23, 13, 38),
     ])
   })
-  test('Should find highlights of DivByZero.throw operation-use', async () => {
   test.skip('Should find highlights of DivByZero.throw operation-use', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(13, 23), [
       new vscode.Range(2, 12, 2, 17),

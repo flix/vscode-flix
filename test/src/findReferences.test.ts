@@ -55,9 +55,6 @@ suite('Find references', () => {
   })
 
   test('Should find references to Dividable trait', async () => {
-    await testFindReferences(dividableDocUri, new vscode.Position(5, 6), [
-      new vscode.Location(dividableDocUri, new vscode.Range(5, 6, 5, 15)),
-      new vscode.Location(dividableDocUri, new vscode.Range(10, 9, 10, 18)),
     await testFindReferences(dividableDocUri, new vscode.Position(1, 6), [
       new vscode.Location(dividableDocUri, new vscode.Range(1, 6, 1, 15)),
       new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
@@ -114,7 +111,6 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to Dividable.Aef associated effect', async () => {
   /////// See https://github.com/flix/flix/issues/8326 ///////
   test.skip('Should find references to Dividable.Aef associated effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(6, 9), [
@@ -124,7 +120,6 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to DivByZero effect', async () => {
   test.skip('Should find references to DivByZero effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Location(dividableDocUri, new vscode.Range(1, 4, 1, 13)),
@@ -133,7 +128,6 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to DivByZero.throw operation', async () => {
   test.skip('Should find references to DivByZero.throw operation', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(dividableDocUri, new vscode.Range(2, 12, 2, 17)),

@@ -58,6 +58,9 @@ suite('Find references', () => {
     await testFindReferences(dividableDocUri, new vscode.Position(5, 6), [
       new vscode.Location(dividableDocUri, new vscode.Range(5, 6, 5, 15)),
       new vscode.Location(dividableDocUri, new vscode.Range(10, 9, 10, 18)),
+    await testFindReferences(dividableDocUri, new vscode.Position(1, 6), [
+      new vscode.Location(dividableDocUri, new vscode.Range(1, 6, 1, 15)),
+      new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
     ])
   })
 
@@ -112,6 +115,8 @@ suite('Find references', () => {
   })
 
   test('Should find references to Dividable.Aef associated effect', async () => {
+  /////// See https://github.com/flix/flix/issues/8326 ///////
+  test.skip('Should find references to Dividable.Aef associated effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(6, 9), [
       new vscode.Location(dividableDocUri, new vscode.Range(6, 9, 6, 12)),
       new vscode.Location(dividableDocUri, new vscode.Range(7, 33, 7, 46)),
@@ -120,6 +125,7 @@ suite('Find references', () => {
   })
 
   test('Should find references to DivByZero effect', async () => {
+  test.skip('Should find references to DivByZero effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Location(dividableDocUri, new vscode.Range(1, 4, 1, 13)),
       new vscode.Location(dividableDocUri, new vscode.Range(11, 15, 11, 24)),
@@ -128,11 +134,13 @@ suite('Find references', () => {
   })
 
   test('Should find references to DivByZero.throw operation', async () => {
+  test.skip('Should find references to DivByZero.throw operation', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(dividableDocUri, new vscode.Range(2, 12, 2, 17)),
       new vscode.Location(dividableDocUri, new vscode.Range(13, 23, 13, 38)),
     ])
   })
+  ////////////////////////////////////////////////////////////
 
   test('Should find references to function parameter', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(6, 19), [

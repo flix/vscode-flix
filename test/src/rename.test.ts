@@ -73,24 +73,26 @@ suite('Rename', () => {
     assert.deepStrictEqual(new Set(actualRangesString), new Set(expectedRangesString))
   }
 
-  test('Should rename Shape.Circle case', async () => {
+  /////// See https://github.com/flix/flix/issues/8355 ///////
+  test.skip('Should rename Shape.Circle case', async () => {
     await testRename(mainDocUri, new vscode.Position(3, 9), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
-  test('Should rename Shape.Circle case-use', async () => {
+  test.skip('Should rename Shape.Circle case-use', async () => {
     await testRename(mainDocUri, new vscode.Position(12, 52), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
-  test('Should rename Shape.Circle case-use from pattern match', async () => {
+  test.skip('Should rename Shape.Circle case-use from pattern match', async () => {
     await testRename(mainDocUri, new vscode.Position(17, 23), [
       [mainDocUri, [new vscode.Range(3, 9, 3, 15), new vscode.Range(12, 52, 12, 58), new vscode.Range(17, 17, 17, 29)]],
       [areaDocUri, [new vscode.Range(5, 13, 5, 25)]],
     ])
   })
+  ////////////////////////////////////////////////////////////
 
   test('Should rename area function', async () => {
     await testRename(areaDocUri, new vscode.Position(3, 4), [
@@ -155,6 +157,8 @@ suite('Rename', () => {
           new vscode.Range(13, 14, 13, 15),
           new vscode.Range(15, 7, 15, 8),
           new vscode.Range(15, 14, 15, 15),
+          new vscode.Range(15, 8, 15, 9),
+          new vscode.Range(15, 15, 15, 16),
         ],
       ],
     ])

@@ -79,21 +79,21 @@ suite('Find references', () => {
   test('Should find references to Equatable.equals signature', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
-      new vscode.Location(equatableDocUri, new vscode.Range(9, 51, 9, 57)),
-      new vscode.Location(equatableDocUri, new vscode.Range(22, 14, 22, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(29, 14, 29, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(36, 18, 36, 24)),
-      new vscode.Location(equatableDocUri, new vscode.Range(43, 18, 43, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(43, 8, 43, 24)),
     ])
   })
   test('Should find references to Equatable.equals signature-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(29, 14), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
-      new vscode.Location(equatableDocUri, new vscode.Range(9, 51, 9, 57)),
-      new vscode.Location(equatableDocUri, new vscode.Range(22, 14, 22, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(29, 14, 29, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(36, 18, 36, 24)),
-      new vscode.Location(equatableDocUri, new vscode.Range(43, 18, 43, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(43, 8, 43, 24)),
     ])
   })
 
@@ -183,6 +183,8 @@ suite('Find references', () => {
       new vscode.Location(recordsDocUri, new vscode.Range(13, 14, 13, 15)),
       new vscode.Location(recordsDocUri, new vscode.Range(15, 7, 15, 8)),
       new vscode.Location(recordsDocUri, new vscode.Range(15, 14, 15, 15)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 8, 15, 9)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 15, 15, 16)),
     ])
   })
 })

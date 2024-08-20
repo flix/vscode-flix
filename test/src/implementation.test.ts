@@ -48,8 +48,8 @@ suite('Find implementations', () => {
   }
 
   test('Should find Dividable trait implementation', async () => {
-    await testImplementations(dividableDocUri, new vscode.Position(5, 6), [
-      new vscode.Location(dividableDocUri, new vscode.Range(10, 9, 10, 18)),
+    await testImplementations(dividableDocUri, new vscode.Position(1, 6), [
+      new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
     ])
   })
 })

@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, stringify } from './util'
+import { getTestDocUri, init } from './util'
 
 suite('Highlight uses', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
@@ -49,33 +49,27 @@ suite('Highlight uses', () => {
 
     const actualRanges = r.map(h => h.range)
 
-    // TODO: Require that they match exactly (https://github.com/flix/flix/issues/7742)
-    for (const expectedRange of expectedRanges) {
-      assert.ok(
-        actualRanges.some(r => r.isEqual(expectedRange)),
-        `Expected range ${stringify(expectedRange)} not found in ${stringify(actualRanges)}`,
-      )
-    }
+    assert.deepStrictEqual(new Set(actualRanges), new Set(expectedRanges))
   }
 
   test('Should find highlights of Shape.Circle case', async () => {
     await testHighlight(mainDocUri, new vscode.Position(3, 9), [
       new vscode.Range(3, 9, 3, 22),
-      new vscode.Range(12, 52, 12, 58),
+      new vscode.Range(12, 46, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
   test('Should find highlights of Shape.Circle case-use', async () => {
     await testHighlight(mainDocUri, new vscode.Position(12, 52), [
       new vscode.Range(3, 9, 3, 22),
-      new vscode.Range(12, 52, 12, 58),
+      new vscode.Range(12, 46, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
   test('Should find highlights of Shape.Circle case-use from pattern match', async () => {
     await testHighlight(mainDocUri, new vscode.Position(17, 23), [
       new vscode.Range(3, 9, 3, 22),
-      new vscode.Range(12, 52, 12, 58),
+      new vscode.Range(12, 46, 12, 58),
       new vscode.Range(17, 17, 17, 29),
     ])
   })
@@ -96,19 +90,21 @@ suite('Highlight uses', () => {
   test('Should find highlights of Equatable.equals signature', async () => {
     await testHighlight(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Range(2, 12, 2, 18),
-      new vscode.Range(9, 51, 9, 57),
-      new vscode.Range(22, 14, 22, 20),
-      new vscode.Range(29, 14, 29, 20),
-      new vscode.Range(36, 18, 36, 24),
+      new vscode.Range(9, 41, 9, 57),
+      new vscode.Range(22, 4, 22, 20),
+      new vscode.Range(29, 4, 29, 20),
+      new vscode.Range(36, 8, 36, 24),
+      new vscode.Range(43, 8, 43, 24),
     ])
   })
   test('Should find highlights of Equatable.equals signature-use', async () => {
     await testHighlight(equatableDocUri, new vscode.Position(29, 20), [
       new vscode.Range(2, 12, 2, 18),
-      new vscode.Range(9, 51, 9, 57),
-      new vscode.Range(22, 14, 22, 20),
-      new vscode.Range(29, 14, 29, 20),
-      new vscode.Range(36, 18, 36, 24),
+      new vscode.Range(9, 41, 9, 57),
+      new vscode.Range(22, 4, 22, 20),
+      new vscode.Range(29, 4, 29, 20),
+      new vscode.Range(36, 8, 36, 24),
+      new vscode.Range(43, 8, 43, 24),
     ])
   })
 
@@ -119,7 +115,8 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of Aef associated effect', async () => {
+  /////// See https://github.com/flix/flix/issues/8326 ///////
+  test.skip('Should find highlights of Aef associated effect', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(6, 9), [
       new vscode.Range(6, 9, 6, 12),
       new vscode.Range(7, 33, 7, 46),
@@ -127,7 +124,7 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of DivByZero effect', async () => {
+  test.skip('Should find highlights of DivByZero effect', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Range(1, 4, 1, 13),
       new vscode.Range(11, 15, 11, 24),
@@ -135,18 +132,19 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of DivByZero.throw operation', async () => {
+  test.skip('Should find highlights of DivByZero.throw operation', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Range(2, 12, 2, 17),
       new vscode.Range(13, 23, 13, 38),
     ])
   })
-  test('Should find highlights of DivByZero.throw operation-use', async () => {
+  test.skip('Should find highlights of DivByZero.throw operation-use', async () => {
     await testHighlight(dividableDocUri, new vscode.Position(13, 23), [
       new vscode.Range(2, 12, 2, 17),
       new vscode.Range(13, 23, 13, 38),
     ])
   })
+  ////////////////////////////////////////////////////////////
 
   test('Should find highlights of function parameter', async () => {
     await testHighlight(equatableDocUri, new vscode.Position(6, 19), [
@@ -193,8 +191,8 @@ suite('Highlight uses', () => {
       new vscode.Range(2, 48, 2, 49),
       new vscode.Range(3, 6, 3, 7),
       new vscode.Range(13, 14, 13, 15),
-      new vscode.Range(15, 7, 15, 8),
-      new vscode.Range(15, 14, 15, 15),
+      new vscode.Range(15, 8, 15, 9),
+      new vscode.Range(15, 15, 15, 16),
     ])
   })
 })

@@ -156,18 +156,6 @@
           "match": "\\b(import)\\b"
         },
         {
-          "name": "keyword.expression.javanew.flix",
-          "match": "\\b(java_new)\\b"
-        },
-        {
-          "name": "keyword.expression.javagetfield.flix",
-          "match": "\\b(java_get_field)\\b"
-        },
-        {
-          "name": "keyword.expression.javasetfield.flix",
-          "match": "\\b(java_set_field)\\b"
-        },
-        {
           "name": "keyword.expression.let.flix",
           "match": "\\b(let\\*|let)\\b"
         },

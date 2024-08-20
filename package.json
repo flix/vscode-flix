@@ -157,7 +157,7 @@
     "@vscode/test-electron": "^2.3.9",
     "esbuild": "^0.17.19",
     "eslint": "^8.1.0",
-    "prettier": "^3.0.0",
+    "prettier": "^3.3.3",
     "typescript": "^5.0.4"
   }
 }

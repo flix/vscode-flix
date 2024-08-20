@@ -17,7 +17,6 @@
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
-import { hasErrors } from '../server'
 import { StatusCode } from '../util/statusCodes'
 
 type ResponseHandler = ({ status, result }: socket.FlixResponse) => void
@@ -32,45 +31,20 @@ export function makeDefaultResponseHandler(promiseResolver: (result?: socket.Fli
   }
 }
 
-export function makeEnqueuePromise(
-  type: jobs.Request,
-  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
-  uri?: string,
-  position?: any,
-) {
-  return function enqueuePromise() {
-    return new Promise(function (resolve) {
-      const job = engine.enqueueJobWithFlattenedParams(type, { uri, position })
-      const handler = makeResponseHandler || makeDefaultResponseHandler
-      socket.eventEmitter.once(job.id, handler(resolve))
-    })
-  }
-}
-
 /**
- * Function to enqueue a job unless errors are present.
- * If errors are present the hasErrorsHandler is called.
- * Otherwise a promise is returned that is finally resolved with the result of running the command.
+ * Function to enqueue a job.
+ * A promise is returned that is finally resolved with the result of running the command.
  *
  * @param jobOrGetJob - Either a Job with request and optional params or a function that returns a Job
  * @param makeResponseHandler
- * @param hasErrorsHandler
  */
-export function enqueueUnlessHasErrors(
-  jobOrGetJob: jobs.Job | ((params: any) => jobs.Job),
-  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult | undefined) => void) => ResponseHandler,
-  hasErrorsHandler?: () => void,
-): (params: any) => any {
-  if (typeof hasErrorsHandler !== 'function') {
-    // development check (remove later)
-    throw '`enqueueUnlessHasErrors` must have `hasErrorsHandler` when called with errors'
-  }
-  return function enqueuePromise(params: any) {
-    if (hasErrors() && hasErrorsHandler) {
-      return hasErrorsHandler()
-    }
+export function makeEnqueuePromise<JobParams extends unknown[]>(
+  jobOrGetJob: jobs.Job | ((...params: JobParams) => jobs.Job),
+  makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
+) {
+  return function enqueuePromise(...params: JobParams) {
     return new Promise(function (resolve) {
-      const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob(params) : jobOrGetJob
+      const { request, ...jobData } = typeof jobOrGetJob === 'function' ? jobOrGetJob(...params) : jobOrGetJob
       const job = engine.enqueueJobWithFlattenedParams(request, jobData)
       const handler = makeResponseHandler || makeDefaultResponseHandler
       socket.eventEmitter.once(job.id, handler(resolve))
@@ -80,16 +54,11 @@ export function enqueueUnlessHasErrors(
 
 export function makePositionalHandler(
   type: jobs.Request,
-  handlerWhenErrorsExist?: () => Thenable<any>,
   makeResponseHandler?: (promiseResolver: (result?: socket.FlixResult) => void) => ResponseHandler,
 ) {
   return function positionalHandler(params: any): Thenable<any> {
-    if (hasErrors() && handlerWhenErrorsExist) {
-      // NOTE: At present this isn't used by anyone (neither is makeResponseHandler)
-      return handlerWhenErrorsExist()
-    }
-    const uri = params.textDocument ? params.textDocument.uri : undefined
+    const uri = params.textDocument?.uri
     const position = params.position
-    return makeEnqueuePromise(type, makeResponseHandler, uri, position)()
+    return makeEnqueuePromise({ request: type, uri, position }, makeResponseHandler)()
   }
 }

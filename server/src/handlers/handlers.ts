@@ -28,7 +28,7 @@ import * as engine from '../engine'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
-import { makePositionalHandler, makeEnqueuePromise, enqueueUnlessHasErrors, makeDefaultResponseHandler } from './util'
+import { makePositionalHandler, makeEnqueuePromise, makeDefaultResponseHandler } from './util'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 
@@ -129,11 +129,7 @@ export function handleRemJar({ uri }: UriInput) {
   engine.remJar(uri)
 }
 
-export const handleShowAst = enqueueUnlessHasErrors(
-  makeShowAstJob,
-  makeShowAstResponseHandler,
-  hasErrorsHandlerForCommands,
-)
+export const handleShowAst = makeEnqueuePromise(makeShowAstJob, makeShowAstResponseHandler)
 
 /**
  * Request a response to be sent when all jobs are finished.
@@ -179,11 +175,7 @@ export function handleChangeContent(params: TextDocumentChangeEvent<TextDocument
 /**
  * @function
  */
-export const handleGotoDefinition = makePositionalHandler(
-  jobs.Request.lspGoto,
-  undefined,
-  makeGotoDefinitionResponseHandler,
-)
+export const handleGotoDefinition = makePositionalHandler(jobs.Request.lspGoto, makeGotoDefinitionResponseHandler)
 
 function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.FlixResult) => void) {
   return function responseHandler({ status, result }: socket.FlixResponse) {
@@ -232,11 +224,9 @@ export const handleCodelens = makePositionalHandler(jobs.Request.lspCodelens)
 /**
  * @function
  */
-export const handleRename = enqueueUnlessHasErrors(
-  makeRenameJob,
-  makeDefaultResponseHandler,
-  hasErrorsHandlerForCommands,
-)
+export const handleRename = makeEnqueuePromise(makeRenameJob, makeDefaultResponseHandler) as (
+  params: any,
+) => Promise<any>
 
 function makeRenameJob(params: any) {
   return {
@@ -266,11 +256,9 @@ export function handleCodeAction(params: any): Promise<any> {
 /**
  * @function
  */
-export const handleWorkspaceSymbols = enqueueUnlessHasErrors(
-  makeWorkspaceSymbolsJob,
-  makeDefaultResponseHandler,
-  hasErrorsHandlerForCommands,
-)
+export const handleWorkspaceSymbols = makeEnqueuePromise(makeWorkspaceSymbolsJob, makeDefaultResponseHandler) as (
+  params: any,
+) => Promise<any>
 
 function makeWorkspaceSymbolsJob(params: any) {
   return {
@@ -294,18 +282,10 @@ export const handleInlayHints = (params: InlayHintParams): Thenable<any> =>
     socket.eventEmitter.once(job.id, makeDefaultResponseHandler(resolve))
   })
 
-function hasErrorsHandlerForCommands() {
-  sendNotification(jobs.Request.internalError, {
-    message: 'Cannot run commands when errors are present.',
-    actions: [],
-  })
-  sendNotification(jobs.Request.internalFinishedJob)
-}
-
 /**
  * @function
  */
-export const handleVersion = makeEnqueuePromise(jobs.Request.apiVersion, makeVersionResponseHandler)
+export const handleVersion = makeEnqueuePromise({ request: jobs.Request.apiVersion }, makeVersionResponseHandler)
 
 function makeVersionResponseHandler(promiseResolver: () => void) {
   return function responseHandler({ status, result }: any) {

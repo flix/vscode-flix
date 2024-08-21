@@ -55,9 +55,9 @@ suite('Find references', () => {
   })
 
   test('Should find references to Dividable trait', async () => {
-    await testFindReferences(dividableDocUri, new vscode.Position(5, 6), [
-      new vscode.Location(dividableDocUri, new vscode.Range(5, 6, 5, 15)),
-      new vscode.Location(dividableDocUri, new vscode.Range(10, 9, 10, 18)),
+    await testFindReferences(dividableDocUri, new vscode.Position(1, 6), [
+      new vscode.Location(dividableDocUri, new vscode.Range(1, 6, 1, 15)),
+      new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
     ])
   })
 
@@ -79,21 +79,21 @@ suite('Find references', () => {
   test('Should find references to Equatable.equals signature', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
-      new vscode.Location(equatableDocUri, new vscode.Range(9, 51, 9, 57)),
-      new vscode.Location(equatableDocUri, new vscode.Range(22, 14, 22, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(29, 14, 29, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(36, 18, 36, 24)),
-      new vscode.Location(equatableDocUri, new vscode.Range(43, 18, 43, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(43, 8, 43, 24)),
     ])
   })
   test('Should find references to Equatable.equals signature-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(29, 14), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
-      new vscode.Location(equatableDocUri, new vscode.Range(9, 51, 9, 57)),
-      new vscode.Location(equatableDocUri, new vscode.Range(22, 14, 22, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(29, 14, 29, 20)),
-      new vscode.Location(equatableDocUri, new vscode.Range(36, 18, 36, 24)),
-      new vscode.Location(equatableDocUri, new vscode.Range(43, 18, 43, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
+      new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),
+      new vscode.Location(equatableDocUri, new vscode.Range(43, 8, 43, 24)),
     ])
   })
 
@@ -111,7 +111,8 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to Dividable.Aef associated effect', async () => {
+  /////// See https://github.com/flix/flix/issues/8326 ///////
+  test.skip('Should find references to Dividable.Aef associated effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(6, 9), [
       new vscode.Location(dividableDocUri, new vscode.Range(6, 9, 6, 12)),
       new vscode.Location(dividableDocUri, new vscode.Range(7, 33, 7, 46)),
@@ -119,7 +120,7 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to DivByZero effect', async () => {
+  test.skip('Should find references to DivByZero effect', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(1, 4), [
       new vscode.Location(dividableDocUri, new vscode.Range(1, 4, 1, 13)),
       new vscode.Location(dividableDocUri, new vscode.Range(11, 15, 11, 24)),
@@ -127,12 +128,13 @@ suite('Find references', () => {
     ])
   })
 
-  test('Should find references to DivByZero.throw operation', async () => {
+  test.skip('Should find references to DivByZero.throw operation', async () => {
     await testFindReferences(dividableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(dividableDocUri, new vscode.Range(2, 12, 2, 17)),
       new vscode.Location(dividableDocUri, new vscode.Range(13, 23, 13, 38)),
     ])
   })
+  ////////////////////////////////////////////////////////////
 
   test('Should find references to function parameter', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(6, 19), [
@@ -179,8 +181,8 @@ suite('Find references', () => {
       new vscode.Location(recordsDocUri, new vscode.Range(2, 48, 2, 49)),
       new vscode.Location(recordsDocUri, new vscode.Range(3, 6, 3, 7)),
       new vscode.Location(recordsDocUri, new vscode.Range(13, 14, 13, 15)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 7, 15, 8)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 14, 15, 15)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 8, 15, 9)),
+      new vscode.Location(recordsDocUri, new vscode.Range(15, 15, 15, 16)),
     ])
   })
 })

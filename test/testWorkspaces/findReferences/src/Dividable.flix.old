@@ -1,3 +1,5 @@
+// TODO: Use this file instead as soon as https://github.com/flix/flix/issues/8326 is fixed.
+
 // Blank line
 eff DivByZero {
     pub def throw(): Void

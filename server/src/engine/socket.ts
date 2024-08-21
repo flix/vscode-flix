@@ -86,7 +86,6 @@ let lastManualStopTimestamp: number = 0
 export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput) {
   webSocket = new ReconnectingWebSocket(uri, [], {
     WebSocket,
-    maxRetries: 5,
   })
 
   webSocket.addEventListener('open', () => {

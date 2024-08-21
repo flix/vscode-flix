@@ -148,22 +148,7 @@ export async function closeSocket() {
   }
 }
 
-export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true, retries = 0) {
-  if (isClosed()) {
-    if (retries > 2) {
-      const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
-      sendNotification(jobs.Request.internalError, {
-        message: errorMessage,
-        actions: [],
-      })
-      return
-    }
-    setTimeout(() => {
-      sendMessage(job, expectResponse, retries + 1)
-    }, 1000)
-    return
-  }
-
+export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true) {
   if (expectResponse) {
     // register a timer to handle timeouts
     sentMessagesMap[job.id] = setTimeout(() => {

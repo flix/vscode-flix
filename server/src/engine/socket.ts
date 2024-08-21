@@ -88,11 +88,13 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
     WebSocket,
   })
 
-  webSocket.addEventListener('open', () => {
+  webSocket.addEventListener('open', function openHandler() {
     webSocketOpen = true
     if (onOpen !== undefined) {
       setTimeout(onOpen, 0)
     }
+
+    webSocket.removeEventListener('open', openHandler)
   })
 
   webSocket.addEventListener('close', () => {

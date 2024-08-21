@@ -65,7 +65,9 @@ export function getExtensionVersion() {
 }
 
 export function updateUserConfiguration(userConfiguration: UserConfiguration) {
-  startEngineInput.userConfiguration = userConfiguration
+  if (startEngineInput !== undefined) {
+    startEngineInput.userConfiguration = userConfiguration
+  }
 }
 
 export async function start(input: StartEngineInput) {

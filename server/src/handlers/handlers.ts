@@ -90,7 +90,7 @@ export function handleReplaceConfiguration(userConfiguration: engine.UserConfigu
 }
 
 /**
- * Simulates the language server disconnecting.
+ * Simulates the compiler disconnecting.
  * Used for testing.
  */
 export function handleDisconnect() {

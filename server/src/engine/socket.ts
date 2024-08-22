@@ -23,6 +23,8 @@ import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import WebSocket from 'ws'
+import { getPortPromise } from 'portfinder'
+import { get } from 'http'
 
 let webSocket: ReconnectingWebSocket
 let webSocketOpen = false
@@ -101,7 +103,7 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
     webSocketOpen = false
     if (lastManualStopTimestamp + 15000 < Date.now()) {
       // This happens when the connections breaks unintentionally
-      console.log(USER_MESSAGE.CONNECTION_LOST())
+      handleLostConnection()
       return
     }
 
@@ -182,6 +184,29 @@ function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   setTimeout(queue.processQueue, 0)
 
   eventEmitter.emit('any')
+}
+
+/**
+ * Handle a connection loss.
+ * This might be temporary, as the websocket will automatically try to reconnect.
+ */
+async function handleLostConnection() {
+  console.log(USER_MESSAGE.CONNECTION_LOST())
+
+  const port = parseInt(webSocket.url.split(':')[2])
+  if (await portIsFree(port)) {
+    // The port has become free, meaning the server is not running.
+    // Restart the server.
+    sendNotification(jobs.Request.internalRestart)
+  }
+}
+
+/**
+ * Determine whether or not the given port is free.
+ */
+async function portIsFree(port: number) {
+  const freePort = await getPortPromise({ port })
+  return freePort === port
 }
 
 /**

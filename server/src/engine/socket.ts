@@ -90,26 +90,27 @@ export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput
     WebSocket,
   })
 
-  webSocket.addEventListener('open', function openHandler() {
-    webSocketOpen = true
-    if (onOpen !== undefined) {
-      setTimeout(onOpen, 0)
-    }
+  webSocket.addEventListener('open', function handleOpen() {
+    // The 'open' event is emitted every time the connection is established,
+    // even if it was just a temprorary interruption.
+    // This handler should only be called once, so remove it after the first call.
+    webSocket.removeEventListener('open', handleOpen)
 
-    webSocket.removeEventListener('open', openHandler)
+    webSocketOpen = true
+
+    onOpen?.()
   })
 
   webSocket.addEventListener('close', () => {
     webSocketOpen = false
+
     if (lastManualStopTimestamp + 15000 < Date.now()) {
       // This happens when the connections breaks unintentionally
       handleLostConnection()
       return
     }
 
-    if (onClose !== undefined) {
-      setTimeout(onClose, 0)
-    }
+    onClose?.()
   })
 
   webSocket.addEventListener('message', message => {

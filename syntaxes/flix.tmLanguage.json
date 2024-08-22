@@ -168,10 +168,6 @@
           "match": "\\b(region)\\b"
         },
         {
-          "name": "keyword.expression.references.flix",
-          "match": "\\b(ref|deref)\\b"
-        },
-        {
           "name": "keyword.use.flix",
           "match": "\\b(use)\\b"
         },

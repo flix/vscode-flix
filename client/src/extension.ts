@@ -270,8 +270,6 @@ async function startSession(
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
 
-  client.onNotification(jobs.Request.internalRestart, makeHandleRestartClient(context))
-
   client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
 
   client.onNotification(jobs.Request.internalError, handleError)

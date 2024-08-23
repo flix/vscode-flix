@@ -26,6 +26,22 @@ suite('Completions', () => {
     await init('completions')
   })
 
+  async function validCompletionExists(
+    file: vscode.Uri,
+    cursor: vscode.Position,
+    predicate: (item: vscode.CompletionItem) => boolean,
+  ): Promise<boolean> {
+    await open(file)
+
+    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider',
+      file,
+      cursor,
+    )
+
+    return r.items.some(predicate)
+  }
+
   test('Should propose completing mod', async () => {
     await addFile(docUri, '')
     await open(docUri)
@@ -44,35 +60,23 @@ suite('Completions', () => {
     )
   })
 
-  test('Should propose completing Math.floor', async () => {
-    await open(javaMathDocUri)
+  suite('Java Methods', () => {
+    test('Should complete Java method', async () => {
+      const cursor = new vscode.Position(5 - 1, 23 - 1)
+      const pred = item => item.label === 'floor(arg0: double): double \\ IO'
+      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+    })
 
-    const position = new vscode.Position(5 - 1, 24 - 1)
-    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
-      'vscode.executeCompletionItemProvider',
-      javaMathDocUri,
-      position,
-    )
+    test('Should complete Java method with snippet placeholder arg', async () => {
+      const cursor = new vscode.Position(5 - 1, 23 - 1)
+      const pred = item => (item.insertText as vscode.SnippetString).value === 'floor(${1:arg0})'
+      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+    })
 
-    assert.strictEqual(
-      r.items.some(i => i.label === 'floor(arg0: double): double \\ IO'),
-      true,
-    )
-  })
-
-  test('Math.floor completion should have placeholder arg', async () => {
-    await open(javaMathDocUri)
-
-    const position = new vscode.Position(5 - 1, 23 - 1)
-    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
-      'vscode.executeCompletionItemProvider',
-      javaMathDocUri,
-      position,
-    )
-
-    assert.strictEqual(
-      r.items.some(i => (i.insertText as vscode.SnippetString).value === 'floor(${1:arg0})'),
-      true,
-    )
+    test('Should complete Java method with snippet placeholder args', async () => {
+      const cursor = new vscode.Position(9 - 1, 23 - 1)
+      const pred = item => (item.insertText as vscode.SnippetString).value === 'max(${1:arg0}, ${2:arg1})'
+      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+    })
   })
 })

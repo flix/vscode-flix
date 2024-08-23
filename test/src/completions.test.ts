@@ -20,6 +20,7 @@ import { getTestDocUri, init, open, typeText, addFile } from './util'
 
 suite('Completions', () => {
   const docUri = getTestDocUri('src/Temp.flix')
+  const javaMathDocUri = getTestDocUri('src/JavaMath.flix')
 
   suiteSetup(async () => {
     await init('completions')
@@ -39,6 +40,38 @@ suite('Completions', () => {
 
     assert.strictEqual(
       r.items.some(i => i.label === 'mod'),
+      true,
+    )
+  })
+
+  test('Should propose completing Math.floor', async () => {
+    await open(javaMathDocUri)
+
+    const position = new vscode.Position(5 - 1, 24 - 1)
+    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider',
+      javaMathDocUri,
+      position,
+    )
+
+    assert.strictEqual(
+      r.items.some(i => i.label === 'floor(arg0: double): double \\ IO'),
+      true,
+    )
+  })
+
+  test('Math.floor completion should have placeholder arg', async () => {
+    await open(javaMathDocUri)
+
+    const position = new vscode.Position(5 - 1, 23 - 1)
+    const r = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider',
+      javaMathDocUri,
+      position,
+    )
+
+    assert.strictEqual(
+      r.items.some(i => (i.insertText as vscode.SnippetString).value === 'floor(${1:arg0})'),
       true,
     )
   })

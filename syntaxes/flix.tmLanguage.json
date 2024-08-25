@@ -129,7 +129,7 @@
         },
         {
           "name": "keyword.declaration.flix",
-          "match": "\\b(eff|def|law|enum|case|type|alias|trait|instance|with|without|opaque|mod|struct)\\b"
+          "match": "\\b(eff|def|redef|law|enum|case|type|alias|trait|instance|with|without|opaque|mod|struct)\\b"
         },
         {
           "name": "keyword.expression.cast.flix",
@@ -181,7 +181,7 @@
         },
         {
           "name": "storage.type.modifier.flix",
-          "match": "\\b(lawful|pub|override|sealed|static)\\b"
+          "match": "\\b(lawful|pub|sealed|static)\\b"
         }
       ]
     },

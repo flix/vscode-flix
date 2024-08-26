@@ -32,6 +32,14 @@ suite('Completions', () => {
     }
   })
 
+  /**
+   * Determines if there is a completion suggestion at the `cursor` in the file `src/fileName`.
+   *
+   * @param fileName name of flix file we're testing. Must include the `.flix` extension.
+   * @param cursor the position of the cursor.
+   * @param predicate the predicate by which we determine if a completion is valid.
+   * @returns `true` if there is a completion suggestion at `cursor` which satisfies `predicate`.
+   */
   async function validCompletionExists(
     fileName: string,
     cursor: vscode.Position,

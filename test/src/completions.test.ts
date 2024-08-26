@@ -16,26 +16,37 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, open, typeText, addFile } from './util'
+import { getTestDocUri, init, open, typeText, addFile, deleteFile, copyFile } from './util'
 
 suite('Completions', () => {
   const docUri = getTestDocUri('src/Temp.flix')
-  const javaMathDocUri = getTestDocUri('src/JavaMath.flix')
+  let tempDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {
     await init('completions')
   })
 
+  teardown(async () => {
+    if (tempDocUri !== null) {
+      await deleteFile(tempDocUri)
+    }
+  })
+
   async function validCompletionExists(
-    file: vscode.Uri,
+    fileName: string,
     cursor: vscode.Position,
     predicate: (item: vscode.CompletionItem) => boolean,
   ): Promise<boolean> {
-    await open(file)
+    // Setup file
+    const latentUri = getTestDocUri(`latent/${fileName}`)
+    const srcUri = getTestDocUri(`src/${fileName}`)
+    await copyFile(latentUri, srcUri)
+
+    await open(srcUri)
 
     const r = await vscode.commands.executeCommand<vscode.CompletionList>(
       'vscode.executeCompletionItemProvider',
-      file,
+      fileName,
       cursor,
     )
 
@@ -61,22 +72,34 @@ suite('Completions', () => {
   })
 
   suite('Java Methods', () => {
-    test('Should complete Java method', async () => {
+    test('Should complete Java static method', async () => {
       const cursor = new vscode.Position(5 - 1, 23 - 1)
       const pred = item => item.label === 'floor(arg0: double): double \\ IO'
-      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+      assert.strictEqual(await validCompletionExists('JavaMath.flix', cursor, pred), true)
     })
 
-    test('Should complete Java method with snippet placeholder arg', async () => {
+    test('Should complete Java method with snippet placeholder arg for static method', async () => {
       const cursor = new vscode.Position(5 - 1, 23 - 1)
       const pred = item => (item.insertText as vscode.SnippetString).value === 'floor(${1:arg0})'
-      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+      assert.strictEqual(await validCompletionExists('JavaMath.flix', cursor, pred), true)
     })
 
-    test('Should complete Java method with snippet placeholder args', async () => {
+    test('Should complete Java method with snippet placeholder args for static method', async () => {
       const cursor = new vscode.Position(9 - 1, 23 - 1)
       const pred = item => (item.insertText as vscode.SnippetString).value === 'max(${1:arg0}, ${2:arg1})'
-      assert.strictEqual(await validCompletionExists(javaMathDocUri, cursor, pred), true)
+      assert.strictEqual(await validCompletionExists('JavaMath.flix', cursor, pred), true)
+    })
+
+    test('Should complete Java non-static method', async () => {
+      const cursor = new vscode.Position(8 - 1, 18 - 1)
+      const pred = item => item.label === 'append(arg0: String): StringBuilder \\ IO'
+      assert.strictEqual(await validCompletionExists('JavaStringBuilder.flix', cursor, pred), true)
+    })
+
+    test('Should complete Java method with snipper placeholder arg for non-static method', async () => {
+      const cursor = new vscode.Position(8 - 1, 18 - 1)
+      const pred = item => (item.insertText as vscode.SnippetString).value === 'append(${1:arg0})'
+      assert.strictEqual(await validCompletionExists('JavaStringBuilder.flix', cursor, pred), true)
     })
   })
 })

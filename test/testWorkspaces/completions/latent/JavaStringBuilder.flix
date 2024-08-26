@@ -8,9 +8,5 @@ mod JavaStringBuilder {
         builder.a
 
     pub def toString(builder: StringBuilder): String \ IO =
-        builder.toString()
-        
-    pub def dummmy(builder: StringBuilder): Unit \ IO =
-        builder.s
-        ()
+        builder.toString()        
 }

@@ -40,13 +40,15 @@ suite('Completions', () => {
     // Setup file
     const latentUri = getTestDocUri(`latent/${fileName}`)
     const srcUri = getTestDocUri(`src/${fileName}`)
+
+    tempDocUri = srcUri
     await copyFile(latentUri, srcUri)
 
     await open(srcUri)
 
     const r = await vscode.commands.executeCommand<vscode.CompletionList>(
       'vscode.executeCompletionItemProvider',
-      fileName,
+      srcUri,
       cursor,
     )
 

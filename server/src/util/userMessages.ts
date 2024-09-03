@@ -8,10 +8,6 @@ export class USER_MESSAGE {
     return 'Connection to the flix server was lost, trying to reconnect...'
   }
 
-  static CONNECTION_LOST_RESTARTING() {
-    return 'Failed to connect to the flix server, restarting the compiler...'
-  }
-
   static FAILED_TO_START() {
     return 'Failed starting Flix'
   }

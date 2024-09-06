@@ -172,6 +172,10 @@
           "match": "\\b(use)\\b"
         },
         {
+          "name": "keyword.mut.flix",
+          "match": "\\b(mut)\\b"
+        },
+        {
           "name": "keyword.symbols.flix",
           "match": "(\\->|~>|<\\-|=>)"
         },

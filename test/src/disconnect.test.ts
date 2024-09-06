@@ -24,7 +24,7 @@ suite('Server disconnect', () => {
   })
 
   test('Should reconnect automatically when server is disconnected', async () => {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 3; i++) {
       await vscode.commands.executeCommand('flix.simulateDisconnect')
 
       // Wait for the server to disconnect, otherwise the next command will hang

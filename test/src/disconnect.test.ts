@@ -24,16 +24,18 @@ suite('Server disconnect', () => {
   })
 
   test('Should reconnect automatically when server is disconnected', async () => {
-    await vscode.commands.executeCommand('flix.simulateDisconnect')
+    for (let i = 0; i < 3; i++) {
+      await vscode.commands.executeCommand('flix.simulateDisconnect')
 
-    // Wait for the server to disconnect, otherwise the next command will hang
-    await sleep(1000)
+      // Wait for the server to disconnect, otherwise the next command will hang
+      await sleep(1000)
 
-    // Ensure that the server is reconnected
-    const docUri = getTestDocUri('src/Main.flix')
-    const position = new vscode.Position(9, 12)
-    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
-    const contents = r[0].contents[0] as vscode.MarkdownString
-    assert.strictEqual(contents.value.includes('Type'), true)
+      // Ensure that the server is reconnected
+      const docUri = getTestDocUri('src/Main.flix')
+      const position = new vscode.Position(9, 12)
+      const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
+      const contents = r[0].contents[0] as vscode.MarkdownString
+      assert.strictEqual(contents.value.includes('Type'), true)
+    }
   })
 })

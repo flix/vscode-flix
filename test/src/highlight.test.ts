@@ -37,7 +37,10 @@ suite('Highlight uses', () => {
       mainDocUri,
       position,
     )
-    assert.strictEqual(r, undefined)
+
+    // VS Code 1.93.0 and newer return an empty list.
+    // Older versions return undefined.
+    assert(r === undefined || r.length === 0)
   })
 
   async function testHighlight(uri: vscode.Uri, position: vscode.Position, expectedRanges: vscode.Range[]) {

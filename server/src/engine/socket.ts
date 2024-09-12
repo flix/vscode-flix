@@ -19,13 +19,12 @@ import * as queue from './queue'
 import { clearDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
 import { handleCrash, lspCheckResponseHandler } from '../handlers'
-import { getPort } from 'portfinder'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
+import ReconnectingWebSocket from 'reconnecting-websocket'
+import WebSocket from 'ws'
 
-const WebSocket = require('ws')
-
-let webSocket: any
+let webSocket: ReconnectingWebSocket
 let webSocketOpen = false
 
 // event emitter to handle communication between socket handlers and connection handlers
@@ -85,58 +84,39 @@ export function isClosed() {
 let lastManualStopTimestamp: number = 0
 
 export function initialiseSocket({ uri, onOpen, onClose }: InitialiseSocketInput) {
-  if (!uri) {
-    throw 'Must be called with an uri'
-  }
-  webSocket = new WebSocket(uri)
-
-  webSocket.on('open', () => {
-    webSocketOpen = true
-    onOpen && setTimeout(onOpen!, 0)
+  webSocket = new ReconnectingWebSocket(uri, [], {
+    WebSocket,
   })
 
-  webSocket.on('close', () => {
+  webSocket.addEventListener('open', function handleOpen() {
+    // The 'open' event is emitted every time the connection is established,
+    // even if it was just a temprorary interruption.
+    // This handler should only be called once, so remove it after the first call.
+    webSocket.removeEventListener('open', handleOpen)
+
+    webSocketOpen = true
+
+    onOpen?.()
+  })
+
+  webSocket.addEventListener('close', () => {
     webSocketOpen = false
+
     if (lastManualStopTimestamp + 15000 < Date.now()) {
-      // This happends when the connections breaks unintentionally
+      // This happens when the connections breaks unintentionally
       console.log(USER_MESSAGE.CONNECTION_LOST())
-      tryToConnect({ uri, onOpen, onClose }, 5).then(connected => {
-        if (!connected) {
-          console.log(USER_MESSAGE.CONNECTION_LOST_RESTARTING())
-          sendNotification(jobs.Request.internalRestart)
-        }
-      })
       return
     }
-    onClose && setTimeout(onClose!, 0)
+
+    onClose?.()
   })
 
-  webSocket.on('message', (data: string) => {
-    const flixResponse: FlixResponse = JSON.parse(data)
-    const job: jobs.EnqueuedJob = jobs.getJob(flixResponse.id)
+  webSocket.addEventListener('message', message => {
+    const flixResponse: FlixResponse = JSON.parse(message.data)
+    const job = jobs.getJob(flixResponse.id)
 
     handleResponse(flixResponse, job)
   })
-}
-
-async function tryToConnect({ uri, onOpen, onClose }: InitialiseSocketInput, times: number) {
-  const uriPort = parseInt(uri.slice(-4))
-  getPort({ port: uriPort }, (err, freePort) => {
-    if (uriPort === freePort) {
-      // This happens if the previously used port is now free
-      sendNotification(jobs.Request.internalRestart)
-      return
-    }
-  })
-  let retries = times
-  while (retries-- > 0) {
-    initialiseSocket({ uri, onOpen, onClose })
-    await sleep(1000)
-    if (webSocketOpen) {
-      return true
-    }
-  }
-  return false
 }
 
 function clearTimer(id: string) {
@@ -171,22 +151,7 @@ export async function closeSocket() {
   }
 }
 
-export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true, retries = 0) {
-  if (isClosed()) {
-    if (retries > 2) {
-      const errorMessage = USER_MESSAGE.REQUEST_TIMEOUT(retries)
-      sendNotification(jobs.Request.internalError, {
-        message: errorMessage,
-        actions: [],
-      })
-      return
-    }
-    setTimeout(() => {
-      sendMessage(job, expectResponse, retries + 1)
-    }, 1000)
-    return
-  }
-
+export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true) {
   if (expectResponse) {
     // register a timer to handle timeouts
     sentMessagesMap[job.id] = setTimeout(() => {

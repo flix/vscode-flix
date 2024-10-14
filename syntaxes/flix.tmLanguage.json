@@ -65,7 +65,7 @@
         },
         {
           "name": "keyword.control.debug.flix",
-          "match": "\\b(debug)\\b"
+          "match": "\\b(dbg)\\b"
         },
         {
           "name": "keyword.control.do.flix",

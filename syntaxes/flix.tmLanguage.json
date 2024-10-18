@@ -68,10 +68,6 @@
           "match": "\\b(dbg)\\b"
         },
         {
-          "name": "keyword.control.do.flix",
-          "match": "\\b(do)\\b"
-        },
-        {
           "name": "keyword.control.applicativefor.flix",
           "match": "\\b(forA)\\b"
         },

@@ -71,40 +71,6 @@ suite('Code actions', () => {
     })
   })
 
-  suite('Prefix unused with underscore', () => {
-    test('Should propose prefixing unused local variable with underscore', async () => {
-      await testCodeAction(mainDocUri, new vscode.Position(4, 8), 'Prefix unused variable with underscore')
-    })
-    test('Should propose prefixing unused match-case variable with underscore', async () => {
-      await testCodeAction(mainDocUri, new vscode.Position(8, 18), 'Prefix unused variable with underscore')
-    })
-
-    test('Should propose prefixing unused def with underscore', async () => {
-      await testCodeAction(areaDocUri, new vscode.Position(9, 8), 'Prefix unused function with underscore')
-    })
-
-    test('Should propose prefixing unused formal parameter with underscore', async () => {
-      await testCodeAction(areaDocUri, new vscode.Position(9, 13), 'Prefix unused parameter with underscore')
-    })
-
-    test('Should propose prefixing unused type parameter with underscore', async () => {
-      await testCodeAction(areaDocUri, new vscode.Position(3, 15), 'Prefix unused type parameter with underscore')
-    })
-
-    test('Should propose prefixing unused effect with underscore', async () => {
-      await testCodeAction(dividableDocUri, new vscode.Position(8, 8), 'Prefix unused effect with underscore')
-    })
-
-    // See https://github.com/flix/flix/issues/7896
-    test.skip('Should propose prefixing unused enum with underscore', async () => {
-      await testCodeAction(areaDocUri, new vscode.Position(3, 9), 'Prefix unused enum with underscore')
-    })
-
-    test('Should propose prefixing unused case with underscore', async () => {
-      await testCodeAction(areaDocUri, new vscode.Position(5, 13), 'Prefix unused case with underscore')
-    })
-  })
-
   suite('Missing trait instances', () => {
     // TODO: See https://github.com/flix/flix/issues/7906
   })

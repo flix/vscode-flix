@@ -173,10 +173,18 @@
         },
         {
           "name": "keyword.symbols.flix",
-          "match": "(\\->|~>|<\\-|=>)"
+          "match": "(~>|<\\-|=>)"
         },
         {
-          "name": "keyword.operator.semicolon.flix",
+          "name": "keyword.arrow.function.flix",
+          "match": "(\\s\\->\\s|\\s\\->|\\->\\s)"
+        },
+        {
+          "name": "keyword.operator.arrow.struct.flix",
+          "match": "\\->"
+        },
+        {
+          "name": "keyword.control.semicolon.flix",
           "match": ";"
         },
         {

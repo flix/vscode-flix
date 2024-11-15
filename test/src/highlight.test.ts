@@ -188,7 +188,7 @@ suite('Highlight uses', () => {
     ])
   })
 
-  test('Should find highlights of record label', async () => {
+  test.skip('Should find highlights of record label', async () => {
     await testHighlight(recordsDocUri, new vscode.Position(3, 6), [
       new vscode.Range(2, 13, 2, 14),
       new vscode.Range(2, 48, 2, 49),

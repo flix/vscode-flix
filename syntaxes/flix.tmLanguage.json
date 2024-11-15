@@ -92,6 +92,10 @@
           "match": "\\b(case|match|typematch)\\b"
         },
         {
+          "name": "keyword.control.run.flix",
+          "match": "\\b(run)\\b"
+        },
+        {
           "name": "keyword.control.try.flix",
           "match": "\\b(try|catch)\\b"
         },

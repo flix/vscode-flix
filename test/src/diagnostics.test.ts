@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { getTestDocUri, init, copyFile, deleteFile } from './util'
 
 suite('Diagnostics', () => {
-  /** dslfkgjlkasdjfgljl The optional URI of the document which should be deleted after each test. */
+  /** The optional URI of the document which should be deleted after each test. */
   let tempDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {

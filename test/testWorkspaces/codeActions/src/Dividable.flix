@@ -6,7 +6,7 @@ trait Dividable[t] {
 
 mod Dividable {
     // Unused effect
-    eff DivByZero{
-        pub def throw(): Void
+    eff DivByZero {
+        def raise(): Void
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// asdfg
 import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init } from './util'

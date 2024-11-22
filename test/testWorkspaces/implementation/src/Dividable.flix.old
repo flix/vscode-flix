@@ -2,7 +2,7 @@
 
 // Blank line
 eff DivByZero {
-    pub def throw(): Void
+    def raise(): Void
 }
 
 trait Dividable[t] {
@@ -13,5 +13,5 @@ trait Dividable[t] {
 instance Dividable[Int32] {
     type Aef = DivByZero
     pub def div(x: Int32, y: Int32): Int32 \ DivByZero = 
-        if (y == 0) do DivByZero.throw() else x / y
+        if (y == 0) DivByZero.raise() else x / y
 }

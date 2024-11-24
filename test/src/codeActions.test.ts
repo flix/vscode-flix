@@ -53,21 +53,21 @@ suite('Code actions', () => {
     assert.notStrictEqual(
       action,
       undefined,
-      `Code action '${expectedTitle}' not found in. Instead found: ${stringify(r)}`,
+      `Code action "${expectedTitle}" not found in. Instead found: ${stringify(r)}`,
     )
   }
 
   suite('Undefined names', () => {
     test('Should propose using Date.earlierDate def', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(43, 4), 'use Date.earlierDate')
+      await testCodeAction(dateDocUri, new vscode.Position(43, 4), "use 'Date.earlierDate'")
     })
 
     test('Should propose using Date.Month enum', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'use Date.Month')
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), "use 'Date.Month'")
     })
 
     test('Should propose introducing new Month enum', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(2, 25), 'Introduce new enum Month')
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), "Create enum 'Month'")
     })
   })
 

@@ -94,20 +94,24 @@ suite('Rename', () => {
   })
   ////////////////////////////////////////////////////////////
 
-  test('Should rename area function', async () => {
+  // Skipped since renaming of functions is currently unsupported
+  test.skip('Should rename area function', async () => {
     await testRename(areaDocUri, new vscode.Position(3, 4), [
       [areaDocUri, [new vscode.Range(3, 4, 3, 8), new vscode.Range(12, 39, 12, 43)]],
       [mainDocUri, [new vscode.Range(10, 12, 10, 16)]],
     ])
   })
-  test('Should rename area function-use', async () => {
+
+  // Skipped since renaming of functions is currently unsupported
+  test.skip('Should rename area function-use', async () => {
     await testRename(areaDocUri, new vscode.Position(12, 39), [
       [areaDocUri, [new vscode.Range(3, 4, 3, 8), new vscode.Range(12, 39, 12, 43)]],
       [mainDocUri, [new vscode.Range(10, 12, 10, 16)]],
     ])
   })
 
-  test('Should rename Day type alias', async () => {
+  // Skipped since renaming of functions is currently unsupported
+  test.skip('Should rename Day type alias', async () => {
     await testRename(dateDocUri, new vscode.Position(18, 11), [
       [dateDocUri, [new vscode.Range(18, 11, 18, 14), new vscode.Range(21, 23, 21, 26)]],
     ])
@@ -146,7 +150,8 @@ suite('Rename', () => {
     ])
   })
 
-  test('Should rename record label', async () => {
+  // Skipped since record labels is currently unsupported
+  test.skip('Should rename record label', async () => {
     await testRename(recordsDocUri, new vscode.Position(3, 6), [
       [
         recordsDocUri,

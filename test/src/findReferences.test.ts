@@ -43,13 +43,13 @@ suite('Find references', () => {
 
   test('Should find references to Shape.Circle enum case', async () => {
     await testFindReferences(mainDocUri, new vscode.Position(3, 9), [
-      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 22)),
+      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 15)),
       new vscode.Location(areaDocUri, new vscode.Range(5, 13, 5, 25)),
     ])
   })
   test('Should find references to Shape.Circle enum case-use', async () => {
     await testFindReferences(areaDocUri, new vscode.Position(5, 13), [
-      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 22)),
+      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 15)),
       new vscode.Location(areaDocUri, new vscode.Range(5, 13, 5, 25)),
     ])
   })

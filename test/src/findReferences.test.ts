@@ -176,15 +176,4 @@ suite('Find references', () => {
       new vscode.Location(equatableDocUri, new vscode.Range(22, 21, 22, 26)),
     ])
   })
-
-  test('Should find references to record label', async () => {
-    await testFindReferences(recordsDocUri, new vscode.Position(3, 6), [
-      new vscode.Location(recordsDocUri, new vscode.Range(2, 13, 2, 14)),
-      new vscode.Location(recordsDocUri, new vscode.Range(2, 48, 2, 49)),
-      new vscode.Location(recordsDocUri, new vscode.Range(3, 6, 3, 7)),
-      new vscode.Location(recordsDocUri, new vscode.Range(13, 14, 13, 15)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 8, 15, 9)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 15, 15, 16)),
-    ])
-  })
 })

@@ -80,6 +80,8 @@ suite('Find references', () => {
     await testFindReferences(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
       new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(6, 12, 6, 18)),
+      new vscode.Location(equatableDocUri, new vscode.Range(15, 12, 15, 18)),
       new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
       new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
       new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),

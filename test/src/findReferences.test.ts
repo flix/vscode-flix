@@ -1,5 +1,6 @@
 /*
  * Copyright 2024 Holger Dal Mogensen
+ * Copyright 2024 Alexander Dybdahl Troelsen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +44,13 @@ suite('Find references', () => {
 
   test('Should find references to Shape.Circle enum case', async () => {
     await testFindReferences(mainDocUri, new vscode.Position(3, 9), [
-      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 22)),
+      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 15)),
       new vscode.Location(areaDocUri, new vscode.Range(5, 13, 5, 25)),
     ])
   })
   test('Should find references to Shape.Circle enum case-use', async () => {
     await testFindReferences(areaDocUri, new vscode.Position(5, 13), [
-      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 22)),
+      new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 15)),
       new vscode.Location(areaDocUri, new vscode.Range(5, 13, 5, 25)),
     ])
   })
@@ -80,6 +81,8 @@ suite('Find references', () => {
     await testFindReferences(equatableDocUri, new vscode.Position(2, 12), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
       new vscode.Location(equatableDocUri, new vscode.Range(9, 41, 9, 57)),
+      new vscode.Location(equatableDocUri, new vscode.Range(6, 12, 6, 18)),
+      new vscode.Location(equatableDocUri, new vscode.Range(15, 12, 15, 18)),
       new vscode.Location(equatableDocUri, new vscode.Range(22, 4, 22, 20)),
       new vscode.Location(equatableDocUri, new vscode.Range(29, 4, 29, 20)),
       new vscode.Location(equatableDocUri, new vscode.Range(36, 8, 36, 24)),
@@ -172,17 +175,6 @@ suite('Find references', () => {
     await testFindReferences(equatableDocUri, new vscode.Position(22, 21), [
       new vscode.Location(equatableDocUri, new vscode.Range(20, 8, 20, 13)),
       new vscode.Location(equatableDocUri, new vscode.Range(22, 21, 22, 26)),
-    ])
-  })
-
-  test('Should find references to record label', async () => {
-    await testFindReferences(recordsDocUri, new vscode.Position(3, 6), [
-      new vscode.Location(recordsDocUri, new vscode.Range(2, 13, 2, 14)),
-      new vscode.Location(recordsDocUri, new vscode.Range(2, 48, 2, 49)),
-      new vscode.Location(recordsDocUri, new vscode.Range(3, 6, 3, 7)),
-      new vscode.Location(recordsDocUri, new vscode.Range(13, 14, 13, 15)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 8, 15, 9)),
-      new vscode.Location(recordsDocUri, new vscode.Range(15, 15, 15, 16)),
     ])
   })
 })

@@ -108,7 +108,7 @@ export async function start(input: StartEngineInput) {
   // TODO split respecting ""
   const args = []
   args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
-  args.push('-jar', flixFilename, 'lsp', `${port}`)
+  args.push('-jar', flixFilename, 'lsp-vscode', `${port}`)
   args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
   if (startEngineInput?.userConfiguration.explain.enabled ?? false) {
     args.push('--explain')

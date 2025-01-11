@@ -80,6 +80,10 @@
           "match": "\\b(foreach)\\b"
         },
         {
+          "name": "keyword.control.handler.flix",
+          "match": "\\b(handler)\\b"
+        },
+        {
           "name": "keyword.control.yield.flix",
           "match": "\\b(yield)\\b"
         },

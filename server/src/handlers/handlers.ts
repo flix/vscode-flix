@@ -103,6 +103,7 @@ export function handleInitialize(_params: InitializeParams) {
       },
     },
   }
+
   return result
 }
 

@@ -84,7 +84,7 @@ export function handleInitialize(_params: InitializeParams) {
             'number',
             'regexp',
             'operator',
-            'decorator'
+            'decorator',
           ],
           tokenModifiers: [
             'declaration',
@@ -96,7 +96,7 @@ export function handleInitialize(_params: InitializeParams) {
             'async',
             'modification',
             'documentation',
-            'defaultLibrary'
+            'defaultLibrary',
           ],
         },
         full: true,

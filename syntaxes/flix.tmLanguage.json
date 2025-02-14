@@ -14,9 +14,6 @@
       "patterns": [
         {
           "include": "#types"
-        },
-        {
-          "include": "#comments"
         }
       ]
     },
@@ -25,19 +22,6 @@
         {
           "name": "entity.name.type",
           "match": "\\b(Unit|Bool|Char|Float32|Float64|Int8|Int16|Int32|Int64|BigInt|String)\\b"
-        }
-      ]
-    },
-    "comments": {
-      "patterns": [
-        {
-          "name": "comment.line.double-slash.flix",
-          "match": "//.*$"
-        },
-        {
-          "name": "comment.block.flix",
-          "begin": "/\\*",
-          "end": "\\*/"
         }
       ]
     }

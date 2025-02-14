@@ -13,53 +13,10 @@
     "all_patterns": {
       "patterns": [
         {
-          "include": "#annotations"
-        },
-        {
           "include": "#types"
         },
         {
           "include": "#comments"
-        }
-      ]
-    },
-    "annotations": {
-      "patterns": [
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Deprecated"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Experimental"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Internal"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@ParallelWhenPure"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Parallel"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@LazyWhenPure"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Lazy"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Skip"
-        },
-        {
-          "name": "storage.type.annotation.flix",
-          "match": "@Test"
         }
       ]
     },

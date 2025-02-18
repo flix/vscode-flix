@@ -97,13 +97,6 @@
         "configuration": "./language-configuration.json"
       }
     ],
-    "grammars": [
-      {
-        "language": "flix",
-        "scopeName": "source.flix",
-        "path": "./syntaxes/flix.tmLanguage.json"
-      }
-    ],
     "configuration": {
       "type": "object",
       "title": "Flix",

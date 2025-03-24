@@ -68,6 +68,9 @@ connection.onCompletion(handlers.handleComplete)
 // Hover over [line, character]
 connection.onHover(handlers.handleHover)
 
+// Signature help
+connection.onSignatureHelp(handlers.handleSignature)
+
 // Find uses of (references to)
 connection.onReferences(handlers.handleReferences)
 

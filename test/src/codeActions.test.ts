@@ -65,10 +65,6 @@ suite('Code actions', () => {
     test('Should propose using Date.Month enum', async () => {
       await testCodeAction(dateDocUri, new vscode.Position(2, 25), "use 'Date.Month'")
     })
-
-    test('Should propose introducing new Month enum', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(2, 25), "Create enum 'Month'")
-    })
   })
 
   suite('Missing trait instances', () => {

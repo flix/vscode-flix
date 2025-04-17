@@ -45,6 +45,9 @@ export function handleInitialize(_params: InitializeParams) {
         triggerCharacters: ['#', '.', '/', '?'],
       },
       hoverProvider: true,
+      signatureHelpProvider: {
+        triggerCharacters: ['(', ','],
+      },
       inlayHintProvider: true,
       definitionProvider: true,
       referencesProvider: true,
@@ -232,6 +235,8 @@ export const handleComplete = makePositionalHandler(jobs.Request.lspComplete)
  * @function
  */
 export const handleHover = makePositionalHandler(jobs.Request.lspHover)
+
+export const handleSignature = makePositionalHandler(jobs.Request.lspSignature)
 
 /**
  * @function

@@ -63,7 +63,7 @@ function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions
 
 async function handleShowAst({ status, result }) {
   if (status === StatusCode.Success) {
-    const content: string = "AST saved to: "  + result.path
+    const content: string = 'AST saved to: ' + result.path
     vscode.window.showInformationMessage(content)
   } else {
     const msg = USER_MESSAGE.CANT_SHOW_AST()

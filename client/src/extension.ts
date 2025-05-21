@@ -63,9 +63,8 @@ function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions
 
 async function handleShowAst({ status, result }) {
   if (status === StatusCode.Success) {
-    const content: string = '// ' + result.title + '\n\n' + result.text
-    const document = await vscode.workspace.openTextDocument({ content: content, language: 'flix' })
-    vscode.window.showTextDocument(document)
+    const content: string = "AST saved to: "  + result.path
+    vscode.window.showInformationMessage(content)
   } else {
     const msg = USER_MESSAGE.CANT_SHOW_AST()
     vscode.window.showInformationMessage(msg)

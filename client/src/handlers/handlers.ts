@@ -356,18 +356,8 @@ export function cmdOutdated(context: vscode.ExtensionContext, launchOptions: Lau
  */
 export function showAst(client: LanguageClient) {
   return async function handler() {
-    const phaseInput = await vscode.window.showInputBox({
-      prompt: 'Enter the phase to show the AST for',
-      placeHolder: 'Phase',
-    })
-    const phase = phaseInput?.trim()
-    if (phase === undefined || phase.length === 0) {
-      return
-    }
-
     client.sendNotification(jobs.Request.lspShowAst, {
       uri: vscode.window.activeTextEditor.document.uri.fsPath,
-      phase: phase,
     })
   }
 }

@@ -114,7 +114,7 @@ async function getJvmCmd(context: vscode.ExtensionContext, launchOptions: Launch
   const args: string[] = []
   args.push(...getExtraJvmArgs())
   const flixFilename = await getFlixFilename(context, launchOptions)
-  args.push(...['-jar', flixFilename])
+  args.push(...['--enable-native-access=ALL-UNNAMED', '-jar', flixFilename])
   return { cmd: 'java', args }
 }
 

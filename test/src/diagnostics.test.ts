@@ -59,7 +59,7 @@ suite('Diagnostics', () => {
   })
 
   test('Should show resolution error', async () => {
-    await testDiagnostics('ResolutionError.flix', "Cyclic type aliases:")
+    await testDiagnostics('ResolutionError.flix', 'Cyclic type aliases:')
   })
 
   test('Should show type error', async () => {

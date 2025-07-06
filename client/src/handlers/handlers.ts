@@ -158,6 +158,11 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
     return
   }
 
+  // Skip validation for virtual URIs (like stdlib files from JAR)
+  if (editor.document.uri.scheme !== 'file') {
+    return
+  }
+
   const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
   if (!included) {
     vscode.window.showWarningMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())

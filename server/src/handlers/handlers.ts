@@ -208,12 +208,38 @@ function makeGotoDefinitionResponseHandler(promiseResolver: (result?: socket.Fli
     if (status === StatusCode.Success) {
       if (targetUri?.startsWith('file://')) {
         return promiseResolver(result)
+      } else if (targetUri && isStdlibFile(targetUri)) {
+        const flixJarPath = engine.getFlixFilename()
+        const virtualUri = `flixstdlib://${encodeURIComponent(flixJarPath)}/${targetUri}`
+        
+        return promiseResolver({
+          ...result,
+          targetUri: virtualUri
+        })
       } else {
         sendNotification(jobs.Request.internalMessage, USER_MESSAGE.FILE_NOT_AVAILABLE(targetUri!))
       }
     }
     promiseResolver()
   }
+}
+
+/**
+ * Determines if a target URI represents a stdlib file that should be loaded from the flix.jar
+ */
+function isStdlibFile(targetUri: string): boolean {
+  // Stdlib files are typically:
+  // 1. Flix source files (end with .flix)
+  // 2. Just filenames without directory paths (no '/' characters)
+  // 3. Not absolute paths or URLs
+  return (
+    targetUri.endsWith('.flix') &&
+    !targetUri.includes('/') &&
+    !targetUri.includes('\\') &&
+    !targetUri.startsWith('http') &&
+    !targetUri.includes(':') &&
+    targetUri.length > 0
+  )
 }
 
 /**

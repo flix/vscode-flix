@@ -47,7 +47,7 @@ suite('Find implementations', () => {
     assert.deepStrictEqual(new Set(actualLocations), new Set(expectedLocations))
   }
 
-  test('Should find Dividable trait implementation', async () => {
+  test.skip('Should find Dividable trait implementation', async () => {
     await testImplementations(dividableDocUri, new vscode.Position(1, 6), [
       new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
     ])

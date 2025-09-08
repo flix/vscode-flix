@@ -7,5 +7,5 @@ enum Shape {
 }
 
 // Computes the area of a 2 by 4.
-def main(): Unit \ IO =
+def main(): Unit \ IO + Assert =
     println(area(Shape.Rectangle(2, 4)))

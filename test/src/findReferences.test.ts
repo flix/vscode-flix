@@ -65,14 +65,14 @@ suite('Find references', () => {
   test('Should find references to area def', async () => {
     await testFindReferences(areaDocUri, new vscode.Position(3, 4), [
       new vscode.Location(areaDocUri, new vscode.Range(3, 4, 3, 8)),
-      new vscode.Location(areaDocUri, new vscode.Range(12, 39, 12, 43)),
+      new vscode.Location(areaDocUri, new vscode.Range(12, 65, 12, 69)),
       new vscode.Location(mainDocUri, new vscode.Range(10, 12, 10, 16)),
     ])
   })
   test('Should find references to area def-use', async () => {
-    await testFindReferences(areaDocUri, new vscode.Position(12, 39), [
+    await testFindReferences(areaDocUri, new vscode.Position(12, 65), [
       new vscode.Location(areaDocUri, new vscode.Range(3, 4, 3, 8)),
-      new vscode.Location(areaDocUri, new vscode.Range(12, 39, 12, 43)),
+      new vscode.Location(areaDocUri, new vscode.Range(12, 65, 12, 69)),
       new vscode.Location(mainDocUri, new vscode.Range(10, 12, 10, 16)),
     ])
   })

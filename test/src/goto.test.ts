@@ -101,7 +101,7 @@ suite('Go to definition', () => {
   })
 
   test('Should go to definition of Shape.Square enum case', async () => {
-    await testGotoDefinition(areaDocUri, new vscode.Position(12, 50), mainDocUri, new vscode.Range(4, 9, 4, 22))
+    await testGotoDefinition(areaDocUri, new vscode.Position(12, 76), mainDocUri, new vscode.Range(4, 9, 4, 22))
   })
 
   test('Should go to definition of Shape.Square enum case from match-case', async () => {

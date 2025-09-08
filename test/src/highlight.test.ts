@@ -80,13 +80,13 @@ suite('Highlight uses', () => {
   test('Should find highlights of area function', async () => {
     await testHighlight(areaDocUri, new vscode.Position(3, 4), [
       new vscode.Range(3, 4, 3, 8),
-      new vscode.Range(12, 39, 12, 43),
+      new vscode.Range(12, 65, 12, 69),
     ])
   })
   test('Should find highlights of area function-use', async () => {
-    await testHighlight(areaDocUri, new vscode.Position(12, 39), [
+    await testHighlight(areaDocUri, new vscode.Position(12, 65), [
       new vscode.Range(3, 4, 3, 8),
-      new vscode.Range(12, 39, 12, 43),
+      new vscode.Range(12, 65, 12, 69),
     ])
   })
 

@@ -1,3 +1,3 @@
 mod Assert {
-    pub def assert(_: t, _: t): Bool = true
+    pub def eq(_: t, _: t): Bool = true
 }

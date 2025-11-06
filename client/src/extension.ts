@@ -146,7 +146,6 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.cmdOutdated', handlers.cmdOutdated(context, launchOptions))
   registerCommand('flix.showAst', handlers.showAst(client))
   registerCommand('flix.startRepl', handlers.startRepl(context, launchOptions))
-  registerCommand('flix.format', handlers.format(client))
 
   // Register commands for testing
 

@@ -374,18 +374,6 @@ export function startRepl(context: vscode.ExtensionContext, launchOptions: Launc
   }
 }
 
-/**
- * Format the source code.
- *
- * @returns function handler
- */
-export function format(client: LanguageClient) {
-  return async () => {
-    //TODO: implement logic to format code.
-    vscode.window.showInformationMessage('Format command invoked successfully!')
-  }
-}
-
 export function allJobsFinished(client: LanguageClient, eventEmitter: EventEmitter) {
   return () =>
     new Promise(resolve => {

@@ -47,6 +47,7 @@ export enum Request {
   lspDocumentSymbols = 'lsp/documentSymbols',
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspShowAst = 'lsp/showAst',
+  lspFormatting = 'lsp/formatting',
 
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request

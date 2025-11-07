@@ -20,6 +20,8 @@ import {
   InlayHintParams,
   TextDocumentChangeEvent,
   TextDocumentSyncKind,
+  DocumentFormattingParams,
+  TextEdit,
 } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -104,6 +106,7 @@ export function handleInitialize(_params: InitializeParams) {
         },
         full: true,
       },
+      documentFormattingProvider: true,
     },
   }
 
@@ -362,5 +365,33 @@ export function handleCrash({ status, result }: socket.FlixResponse) {
         },
       },
     ],
+  })
+}
+
+/**
+ * Handle document formatting requests.
+ *
+ * @param params - The document formatting parameters.
+ * @returns A promise that resolves to an array of text edits.
+ */
+export const handleDocumentFormatting = (params: DocumentFormattingParams): Thenable<TextEdit[]> => {
+  const jobPayload = {
+    request: jobs.Request.lspFormatting,
+    uri: params.textDocument.uri,
+    options: params.options,
+  }
+
+  const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspFormatting, jobPayload)
+
+  return new Promise<TextEdit[]>(resolve => {
+    socket.eventEmitter.once(job.id, (response: socket.FlixResponse) => {
+      if (response.status !== StatusCode.Success) {
+        console.error(`[Formatting] request failed (status=${response.status})`, response.result)
+        resolve([])
+        return
+      }
+      let edits = (response.result ?? []) as TextEdit[]
+      resolve(edits)
+    })
   })
 }

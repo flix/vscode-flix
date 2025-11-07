@@ -50,6 +50,7 @@ export enum Request {
   lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspSemanticTokens = 'lsp/semanticTokens',
   lspShowAst = 'lsp/showAst',
+  lspFormatting = 'lsp/formatting',
 
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request

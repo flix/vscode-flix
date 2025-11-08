@@ -284,6 +284,24 @@ export function handleCodeAction(params: any): Promise<any> {
 }
 
 /**
+ * Handle document formatting requests.
+ *
+ * @param params - The document formatting parameters.
+ * @returns A promise that resolves to an array of text edits.
+ */
+export const handleDocumentFormatting = (params: DocumentFormattingParams): Promise<TextEdit[]> => {
+  const uri = params.textDocument?.uri
+  const options = params.options
+
+  return new Promise<TextEdit[]>(function (resolve) {
+    const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspFormatting, { uri, options })
+    socket.eventEmitter.once(job.id, ({ result }: socket.FlixResponse) => {
+      resolve((result ?? []) as unknown as TextEdit[])
+    })
+  })
+}
+
+/**
  * @function
  */
 export const handleWorkspaceSymbols = makeEnqueuePromise(makeWorkspaceSymbolsJob, makeDefaultResponseHandler) as (
@@ -365,33 +383,5 @@ export function handleCrash({ status, result }: socket.FlixResponse) {
         },
       },
     ],
-  })
-}
-
-/**
- * Handle document formatting requests.
- *
- * @param params - The document formatting parameters.
- * @returns A promise that resolves to an array of text edits.
- */
-export const handleDocumentFormatting = (params: DocumentFormattingParams): Thenable<TextEdit[]> => {
-  const jobPayload = {
-    request: jobs.Request.lspFormatting,
-    uri: params.textDocument.uri,
-    options: params.options,
-  }
-
-  const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspFormatting, jobPayload)
-
-  return new Promise<TextEdit[]>(resolve => {
-    socket.eventEmitter.once(job.id, (response: socket.FlixResponse) => {
-      if (response.status !== StatusCode.Success) {
-        console.error(`[Formatting] request failed (status=${response.status})`, response.result)
-        resolve([])
-        return
-      }
-      let edits = (response.result ?? []) as TextEdit[]
-      resolve(edits)
-    })
   })
 }

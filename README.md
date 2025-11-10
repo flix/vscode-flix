@@ -73,8 +73,24 @@ based on the real Flix compiler infrastructure.
 - Install the Flix Visual Studio Code extension.
     - The extension will automatically download the Flix compiler.
 
-Alternative (for advanced users):
+### Advanced Installation:
 
+#### Building from the source
+```bash
+# install vsce
+npm install -g @vscode/vsce
+
+# install dependencies
+npm install
+
+# build and package extension
+vsce package
+
+# install extension
+code --install-extension flix-$VERSION.vsix
+```
+
+#### Nightly compiler
 - Upon startup, the extension with look for a `flix.jar` compiler in the project
   root and use that if available.
     - This can be used to run a nightly (or custom-built) version of the compiler.

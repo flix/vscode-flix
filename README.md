@@ -76,7 +76,7 @@ based on the real Flix compiler infrastructure.
 ### Advanced Installation:
 
 #### Building from the source
-```bash
+```sh
 # install vsce
 npm install -g @vscode/vsce
 

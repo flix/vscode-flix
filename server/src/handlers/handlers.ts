@@ -20,6 +20,8 @@ import {
   InlayHintParams,
   TextDocumentChangeEvent,
   TextDocumentSyncKind,
+  DocumentFormattingParams,
+  TextEdit,
 } from 'vscode-languageserver'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -104,6 +106,7 @@ export function handleInitialize(_params: InitializeParams) {
         },
         full: true,
       },
+      documentFormattingProvider: true,
     },
   }
 
@@ -277,6 +280,24 @@ export function handleCodeAction(params: any): Promise<any> {
   return new Promise(function (resolve) {
     const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspCodeAction, { uri, range, context })
     socket.eventEmitter.once(job.id, ({ status, result }) => resolve(result))
+  })
+}
+
+/**
+ * Handle document formatting requests.
+ *
+ * @param params - The document formatting parameters.
+ * @returns A promise that resolves to an array of text edits.
+ */
+export const handleDocumentFormatting = (params: DocumentFormattingParams): Promise<TextEdit[]> => {
+  const uri = params.textDocument?.uri
+  const options = params.options
+
+  return new Promise<TextEdit[]>(function (resolve) {
+    const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspFormatting, { uri, options })
+    socket.eventEmitter.once(job.id, ({ result }: socket.FlixResponse) => {
+      resolve((result ?? []) as unknown as TextEdit[])
+    })
   })
 }
 

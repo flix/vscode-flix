@@ -91,6 +91,9 @@ connection.languages.semanticTokens.on(handlers.handleSemanticTokens)
 // Inlay hints.
 connection.languages.inlayHint.on(handlers.handleInlayHints)
 
+// Formatting
+connection.onDocumentFormatting(handlers.handleDocumentFormatting)
+
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection)

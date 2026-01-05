@@ -40,8 +40,8 @@ mod Date {
 }
 
 @Test
-def test01(): Bool = 
-    earlierDate(
+def test01(): Unit \ Assert =
+    Assert.assertEq(expected = Date.Date(1966, Date.Month.November, 9), earlierDate(
         Date.Date(1980, Date.Month.December, 8),
         Date.Date(1966, Date.Month.November, 9)
-    ) == Date.Date(1966, Date.Month.November, 9)
+    ))

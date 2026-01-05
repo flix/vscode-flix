@@ -17,29 +17,29 @@ instance Equatable[Int32] {
 }
 
 @Test
-def testOptionEquatable01(): Bool = {
+def testOptionEquatable01(): Unit \ Assert = {
     let first = Some(1);
     let second = Some(1);
-    Equatable.equals(first, second)
+    Assert.assertTrue(Equatable.equals(first, second))
 }
 
 @Test
-def testOptionEquatable02(): Bool = {
+def testOptionEquatable02(): Unit \ Assert = {
     let first: Option[Int32] = None;
     let second: Option[Int32] = None;
-    Equatable.equals(first, second)
+    Assert.assertTrue(Equatable.equals(first, second))
 }
 
 @Test
-def testOptionEquatable03(): Bool = {
+def testOptionEquatable03(): Unit \ Assert = {
     let first = Some(1);
     let second: Option[Int32] = None;
-    not Equatable.equals(first, second)
+    Assert.assertFalse(Equatable.equals(first, second))
 }
 
 @Test
-def testOptionEquatable04(): Bool = {
+def testOptionEquatable04(): Unit \ Assert = {
     let first = Some(1);
     let second = Some(2);
-    not Equatable.equals(first, second)
+    Assert.assertFalse(Equatable.equals(first, second))
 }

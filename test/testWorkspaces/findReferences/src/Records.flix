@@ -10,8 +10,8 @@ def setY(r: {y = Int32 | a}, v: Int32): {y = Int32 | a} =
 
 
 @Test
-def testRecords(): Bool =
+def testRecords(): Unit \ Assert =
     let r1 = {x = 1, y = 2};
     let r2 = setX(r1, 3);
-    (r1#x + r2#x) == 4
+    Assert.assertEq(expected = 4, r1#x + r2#x)
     

@@ -9,7 +9,7 @@ def setY(r: {y = Int32 | a}, v: Int32): {y = Int32 | a} =
     { y = v | r }
 
 
-@Test
+
 def testRecords(): Bool =
     let r1 = {x = 1, y = 2};
     let r2 = setX(r1, 3);

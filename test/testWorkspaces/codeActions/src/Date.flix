@@ -39,7 +39,7 @@ mod Date {
         println(message)
 }
 
-@Test
+
 def test01(): Bool = 
     earlierDate(
         Date.Date(1980, Date.Month.December, 8),

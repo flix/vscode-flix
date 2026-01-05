@@ -66,8 +66,4 @@ suite('Code actions', () => {
       await testCodeAction(dateDocUri, new vscode.Position(2, 25), "use 'Date.Month'")
     })
   })
-
-  suite('Missing trait instances', () => {
-    // TODO: See https://github.com/flix/flix/issues/7906
-  })
 })

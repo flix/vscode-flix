@@ -9,5 +9,5 @@ def area(s: Shape): Int32 = {
     }
 }
 
-@Test
+
 def testSquareArea(): Bool = Assert.eq(area(Shape.Square(5)), 25)

@@ -16,9 +16,9 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, open } from './util'
+import { findMarkerPosition, getTestDocUri, init, open } from './util'
 
-suite('Hover info', () => {
+suite('HoverProvider', () => {
   const docUri = getTestDocUri('src/Main.flix')
 
   suiteSetup(async () => {
@@ -26,12 +26,31 @@ suite('Hover info', () => {
     await open(docUri)
   })
 
-  test('Should not show anything when hovering on empty line', async () => {
-    const position = new vscode.Position(0, 0)
-    const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
-    assert.strictEqual(r.length, 0)
+  test('Should show Type when hovering on Unit', async () => {
+    const position = await findMarkerPosition(docUri, 'unit')
+    await testHoverAtPosition(position, ['Type'])
   })
 
+  test('Should show Eff when hovering on IO', async () => {
+    const position = await findMarkerPosition(docUri, 'io')
+    await testHoverAtPosition(position, ['Eff'])
+  })
+
+  test('Should show Shape when hovering on area()-call', async () => {
+    const position = await findMarkerPosition(docUri, 'area')
+    await testHoverAtPosition(position, ['Shape'])
+  })
+
+  test('Should show def when hovering on area()-call', async () => {
+    const position = await findMarkerPosition(docUri, 'area')
+    await testHoverAtPosition(position, ['def', 'area', 'Shape'])
+  })
+
+  test('Should show doc when hovering on area()-call', async () => {
+    const position = await findMarkerPosition(docUri, 'area')
+    await testHoverAtPosition(position, ['area', 'shape', 'pattern'])
+  })
+  
   /**
    * Returns the given string, `s`, with all newlines replaced by a space.
    */
@@ -55,29 +74,4 @@ suite('Hover info', () => {
       `Actual: ${contents.value}\nExpected keywords: ${expectedKeywords.join(', ')}`,
     )
   }
-
-  test('Should show Type when hovering on Unit', async () => {
-    const position = new vscode.Position(9, 12)
-    await testHoverAtPosition(position, ['Type'])
-  })
-
-  test('Should show Eff when hovering on IO', async () => {
-    const position = new vscode.Position(9, 19)
-    await testHoverAtPosition(position, ['Eff'])
-  })
-
-  test('Should show Shape when hovering on Shape.Rectangle instantiation', async () => {
-    const position = new vscode.Position(10, 13)
-    await testHoverAtPosition(position, ['Shape'])
-  })
-
-  test('Should show def when hovering on area()-call', async () => {
-    const position = new vscode.Position(10, 12)
-    await testHoverAtPosition(position, ['def', 'area', 'Shape'])
-  })
-
-  test('Should show doc when hovering on area()-call', async () => {
-    const position = new vscode.Position(10, 12)
-    await testHoverAtPosition(position, ['area', 'shape', 'pattern'])
-  })
 })

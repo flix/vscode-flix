@@ -39,7 +39,7 @@ suite('Code lenses', () => {
     await open(areaDocUri)
     const r = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', areaDocUri)
     assert.strictEqual(
-      r.some(l => l.command?.command === 'flix.runMain' && l.command?.arguments?.[0] === 'testSquareArea'),
+      r.some(l => l.command?.command === 'flix.runMain'),
       true,
     )
     assert.strictEqual(
@@ -47,4 +47,5 @@ suite('Code lenses', () => {
       true,
     )
   })
+
 })

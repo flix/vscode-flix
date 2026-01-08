@@ -205,3 +205,21 @@ export function normalizeLocation(location: vscode.Location | vscode.LocationLin
     return new vscode.Location(normalizeUri(location.targetUri), location.targetRange)
   }
 }
+
+/**
+ * Finds a marker in the document and returns the position 2 characters before it.
+ * The marker should be placed one space after the position of interest.
+ */
+export async function findMarkerPosition(uri: vscode.Uri, tag?: string): Promise<vscode.Position> {
+  const document = await vscode.workspace.openTextDocument(uri)
+  const text = document.getText()
+  const marker = tag ? '/*!' + tag + '*/' : '/*!*/'
+  const index = text.indexOf(marker)
+  if (index === -1) {
+    throw new Error('Marker ' + marker + ' not found in ' + uri.fsPath)
+  }
+  // Marker is placed one space after the position we care about
+  // So target position is 2 characters before marker start
+  const targetIndex = index - 2
+  return document.positionAt(targetIndex)
+}

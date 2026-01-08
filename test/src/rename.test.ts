@@ -16,13 +16,37 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, open } from './util'
+import { findMarkerPosition, getTestDocUri, init, open } from './util'
 
 suite('RenameProvider', () => {
   const equatableDocUri = getTestDocUri('src/Equatable.flix')
 
   suiteSetup(async () => {
     await init('rename')
+  })
+
+  test('Should rename function parameter', async () => {
+    const position = await findMarkerPosition(equatableDocUri, 'xvar')
+    const ranges = await testRename(equatableDocUri, position)
+    assert.strictEqual(ranges.length, 2)
+  })
+
+  test('Should rename function parameter-use', async () => {
+    const position = await findMarkerPosition(equatableDocUri, 'xuse')
+    const ranges = await testRename(equatableDocUri, position)
+    assert.strictEqual(ranges.length, 2)
+  })
+
+  test('Should rename let-bound variable', async () => {
+    const position = await findMarkerPosition(equatableDocUri, 'firstvar')
+    const ranges = await testRename(equatableDocUri, position)
+    assert.strictEqual(ranges.length, 2)
+  })
+
+  test('Should rename let-bound variable-use', async () => {
+    const position = await findMarkerPosition(equatableDocUri, 'firstuse')
+    const ranges = await testRename(equatableDocUri, position)
+    assert.strictEqual(ranges.length, 2)
   })
 
   async function testRename(uri: vscode.Uri, position: vscode.Position): Promise<vscode.Range[]> {
@@ -44,40 +68,4 @@ suite('RenameProvider', () => {
 
     return entries.flatMap(([_uri, edits]) => edits.map(e => e.range))
   }
-
-  async function findMarkerPosition(uri: vscode.Uri, tag?: string): Promise<vscode.Position> {
-    const document = await vscode.workspace.openTextDocument(uri)
-    const text = document.getText()
-    const marker = tag ? `/*!${tag}*/` : '/*!*/'
-    const index = text.indexOf(marker)
-    if (index === -1) {
-      throw new Error(`Marker ${marker} not found in ${uri.fsPath}`)
-    }
-    // Marker is placed one space after the position we care about
-    // So target position is 2 characters before marker start
-    const targetIndex = index - 2
-    return document.positionAt(targetIndex)
-  }
-
-  test('Should rename function parameter', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'xvar')
-    const ranges = await testRename(equatableDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
-  test('Should rename function parameter-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'xuse')
-    const ranges = await testRename(equatableDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
-
-  test('Should rename let-bound variable', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'firstvar')
-    const ranges = await testRename(equatableDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
-  test('Should rename let-bound variable-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'firstuse')
-    const ranges = await testRename(equatableDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
 })

@@ -7,8 +7,8 @@ enum Shape {
 }
 
 // Computes the area of a 2 by 4.
-def main(): Unit \ IO =
-    println(area(Shape.Rectangle(2, 4)))
+def main(): Unit /*!unit*/ \ IO /*!io*/ =
+    println(area /*!area*/(Shape.Rectangle(2, 4)))
 
 /// Computes the area of the given shape using
 /// pattern matching and basic arithmetic.

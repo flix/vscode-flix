@@ -50,7 +50,7 @@ suite('HoverProvider', () => {
     const position = await findMarkerPosition(docUri, 'area')
     await testHoverAtPosition(position, ['area', 'shape', 'pattern'])
   })
-  
+
   /**
    * Returns the given string, `s`, with all newlines replaced by a space.
    */

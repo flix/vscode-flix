@@ -51,11 +51,10 @@ suite('File manipulation', () => {
     await addFile(fpkgUri, content)
     assert.strictEqual(await workspaceValid(), true)
   })
-  
+
   async function workspaceValid() {
     // If all files are not present in the compiler, then Main.flix will contain a resolution error
     const r = [...vscode.languages.getDiagnostics(mainDocUri), ...vscode.languages.getDiagnostics(areaDocUri)]
     return r.length === 0
   }
-
 })

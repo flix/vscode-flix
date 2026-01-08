@@ -25,7 +25,7 @@ suite('Diagnostics', () => {
   suiteSetup(async () => {
     await init('diagnostics')
   })
-  
+
   teardown(async () => {
     if (tempDocUri !== null) {
       await deleteFile(tempDocUri)
@@ -77,5 +77,4 @@ suite('Diagnostics', () => {
       `Actual: ${JSON.stringify(diagnostics)}\nExpected keywords: ${expectedKeywords.join(', ')}`,
     )
   }
-
 })

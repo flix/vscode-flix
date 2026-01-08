@@ -47,5 +47,4 @@ suite('Code lenses', () => {
       true,
     )
   })
-
 })

@@ -38,5 +38,4 @@ suite('Server disconnect', () => {
       assert.strictEqual(contents.value.includes('Type'), true)
     }
   })
-  
 })

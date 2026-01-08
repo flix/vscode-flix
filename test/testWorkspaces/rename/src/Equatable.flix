@@ -4,8 +4,8 @@ trait Equatable[t] {
 }
 
 instance Equatable[Option[t]] with Equatable[t] {
-    pub def equals(x: Option[t], y: Option[t]): Bool = 
-        match (x, y) {
+    pub def equals(x /*!xvar*/: Option[t], y: Option[t]): Bool = 
+        match (x /*!xuse*/, y) {
             case (None, None)         => true
             case (Some(v1), Some(v2)) => Equatable.equals(v1, v2)
             case _                    => false
@@ -18,9 +18,9 @@ instance Equatable[Int32] {
 
 
 def testOptionEquatable01(): Bool = {
-    let first = Some(1);
+    let first /*!firstvar*/ = Some(1);
     let second = Some(1);
-    Equatable.equals(first, second)
+    Equatable.equals(first /*!firstuse*/, second)
 }
 
 

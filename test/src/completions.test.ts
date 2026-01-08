@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init, open, typeText, addFile } from './util'
 
-suite('Completions', () => {
+suite('CompletionProvider', () => {
   const docUri = getTestDocUri('src/Temp.flix')
 
   suiteSetup(async () => {

@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init, open } from './util'
 
-suite('Code lenses', () => {
+suite('CodeLensProvider', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const areaDocUri = getTestDocUri('src/Area.flix')
 

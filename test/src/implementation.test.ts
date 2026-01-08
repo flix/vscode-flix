@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init, normalizeLocation } from './util'
 
-suite('Find implementations', () => {
+suite('ImplementationProvider', () => {
   const dividableDocUri = getTestDocUri('src/Dividable.flix')
 
   suiteSetup(async () => {

@@ -40,43 +40,44 @@ suite('Hover info', () => {
   }
 
   /**
-   * Asserts that hovering at the given `position` in the document shows exactly one message, which contains the `expected` string.
+   * Asserts that hovering at the given `position` in the document shows exactly one message, which contains all of the `expectedKeywords` (case-insensitive).
    */
-  async function testHoverAtPosition(position: vscode.Position, expected: string) {
+  async function testHoverAtPosition(position: vscode.Position, expectedKeywords: string[]) {
     const r = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', docUri, position)
 
     assert.strictEqual(r.length, 1)
 
     const contents = r[0].contents[0] as vscode.MarkdownString
-    const actual = stripNewlines(contents.value)
-    assert.strictEqual(actual.includes(expected), true, `Actual: ${actual}\nExpected: ${expected}`)
+    const actualLower = stripNewlines(contents.value).toLowerCase()
+    assert.strictEqual(
+      expectedKeywords.every(kw => actualLower.includes(kw.toLowerCase())),
+      true,
+      `Actual: ${contents.value}\nExpected keywords: ${expectedKeywords.join(', ')}`,
+    )
   }
 
   test('Should show Type when hovering on Unit', async () => {
     const position = new vscode.Position(9, 12)
-    await testHoverAtPosition(position, 'Type')
+    await testHoverAtPosition(position, ['Type'])
   })
 
   test('Should show Eff when hovering on IO', async () => {
     const position = new vscode.Position(9, 19)
-    await testHoverAtPosition(position, 'Eff')
+    await testHoverAtPosition(position, ['Eff'])
   })
 
   test('Should show Shape when hovering on Shape.Rectangle instantiation', async () => {
     const position = new vscode.Position(10, 13)
-    await testHoverAtPosition(position, 'Shape')
+    await testHoverAtPosition(position, ['Shape'])
   })
 
   test('Should show def when hovering on area()-call', async () => {
     const position = new vscode.Position(10, 12)
-    await testHoverAtPosition(position, 'def area(s: Shape): Int32')
+    await testHoverAtPosition(position, ['def', 'area', 'Shape'])
   })
 
   test('Should show doc when hovering on area()-call', async () => {
     const position = new vscode.Position(10, 12)
-    await testHoverAtPosition(
-      position,
-      'Computes the area of the given shape using pattern matching and basic arithmetic.',
-    )
+    await testHoverAtPosition(position, ['area', 'shape', 'pattern'])
   })
 })

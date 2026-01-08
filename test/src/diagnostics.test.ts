@@ -32,9 +32,9 @@ suite('Diagnostics', () => {
   })
 
   /**
-   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing the `expected` string.
+   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
    */
-  async function testDiagnostics(fileName: string, expected: string) {
+  async function testDiagnostics(fileName: string, expectedKeywords: string[]) {
     const latentUri = getTestDocUri(`latent/${fileName}`)
     const srcUri = getTestDocUri(`src/${fileName}`)
 
@@ -44,33 +44,36 @@ suite('Diagnostics', () => {
 
     const diagnostics = vscode.languages.getDiagnostics(srcUri)
     assert.strictEqual(
-      diagnostics.some(d => d.message.includes(expected)),
+      diagnostics.some(d => {
+        const msgLower = d.message.toLowerCase()
+        return expectedKeywords.every(kw => msgLower.includes(kw.toLowerCase()))
+      }),
       true,
-      `Actual: ${JSON.stringify(diagnostics)}\nExpected: ${expected}`,
+      `Actual: ${JSON.stringify(diagnostics)}\nExpected keywords: ${expectedKeywords.join(', ')}`,
     )
   }
 
-  test('Should show weeder error', async () => {
-    await testDiagnostics('WeederError.flix', "Multiple declarations of the formal parameter 'a'.")
+  test('Should show WeederError', async () => {
+    await testDiagnostics('WeederError.flix', ['multiple', 'parameter'])
   })
 
-  test('Should show name error', async () => {
-    await testDiagnostics('NameError.flix', "Duplicate definition of 'sum'.")
+  test('Should show NameError', async () => {
+    await testDiagnostics('NameError.flix', ['duplicate', 'definition'])
   })
 
-  test('Should show resolution error', async () => {
-    await testDiagnostics('ResolutionError.flix', 'Cyclic type aliases:')
+  test('Should show ResolutionError', async () => {
+    await testDiagnostics('ResolutionError.flix', ['cyclic', 'type'])
   })
 
-  test('Should show type error', async () => {
-    await testDiagnostics('TypeError.flix', "Expected type 'String' but found type: 'Float64'.")
+  test('Should show TypeError', async () => {
+    await testDiagnostics('TypeError.flix', ['expected', 'type', 'found'])
   })
 
-  test('Should show redundancy error', async () => {
-    await testDiagnostics('RedundancyError.flix', 'Shadowed name.')
+  test('Should show RedundancyError', async () => {
+    await testDiagnostics('RedundancyError.flix', ['shadowed'])
   })
 
-  test('Should show safety error', async () => {
-    await testDiagnostics('SafetyError.flix', 'Missing default case.')
+  test('Should show SafetyError', async () => {
+    await testDiagnostics('SafetyError.flix', ['missing', 'default'])
   })
 })

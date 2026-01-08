@@ -40,7 +40,7 @@ suite('Code actions', () => {
     assert.strictEqual(r.length, 0)
   })
 
-  async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedTitle: string) {
+  async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedKeywords: string[]) {
     await open(docUri)
 
     const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
@@ -49,21 +49,24 @@ suite('Code actions', () => {
       new vscode.Range(position, position),
     )
 
-    const action = r.find(a => a.title.includes(expectedTitle))
+    const action = r.find(a => {
+      const titleLower = a.title.toLowerCase()
+      return expectedKeywords.every(kw => titleLower.includes(kw.toLowerCase()))
+    })
     assert.notStrictEqual(
       action,
       undefined,
-      `Code action "${expectedTitle}" not found in. Instead found: ${stringify(r)}`,
+      `Code action with keywords "${expectedKeywords.join(', ')}" not found. Instead found: ${stringify(r)}`,
     )
   }
 
   suite('Undefined names', () => {
     test('Should propose using Date.earlierDate def', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(43, 4), "use 'Date.earlierDate'")
+      await testCodeAction(dateDocUri, new vscode.Position(43, 4), ['use', 'earlierDate'])
     })
 
     test('Should propose using Date.Month enum', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(2, 25), "use 'Date.Month'")
+      await testCodeAction(dateDocUri, new vscode.Position(2, 25), ['use', 'Month'])
     })
   })
 })

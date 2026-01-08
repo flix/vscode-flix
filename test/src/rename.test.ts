@@ -19,33 +19,33 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getTestDocUri, init, open } from './util'
 
 suite('RenameProvider', () => {
-  const equatableDocUri = getTestDocUri('src/Equatable.flix')
+  const mainDocUri = getTestDocUri('src/Main.flix')
 
   suiteSetup(async () => {
     await init('rename')
   })
 
-  test('Should rename function parameter', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'xvar')
-    const ranges = await testRename(equatableDocUri, position)
+  test('Should rename variable', async () => {
+    const position = await findMarkerPosition(mainDocUri, 's1')
+    const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)
   })
 
-  test('Should rename function parameter-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'xuse')
-    const ranges = await testRename(equatableDocUri, position)
+  test('Should rename variable-use', async () => {
+    const position = await findMarkerPosition(mainDocUri, 's2')
+    const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)
   })
 
-  test('Should rename let-bound variable', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'firstvar')
-    const ranges = await testRename(equatableDocUri, position)
+  test('Should rename function', async () => {
+    const position = await findMarkerPosition(mainDocUri, 'area1')
+    const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)
   })
 
-  test('Should rename let-bound variable-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'firstuse')
-    const ranges = await testRename(equatableDocUri, position)
+  test('Should rename function-use', async () => {
+    const position = await findMarkerPosition(mainDocUri, 'area2')
+    const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)
   })
 

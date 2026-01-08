@@ -16,19 +16,28 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init } from './util'
+import { findMarkerPosition, getTestDocUri, init } from './util'
 
 suite('GotoDefinitionProvider', () => {
-  const equatableDocUri = getTestDocUri('src/Equatable.flix')
+  const mainDocUri = getTestDocUri('src/Main.flix')
 
   suiteSetup(async () => {
     await init('goto')
   })
 
-  async function testGotoDefinition(
-    uri: vscode.Uri,
-    position: vscode.Position,
-  ): Promise<vscode.Location | undefined> {
+  test('Should go to definition of formal parameter', async () => {
+    const position = await findMarkerPosition(mainDocUri, 's')
+    const location = await testGotoDefinition(mainDocUri, position)
+    assert.ok(location)
+  })
+
+  test('Should go to definition of match-extracted variable', async () => {
+    const position = await findMarkerPosition(mainDocUri, 'r')
+    const location = await testGotoDefinition(mainDocUri, position)
+    assert.ok(location)
+  })
+
+  async function testGotoDefinition(uri: vscode.Uri, position: vscode.Position): Promise<vscode.Location | undefined> {
     const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
       'vscode.executeDefinitionProvider',
       uri,
@@ -40,19 +49,4 @@ suite('GotoDefinitionProvider', () => {
     const targetRange = loc instanceof vscode.Location ? loc.range : loc.targetRange
     return new vscode.Location(targetUri, targetRange)
   }
-
-  test('Should go to definition of x formal parameter', async () => {
-    const location = await testGotoDefinition(equatableDocUri, new vscode.Position(7, 15))
-    assert.ok(location)
-  })
-
-  test('Should go to definition of v1 match-extracted variable', async () => {
-    const location = await testGotoDefinition(equatableDocUri, new vscode.Position(9, 58))
-    assert.ok(location)
-  })
-
-  test('Should go to definition of first let-bound variable', async () => {
-    const location = await testGotoDefinition(equatableDocUri, new vscode.Position(22, 21))
-    assert.ok(location)
-  })
 })

@@ -20,34 +20,34 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getTestDocUri, init } from './util'
 
 suite('FindReferencesProvider', () => {
-  const equatableDocUri = getTestDocUri('src/Equatable.flix')
+  const mainDocUri = getTestDocUri('src/Main.flix')
 
   suiteSetup(async () => {
     await init('findReferences')
   })
 
   test('Should find references to function parameter', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'x1')
-    const locations = await testFindReferences(equatableDocUri, position)
+    const position = await findMarkerPosition(mainDocUri, 's1')
+    const locations = await testFindReferences(mainDocUri, position)
     assert.strictEqual(locations.length, 2)
   })
 
   test('Should find references to function parameter-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'x2')
-    const locations = await testFindReferences(equatableDocUri, position)
+    const position = await findMarkerPosition(mainDocUri, 's2')
+    const locations = await testFindReferences(mainDocUri, position)
     assert.strictEqual(locations.length, 2)
   })
 
-  test('Should find references to let-bound variable', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'first1')
-    const locations = await testFindReferences(equatableDocUri, position)
-    assert.strictEqual(locations.length, 2)
+  test('Should find references to pattern variable', async () => {
+    const position = await findMarkerPosition(mainDocUri, 'r1')
+    const locations = await testFindReferences(mainDocUri, position)
+    assert.strictEqual(locations.length, 3)
   })
 
-  test('Should find references to let-bound variable-use', async () => {
-    const position = await findMarkerPosition(equatableDocUri, 'first2')
-    const locations = await testFindReferences(equatableDocUri, position)
-    assert.strictEqual(locations.length, 2)
+  test('Should find references to pattern variable-use', async () => {
+    const position = await findMarkerPosition(mainDocUri, 'r2')
+    const locations = await testFindReferences(mainDocUri, position)
+    assert.strictEqual(locations.length, 3)
   })
 
   async function testFindReferences(uri: vscode.Uri, position: vscode.Position): Promise<vscode.Location[]> {

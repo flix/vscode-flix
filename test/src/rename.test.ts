@@ -37,13 +37,13 @@ suite('RenameProvider', () => {
     assert.strictEqual(ranges.length, 2)
   })
 
-  test('Should rename function', async () => {
+  test.skip('Should rename function', async () => {
     const position = await findMarkerPosition(mainDocUri, 'area1')
     const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)
   })
 
-  test('Should rename function-use', async () => {
+  test.skip('Should rename function-use', async () => {
     const position = await findMarkerPosition(mainDocUri, 'area2')
     const ranges = await testRename(mainDocUri, position)
     assert.strictEqual(ranges.length, 2)

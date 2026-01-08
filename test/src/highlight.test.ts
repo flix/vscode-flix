@@ -62,10 +62,6 @@ suite('DocumentHighlightProvider', () => {
   })
 
   async function testHighlight(uri: vscode.Uri, position: vscode.Position): Promise<vscode.DocumentHighlight[]> {
-    return vscode.commands.executeCommand<vscode.DocumentHighlight[]>(
-      'vscode.executeDocumentHighlights',
-      uri,
-      position,
-    )
+    return vscode.commands.executeCommand<vscode.DocumentHighlight[]>('vscode.executeDocumentHighlights', uri, position)
   }
 })

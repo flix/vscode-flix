@@ -25,6 +25,7 @@ suite('Diagnostics', () => {
   suiteSetup(async () => {
     await init('diagnostics')
   })
+  
   teardown(async () => {
     if (tempDocUri !== null) {
       await deleteFile(tempDocUri)

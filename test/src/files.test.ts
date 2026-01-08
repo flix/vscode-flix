@@ -28,12 +28,6 @@ suite('File manipulation', () => {
     await init('files')
   })
 
-  async function workspaceValid() {
-    // If all files are not present in the compiler, then Main.flix will contain a resolution error
-    const r = [...vscode.languages.getDiagnostics(mainDocUri), ...vscode.languages.getDiagnostics(areaDocUri)]
-    return r.length === 0
-  }
-
   test('Should remove deleted source-file', async () => {
     await deleteFile(areaDocUri)
     assert.strictEqual(await workspaceValid(), false)
@@ -57,6 +51,11 @@ suite('File manipulation', () => {
     await addFile(fpkgUri, content)
     assert.strictEqual(await workspaceValid(), true)
   })
+  
+  async function workspaceValid() {
+    // If all files are not present in the compiler, then Main.flix will contain a resolution error
+    const r = [...vscode.languages.getDiagnostics(mainDocUri), ...vscode.languages.getDiagnostics(areaDocUri)]
+    return r.length === 0
+  }
 
-  // TODO: Test for jar-file. This file is locked by the process, so it cannot be deleted and added again.
 })

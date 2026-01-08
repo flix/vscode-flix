@@ -18,7 +18,7 @@ import * as assert from 'assert'
 import * as vscode from 'vscode'
 import { getTestDocUri, init, open, stringify } from './util'
 
-suite('Code actions', () => {
+suite('CodeActionProvider', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
   const dateDocUri = getTestDocUri('src/Date.flix')
 

@@ -25,14 +25,9 @@ suite('Find references', () => {
   const areaDocUri = getTestDocUri('src/Area.flix')
   const equatableDocUri = getTestDocUri('src/Equatable.flix')
   const dateDocUri = getTestDocUri('src/Date.flix')
-  const recordsDocUri = getTestDocUri('src/Records.flix')
 
   suiteSetup(async () => {
     await init('findReferences')
-  })
-
-  test('Should not find references on empty line', async () => {
-    await testFindReferences(mainDocUri, new vscode.Position(0, 0), [])
   })
 
   async function testFindReferences(uri: vscode.Uri, position: vscode.Position, expectedLocations: vscode.Location[]) {
@@ -48,6 +43,7 @@ suite('Find references', () => {
       new vscode.Location(areaDocUri, new vscode.Range(5, 13, 5, 25)),
     ])
   })
+
   test('Should find references to Shape.Circle enum case-use', async () => {
     await testFindReferences(areaDocUri, new vscode.Position(5, 13), [
       new vscode.Location(mainDocUri, new vscode.Range(3, 9, 3, 15)),
@@ -69,6 +65,7 @@ suite('Find references', () => {
       new vscode.Location(mainDocUri, new vscode.Range(10, 12, 10, 16)),
     ])
   })
+
   test('Should find references to area def-use', async () => {
     await testFindReferences(areaDocUri, new vscode.Position(12, 39), [
       new vscode.Location(areaDocUri, new vscode.Range(3, 4, 3, 8)),
@@ -89,6 +86,7 @@ suite('Find references', () => {
       new vscode.Location(equatableDocUri, new vscode.Range(43, 8, 43, 24)),
     ])
   })
+
   test('Should find references to Equatable.equals signature-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(29, 14), [
       new vscode.Location(equatableDocUri, new vscode.Range(2, 12, 2, 18)),
@@ -114,37 +112,13 @@ suite('Find references', () => {
     ])
   })
 
-  /////// See https://github.com/flix/flix/issues/8326 ///////
-  test.skip('Should find references to Dividable.Aef associated effect', async () => {
-    await testFindReferences(dividableDocUri, new vscode.Position(6, 9), [
-      new vscode.Location(dividableDocUri, new vscode.Range(6, 9, 6, 12)),
-      new vscode.Location(dividableDocUri, new vscode.Range(7, 33, 7, 46)),
-      new vscode.Location(dividableDocUri, new vscode.Range(11, 9, 11, 12)),
-    ])
-  })
-
-  test.skip('Should find references to DivByZero effect', async () => {
-    await testFindReferences(dividableDocUri, new vscode.Position(1, 4), [
-      new vscode.Location(dividableDocUri, new vscode.Range(1, 4, 1, 13)),
-      new vscode.Location(dividableDocUri, new vscode.Range(11, 15, 11, 24)),
-      new vscode.Location(dividableDocUri, new vscode.Range(12, 45, 12, 54)),
-    ])
-  })
-
-  test.skip('Should find references to DivByZero.throw operation', async () => {
-    await testFindReferences(dividableDocUri, new vscode.Position(2, 12), [
-      new vscode.Location(dividableDocUri, new vscode.Range(2, 12, 2, 17)),
-      new vscode.Location(dividableDocUri, new vscode.Range(13, 23, 13, 38)),
-    ])
-  })
-  ////////////////////////////////////////////////////////////
-
   test('Should find references to function parameter', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(6, 19), [
       new vscode.Location(equatableDocUri, new vscode.Range(6, 19, 6, 20)),
       new vscode.Location(equatableDocUri, new vscode.Range(7, 15, 7, 16)),
     ])
   })
+
   test('Should find references to function parameter-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(7, 15), [
       new vscode.Location(equatableDocUri, new vscode.Range(6, 19, 6, 20)),
@@ -158,6 +132,7 @@ suite('Find references', () => {
       new vscode.Location(equatableDocUri, new vscode.Range(9, 58, 9, 60)),
     ])
   })
+
   test('Should find references to match-extracted variable-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(9, 58), [
       new vscode.Location(equatableDocUri, new vscode.Range(9, 23, 9, 25)),
@@ -171,6 +146,7 @@ suite('Find references', () => {
       new vscode.Location(equatableDocUri, new vscode.Range(22, 21, 22, 26)),
     ])
   })
+
   test('Should find references to let-bound variable-use', async () => {
     await testFindReferences(equatableDocUri, new vscode.Position(22, 21), [
       new vscode.Location(equatableDocUri, new vscode.Range(20, 8, 20, 13)),

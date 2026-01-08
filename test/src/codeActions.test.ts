@@ -20,8 +20,6 @@ import { getTestDocUri, init, open, stringify } from './util'
 
 suite('Code actions', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
-  const areaDocUri = getTestDocUri('src/Area.flix')
-  const dividableDocUri = getTestDocUri('src/Dividable.flix')
   const dateDocUri = getTestDocUri('src/Date.flix')
 
   suiteSetup(async () => {
@@ -38,6 +36,14 @@ suite('Code actions', () => {
     )
 
     assert.strictEqual(r.length, 0)
+  })
+
+  test('Should propose using Date.earlierDate def', async () => {
+    await testCodeAction(dateDocUri, new vscode.Position(43, 4), ['use', 'earlierDate'])
+  })
+
+  test('Should propose using Date.Month enum', async () => {
+    await testCodeAction(dateDocUri, new vscode.Position(2, 25), ['use', 'Month'])
   })
 
   async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedKeywords: string[]) {
@@ -59,14 +65,4 @@ suite('Code actions', () => {
       `Code action with keywords "${expectedKeywords.join(', ')}" not found. Instead found: ${stringify(r)}`,
     )
   }
-
-  suite('Undefined names', () => {
-    test('Should propose using Date.earlierDate def', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(43, 4), ['use', 'earlierDate'])
-    })
-
-    test('Should propose using Date.Month enum', async () => {
-      await testCodeAction(dateDocUri, new vscode.Position(2, 25), ['use', 'Month'])
-    })
-  })
 })

@@ -25,33 +25,12 @@ suite('Diagnostics', () => {
   suiteSetup(async () => {
     await init('diagnostics')
   })
+
   teardown(async () => {
     if (tempDocUri !== null) {
       await deleteFile(tempDocUri)
     }
   })
-
-  /**
-   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
-   */
-  async function testDiagnostics(fileName: string, expectedKeywords: string[]) {
-    const latentUri = getTestDocUri(`latent/${fileName}`)
-    const srcUri = getTestDocUri(`src/${fileName}`)
-
-    // Delete the file after the test
-    tempDocUri = srcUri
-    await copyFile(latentUri, srcUri)
-
-    const diagnostics = vscode.languages.getDiagnostics(srcUri)
-    assert.strictEqual(
-      diagnostics.some(d => {
-        const msgLower = d.message.toLowerCase()
-        return expectedKeywords.every(kw => msgLower.includes(kw.toLowerCase()))
-      }),
-      true,
-      `Actual: ${JSON.stringify(diagnostics)}\nExpected keywords: ${expectedKeywords.join(', ')}`,
-    )
-  }
 
   test('Should show WeederError', async () => {
     await testDiagnostics('WeederError.flix', ['multiple', 'parameter'])
@@ -76,4 +55,26 @@ suite('Diagnostics', () => {
   test('Should show SafetyError', async () => {
     await testDiagnostics('SafetyError.flix', ['missing', 'default'])
   })
+
+  /**
+   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
+   */
+  async function testDiagnostics(fileName: string, expectedKeywords: string[]) {
+    const latentUri = getTestDocUri(`latent/${fileName}`)
+    const srcUri = getTestDocUri(`src/${fileName}`)
+
+    // Delete the file after the test
+    tempDocUri = srcUri
+    await copyFile(latentUri, srcUri)
+
+    const diagnostics = vscode.languages.getDiagnostics(srcUri)
+    assert.strictEqual(
+      diagnostics.some(d => {
+        const msgLower = d.message.toLowerCase()
+        return expectedKeywords.every(kw => msgLower.includes(kw.toLowerCase()))
+      }),
+      true,
+      `Actual: ${JSON.stringify(diagnostics)}\nExpected keywords: ${expectedKeywords.join(', ')}`,
+    )
+  }
 })

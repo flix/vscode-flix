@@ -99,12 +99,6 @@
       "type": "object",
       "title": "Flix",
       "properties": {
-        "flix.explain.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable detailed compiler error messages",
-          "order": 1
-        },
         "flix.clearOutput.enabled": {
           "type": "boolean",
           "default": true,

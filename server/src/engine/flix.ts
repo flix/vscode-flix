@@ -25,12 +25,7 @@ import * as queue from './queue'
 import * as socket from './socket'
 import { USER_MESSAGE } from '../util/userMessages'
 
-export interface Explain {
-  enabled: boolean
-}
-
 export interface UserConfiguration {
-  explain: Explain
   extraJvmArgs: string
   extraFlixArgs: string
 }
@@ -110,9 +105,6 @@ export async function start(input: StartEngineInput) {
   args.push(...parseArgs(startEngineInput.userConfiguration.extraJvmArgs))
   args.push('-jar', flixFilename, 'lsp-vscode', `${port}`)
   args.push(...parseArgs(startEngineInput.userConfiguration.extraFlixArgs))
-  if (startEngineInput?.userConfiguration.explain.enabled ?? false) {
-    args.push('--explain')
-  }
 
   //
   // WARNING: WE MUST CONNECT TO 127.0.0.1 AND NOT LOCALHOST.

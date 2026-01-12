@@ -56,9 +56,6 @@ async function ensureReplExists(context: vscode.ExtensionContext, launchOptions:
 async function launchRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   const { cmd, args } = await getJvmCmd(context, launchOptions)
   args.push('repl')
-  if (vscode.workspace.getConfiguration('flix').get('explain.enabled')) {
-    args.push('--explain')
-  }
   args.push(...getExtraFlixArgs())
   flixTerminal = vscode.window.createTerminal({
     name: 'Flix REPL',

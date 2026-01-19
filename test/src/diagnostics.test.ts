@@ -33,7 +33,7 @@ suite('Diagnostics', () => {
   })
 
   test('Should show WeederError', async () => {
-    await testDiagnostics('WeederError.flix', ['multiple', 'parameter'])
+    await testDiagnostics('WeederError.flix', ['duplicate', 'parameter'])
   })
 
   test('Should show NameError', async () => {

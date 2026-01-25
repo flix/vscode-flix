@@ -78,6 +78,11 @@ function getUserConfiguration() {
   return vscode.workspace.getConfiguration('flix')
 }
 
+function stripAnsi(text: string): string {
+  // Matches ANSI escape sequences: ESC[ followed by parameters and a command letter
+  return text.replace(/\x1b\[[0-9;]*m/g, '')
+}
+
 function handlePrintDiagnostics({ status, result }) {
   if (getUserConfiguration().clearOutput.enabled) {
     outputChannel.clear()
@@ -87,7 +92,7 @@ function handlePrintDiagnostics({ status, result }) {
   for (const res of result) {
     for (const diag of res.diagnostics) {
       if (diag.severity <= 2) {
-        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${diag.fullMessage}`)
+        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${stripAnsi(diag.fullMessage)}`)
         flixLspTerminal.writeLine(diag.fullMessage)
       }
     }

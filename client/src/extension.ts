@@ -232,9 +232,6 @@ async function startSession(
   // clear outputs
   outputChannel.clear()
 
-  // show default output channel without changing focus
-  outputChannel.show(true)
-
   const globalStoragePath = context.globalStorageUri.fsPath
   const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)
   const workspaceFiles = (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)).map(vsCodeUriToUriString)

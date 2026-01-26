@@ -85,14 +85,12 @@ function stripAnsi(text: string): string {
 
 function handlePrintDiagnostics({ status, result }) {
   if (getUserConfiguration().clearOutput.enabled) {
-    outputChannel.clear()
     flixLspTerminal.clear()
   }
 
   for (const res of result) {
     for (const diag of res.diagnostics) {
       if (diag.severity <= 2) {
-        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${stripAnsi(diag.fullMessage)}`)
         flixLspTerminal.writeLine(diag.fullMessage)
       }
     }
@@ -122,11 +120,11 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerFlixReleaseDocumentProvider(context)
 
   // create output channels
-  outputChannel = vscode.window.createOutputChannel('Flix Compiler')
+  outputChannel = vscode.window.createOutputChannel('Flix (Internal)')
 
   // create and show Flix LSP Server terminal
   flixLspTerminal = new FlixLspTerminal()
-  const terminal = vscode.window.createTerminal({ name: 'Flix LSP', pty: flixLspTerminal })
+  const terminal = vscode.window.createTerminal({ name: 'Flix Compiler', pty: flixLspTerminal })
   terminal.show()
 
   // create language client

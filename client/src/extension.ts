@@ -9,6 +9,7 @@ import showStartupProgress from './util/showStartupProgress'
 
 import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
+import { FlixLspTerminal } from './services/flixLspTerminal'
 
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
@@ -45,6 +46,8 @@ export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspac
 
 let outputChannel: vscode.OutputChannel
 
+let flixLspTerminal: FlixLspTerminal
+
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
  *
@@ -75,15 +78,22 @@ function getUserConfiguration() {
   return vscode.workspace.getConfiguration('flix')
 }
 
+function stripAnsi(text: string): string {
+  // Matches ANSI escape sequences: ESC[ followed by parameters and a command letter
+  return text.replace(/\x1b\[[0-9;]*m/g, '')
+}
+
 function handlePrintDiagnostics({ status, result }) {
   if (getUserConfiguration().clearOutput.enabled) {
     outputChannel.clear()
+    flixLspTerminal.clear()
   }
 
   for (const res of result) {
     for (const diag of res.diagnostics) {
       if (diag.severity <= 2) {
-        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${diag.fullMessage}`)
+        outputChannel.appendLine(`${String.fromCodePoint(0x274c)} ${stripAnsi(diag.fullMessage)}`)
+        flixLspTerminal.writeLine(diag.fullMessage)
       }
     }
   }
@@ -113,6 +123,11 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
 
   // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix Compiler')
+
+  // create and show Flix LSP Server terminal
+  flixLspTerminal = new FlixLspTerminal()
+  const terminal = vscode.window.createTerminal({ name: 'Flix LSP', pty: flixLspTerminal })
+  terminal.show()
 
   // create language client
   client = createLanguageClient({ context, outputChannel })
@@ -216,9 +231,6 @@ async function startSession(
 
   // clear outputs
   outputChannel.clear()
-
-  // show default output channel without changing focus
-  outputChannel.show(true)
 
   const globalStoragePath = context.globalStorageUri.fsPath
   const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)

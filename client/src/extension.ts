@@ -97,7 +97,7 @@ function handlePrintDiagnostics({ status, result }) {
     // Only print success message after ready message has been shown
     // This avoids showing "Program compiles successfully" before "Flix Ready"
     if (hasReceivedReadyMessage) {
-      flixLspTerminal.writeLine('\x1b[1;32m' + USER_MESSAGE.COMPILE_SUCCESS() + '\x1b[0m')
+      flixLspTerminal.writeLine('\x1b[32m' + USER_MESSAGE.COMPILE_SUCCESS() + '\x1b[0m')
     }
   } else {
     for (const res of result) {
@@ -297,7 +297,7 @@ async function startSession(
 
   client.onNotification(jobs.Request.internalMessage, (message: string) => {
     hasReceivedReadyMessage = true
-    flixLspTerminal.writeLine('\x1b[1;34m' + message + '\x1b[0m')
+    flixLspTerminal.writeLine('\x1b[34m' + message + '\x1b[0m')
     vscode.window.showInformationMessage(message)
   })
 

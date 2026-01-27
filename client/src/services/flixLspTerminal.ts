@@ -22,7 +22,7 @@ export class FlixLspTerminal implements vscode.Pseudoterminal {
   onDidWrite: vscode.Event<string> = this.writeEmitter.event
 
   open(): void {
-    this.writeLine('\x1b[1;38;5;208m' + USER_MESSAGE.COMPILER_STARTING() + '\x1b[0m')
+    this.writeLine('\x1b[38;5;208m' + USER_MESSAGE.COMPILER_STARTING() + '\x1b[0m')
   }
 
   clear(): void {

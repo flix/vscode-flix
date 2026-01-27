@@ -15,12 +15,15 @@
  */
 
 import * as vscode from 'vscode'
+import { USER_MESSAGE } from '../util/userMessages'
 
 export class FlixLspTerminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>()
   onDidWrite: vscode.Event<string> = this.writeEmitter.event
 
-  open(): void {}
+  open(): void {
+    this.writeLine('\x1b[1;38;5;208m' + USER_MESSAGE.COMPILER_STARTING() + '\x1b[0m')
+  }
 
   clear(): void {
     // ANSI escape code to clear screen and move cursor to top-left

@@ -44,6 +44,14 @@ export class USER_MESSAGE {
     return 'Failed to show the AST for this file'
   }
 
+  static COMPILER_STARTING() {
+    return 'Compiler is starting...'
+  }
+
+  static COMPILE_SUCCESS() {
+    return 'Program compiled successfully.'
+  }
+
   static INFORM_DOWNLOAD_FLIX() {
     return 'Downloading Flix Compiler'
   }

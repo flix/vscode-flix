@@ -27,6 +27,8 @@ export const defaultLaunchOptions: LaunchOptions = {
 
 let client: LanguageClient
 
+let hasReceivedReadyMessage = false
+
 let flixWatcher: vscode.FileSystemWatcher
 
 let pkgWatcher: vscode.FileSystemWatcher
@@ -88,10 +90,21 @@ function handlePrintDiagnostics({ status, result }) {
     flixLspTerminal.clear()
   }
 
-  for (const res of result) {
-    for (const diag of res.diagnostics) {
-      if (diag.severity <= 2) {
-        flixLspTerminal.writeLine(diag.fullMessage)
+  // Check if there are any errors
+  const hasErrors = result.some(res => res.diagnostics.some(diag => diag.severity <= 2))
+
+  if (!hasErrors) {
+    // Only print success message after ready message has been shown
+    // This avoids showing "Program compiles successfully" before "Flix Ready"
+    if (hasReceivedReadyMessage) {
+      flixLspTerminal.writeLine('\x1b[1;32m' + USER_MESSAGE.COMPILE_SUCCESS() + '\x1b[0m')
+    }
+  } else {
+    for (const res of result) {
+      for (const diag of res.diagnostics) {
+        if (diag.severity <= 2) {
+          flixLspTerminal.writeLine(diag.fullMessage)
+        }
       }
     }
   }
@@ -224,6 +237,9 @@ async function startSession(
   launchOptions: LaunchOptions = defaultLaunchOptions,
   client: LanguageClient,
 ) {
+  // Reset ready message flag for new session
+  hasReceivedReadyMessage = false
+
   // clear listeners from previous sessions
   eventEmitter.removeAllListeners()
 
@@ -279,7 +295,11 @@ async function startSession(
 
   client.onNotification(jobs.Request.internalDiagnostics, handlePrintDiagnostics)
 
-  client.onNotification(jobs.Request.internalMessage, vscode.window.showInformationMessage)
+  client.onNotification(jobs.Request.internalMessage, (message: string) => {
+    hasReceivedReadyMessage = true
+    flixLspTerminal.writeLine('\x1b[1;34m' + message + '\x1b[0m')
+    vscode.window.showInformationMessage(message)
+  })
 
   client.onNotification(jobs.Request.internalError, handleError)
 

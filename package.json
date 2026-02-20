@@ -94,6 +94,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "semanticTokenTypes": [
+      {
+        "id": "effect",
+        "description": "An effect declaration or reference",
+        "superType": "type"
+      }
+    ],
     "grammars": [],
     "configuration": {
       "type": "object",

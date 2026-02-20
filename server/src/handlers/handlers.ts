@@ -90,6 +90,7 @@ export function handleInitialize(_params: InitializeParams) {
             'regexp',
             'operator',
             'decorator',
+            'effect',
           ],
           tokenModifiers: [
             'declaration',

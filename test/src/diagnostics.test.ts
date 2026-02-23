@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, copyFile, deleteFile } from './util'
+import { getTestDocUri, init, copyFile, deleteFile, replaceDocumentContent } from './util'
 
 suite('Diagnostics', () => {
   /** The optional URI of the document which should be deleted after each test. */
@@ -54,6 +54,28 @@ suite('Diagnostics', () => {
 
   test('Should show SafetyError', async () => {
     await testDiagnostics('SafetyError.flix', ['missing', 'default'])
+  })
+
+  test('Should clear diagnostics when file content is cleared', async () => {
+    const srcUri = getTestDocUri('src/ClearTest.flix')
+    const latentUri = getTestDocUri('latent/WeederError.flix')
+
+    // Delete the file after the test
+    tempDocUri = srcUri
+
+    // Copy a file with errors into src/
+    await copyFile(latentUri, srcUri)
+
+    // Verify the error is present
+    const before = vscode.languages.getDiagnostics(srcUri)
+    assert.strictEqual(before.length > 0, true, 'Expected diagnostics before clearing')
+
+    // Clear the file content (simulates select all + delete)
+    await replaceDocumentContent(srcUri, '')
+
+    // Verify the error is gone
+    const after = vscode.languages.getDiagnostics(srcUri)
+    assert.strictEqual(after.length, 0, `Expected no diagnostics after clearing, got: ${JSON.stringify(after)}`)
   })
 
   /**

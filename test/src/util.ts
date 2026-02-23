@@ -101,6 +101,20 @@ export async function typeText(text: string) {
 }
 
 /**
+ * Replaces the entire content of the given document with `newContent`, saves, and waits for the compiler to process.
+ */
+export async function replaceDocumentContent(docUri: vscode.Uri, newContent: string) {
+  const doc = await vscode.workspace.openTextDocument(docUri)
+  await vscode.window.showTextDocument(doc)
+  const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
+  const edit = new vscode.WorkspaceEdit()
+  edit.replace(docUri, fullRange, newContent)
+  await vscode.workspace.applyEdit(edit)
+  await doc.save()
+  await processFileChange()
+}
+
+/**
  * Get the URI of the test document at `p` relative to the active workspace, e.g. `src/Main.flix`.
  */
 export function getTestDocUri(p: string) {

@@ -158,10 +158,10 @@ export async function processQueue() {
   const job = dequeue()
   if (job) {
     try {
-      if (job.request === jobs.Request.apiAddUri && !job.src) {
+      if (job.request === jobs.Request.apiAddUri && job.src == null) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
-      } else if (job.request === jobs.Request.apiAddPkg && !job.src) {
+      } else if (job.request === jobs.Request.apiAddPkg && job.src == null) {
         const base64 = fs.readFileSync(fileURLToPath(job.uri!)).toString('base64')
         socket.sendMessage({ ...job, base64 })
       } else {

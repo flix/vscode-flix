@@ -53,7 +53,7 @@ suite('Diagnostics', () => {
   })
 
   test('Should show SafetyError', async () => {
-    await testDiagnostics('SafetyError.flix', ['missing', 'default'])
+    await testDiagnostics('SafetyError.flix', ['throw'])
   })
 
   test('Should clear diagnostics when file content is cleared', async () => {

@@ -52,6 +52,10 @@ export class USER_MESSAGE {
     return 'Program compiled successfully.'
   }
 
+  static RECOMPILING() {
+    return 'Recompiling'.padEnd(80, '.')
+  }
+
   static INFORM_DOWNLOAD_FLIX() {
     return 'Downloading Flix Compiler'
   }

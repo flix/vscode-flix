@@ -158,6 +158,9 @@ export async function processQueue() {
   const job = dequeue()
   if (job) {
     try {
+      if (job.request === jobs.Request.lspCheck) {
+        sendNotification(jobs.Request.internalRecompiling)
+      }
       if (job.request === jobs.Request.apiAddUri && job.src == null) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })

@@ -55,5 +55,6 @@ export enum Request {
   internalFinishedJob = 'ext/finished', // Internal Extension Request
   internalFinishedAllJobs = 'ext/finishedAll', // Internal Extension Request
   internalDiagnostics = 'ext/diagnostics', // Internal Extension Request
+  internalRecompiling = 'ext/recompiling', // Internal Extension Request
   internalReplaceConfiguration = 'ext/replaceConfiguration', // Internal Extension Request
 }

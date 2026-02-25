@@ -301,6 +301,12 @@ async function startSession(
     vscode.window.showInformationMessage(message)
   })
 
+  client.onNotification(jobs.Request.internalRecompiling, () => {
+    if (hasReceivedReadyMessage) {
+      flixLspTerminal.writeLine('\x1b[38;5;172m' + USER_MESSAGE.RECOMPILING() + '\x1b[0m')
+    }
+  })
+
   client.onNotification(jobs.Request.internalError, handleError)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)

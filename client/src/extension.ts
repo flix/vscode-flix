@@ -14,6 +14,7 @@ import { FlixLspTerminal } from './services/flixLspTerminal'
 import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
+import { registerFlixStdlibDocumentProvider } from './services/stdlibVirtualDocument'
 import { USER_MESSAGE } from './util/userMessages'
 import { StatusCode } from './util/statusCodes'
 
@@ -131,6 +132,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   initialiseState(context)
 
   registerFlixReleaseDocumentProvider(context)
+  registerFlixStdlibDocumentProvider(context)
 
   // create output channels
   outputChannel = vscode.window.createOutputChannel('Flix (Internal)')

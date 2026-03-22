@@ -1,10 +1,11 @@
+import * as path from 'path'
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
 import { EventEmitter } from 'events'
 
 import * as jobs from '../engine/jobs'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, getFlixGlobPattern } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, getFlixGlobPattern, isProjectMode } from './../extension'
 import { USER_MESSAGE } from '../util/userMessages'
 
 let flixTerminal: vscode.Terminal | null = null
@@ -57,10 +58,17 @@ async function launchRepl(context: vscode.ExtensionContext, launchOptions: Launc
   const { cmd, args } = await getJvmCmd(context, launchOptions)
   args.push('repl')
   args.push(...getExtraFlixArgs())
+
+  // In single-file mode, set cwd to the active file's directory so the REPL
+  // can find the file. In project mode, VS Code defaults to the workspace root.
+  const activeFilePath = vscode.window.activeTextEditor?.document.uri.fsPath
+  const cwd = !isProjectMode() && activeFilePath ? path.dirname(activeFilePath) : undefined
+
   flixTerminal = vscode.window.createTerminal({
     name: 'Flix REPL',
     shellPath: cmd,
     shellArgs: args,
+    cwd,
 
     // The terminal will not be kept alive when restarting VSCode.
     // This is necessary in the case where flix.jar has been removed while VSCode has been closed.
@@ -152,6 +160,11 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
 
   const isFlixFile = editor.document.uri.path.endsWith('.flix')
   if (!isFlixFile) {
+    return
+  }
+
+  // In single-file mode every .flix file is valid — there is no project boundary.
+  if (!isProjectMode()) {
     return
   }
 

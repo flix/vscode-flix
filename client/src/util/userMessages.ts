@@ -86,4 +86,8 @@ export class USER_MESSAGE {
   static FILE_NOT_PART_OF_PROJECT() {
     return `Flix will only load source files from \`*.flix\`, \`src/**\`, and \`test/**\``
   }
+
+  static SINGLE_FILE_MODE() {
+    return 'Running in single-file mode. Open a folder for full project support.'
+  }
 }

@@ -17,6 +17,9 @@
   "engines": {
     "vscode": "^1.82.0"
   },
+  "activationEvents": [
+    "onLanguage:flix"
+  ],
   "main": "./client/out/extension.js",
   "contributes": {
     "commands": [
@@ -82,6 +85,38 @@
         "enablement": "false"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "flix.cmdInit",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.cmdBuildJar",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.cmdBuildFatjar",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.cmdBuildPkg",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.cmdDoc",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.cmdOutdated",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "flix.showAst",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "flix",

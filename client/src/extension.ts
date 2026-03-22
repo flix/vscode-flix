@@ -37,14 +37,40 @@ let tomlWatcher: vscode.FileSystemWatcher
 
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
-export const FLIX_GLOB_PATTERN = new vscode.RelativePattern(
-  vscode.workspace.workspaceFolders?.[0],
-  '{*.flix,src/**/*.flix,test/**/*.flix}',
-)
+/**
+ * Whether the extension is running in project mode (a workspace folder is open)
+ * or single-file mode (a standalone `.flix` file with no folder).
+ *
+ * Returns a fresh value each call, so it reflects workspace changes (e.g. if
+ * VS Code reloads after the user opens a folder).
+ */
+export function isProjectMode(): boolean {
+  return (vscode.workspace.workspaceFolders?.length ?? 0) > 0
+}
 
-export const FPKG_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.fpkg')
-export const JAR_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'lib/**/*.jar')
-export const FLIX_TOML_GLOB_PATTERN = new vscode.RelativePattern(vscode.workspace.workspaceFolders?.[0], 'flix.toml')
+/**
+ * Glob patterns scoped to the first workspace folder.
+ *
+ * These are functions (not module-level constants) so that evaluation is
+ * deferred until call-time inside `activate()`. At module-load time
+ * `workspaceFolders` may be undefined (single-file mode).
+ *
+ * All callers run after `activate()`, where a workspace folder is guaranteed
+ * in project mode. In single-file mode these functions must not be called —
+ * file discovery uses open-document events instead.
+ */
+export function getFlixGlobPattern() {
+  return new vscode.RelativePattern(vscode.workspace.workspaceFolders![0], '{*.flix,src/**/*.flix,test/**/*.flix}')
+}
+export function getFpkgGlobPattern() {
+  return new vscode.RelativePattern(vscode.workspace.workspaceFolders![0], 'lib/**/*.fpkg')
+}
+export function getJarGlobPattern() {
+  return new vscode.RelativePattern(vscode.workspace.workspaceFolders![0], 'lib/**/*.jar')
+}
+export function getFlixTomlGlobPattern() {
+  return new vscode.RelativePattern(vscode.workspace.workspaceFolders![0], 'flix.toml')
+}
 
 let outputChannel: vscode.OutputChannel
 
@@ -180,7 +206,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   registerCommand('flix.allJobsFinished', handlers.allJobsFinished(client, eventEmitter))
 
   // watch for changes on the file system (delete, create, rename .flix files)
-  flixWatcher = vscode.workspace.createFileSystemWatcher(FLIX_GLOB_PATTERN)
+  flixWatcher = vscode.workspace.createFileSystemWatcher(getFlixGlobPattern())
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiRemUri, { uri })
@@ -191,7 +217,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   })
 
   // watch for changes on the file system (delete, create .fpkg files)
-  pkgWatcher = vscode.workspace.createFileSystemWatcher(FPKG_GLOB_PATTERN)
+  pkgWatcher = vscode.workspace.createFileSystemWatcher(getFpkgGlobPattern())
   pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiRemPkg, { uri })
@@ -202,7 +228,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   })
 
   // watch for changes on the file system (delete, create .jar files)
-  pkgWatcher = vscode.workspace.createFileSystemWatcher(JAR_GLOB_PATTERN)
+  pkgWatcher = vscode.workspace.createFileSystemWatcher(getJarGlobPattern())
   pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
     client.sendNotification(jobs.Request.apiRemJar, { uri })
@@ -213,7 +239,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   })
 
   // watch for changes to the flix.toml file
-  tomlWatcher = vscode.workspace.createFileSystemWatcher(FLIX_TOML_GLOB_PATTERN)
+  tomlWatcher = vscode.workspace.createFileSystemWatcher(getFlixTomlGlobPattern())
   tomlWatcher.onDidChange(() => {
     const { msg, option1, option2 } = USER_MESSAGE.ASK_RELOAD_TOML()
     const doReload = vscode.window.showInformationMessage(msg, option1, option2)
@@ -248,9 +274,9 @@ async function startSession(
 
   const globalStoragePath = context.globalStorageUri.fsPath
   const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)
-  const workspaceFiles = (await vscode.workspace.findFiles(FLIX_GLOB_PATTERN)).map(vsCodeUriToUriString)
-  const workspacePkgs = (await vscode.workspace.findFiles(FPKG_GLOB_PATTERN)).map(vsCodeUriToUriString)
-  const workspaceJars = (await vscode.workspace.findFiles(JAR_GLOB_PATTERN)).map(vsCodeUriToUriString)
+  const workspaceFiles = (await vscode.workspace.findFiles(getFlixGlobPattern())).map(vsCodeUriToUriString)
+  const workspacePkgs = (await vscode.workspace.findFiles(getFpkgGlobPattern())).map(vsCodeUriToUriString)
+  const workspaceJars = (await vscode.workspace.findFiles(getJarGlobPattern())).map(vsCodeUriToUriString)
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({

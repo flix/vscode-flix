@@ -17,9 +17,6 @@
   "engines": {
     "vscode": "^1.82.0"
   },
-  "activationEvents": [
-    "onLanguage:flix"
-  ],
   "main": "./client/out/extension.js",
   "contributes": {
     "commands": [

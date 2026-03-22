@@ -29,9 +29,21 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
   }
 }
 
-export default async function ensureFlixExists({ globalStoragePath, workspaceFolders, shouldUpdateFlix }) {
+/**
+ * Ensures that `flix.jar` is available, returning its path.
+ *
+ * Resolution order:
+ *   1. `flix.jar` in any workspace folder (skipped in single-file mode)
+ *   2. `flix.jar` in `globalStoragePath`
+ *   3. Download from GitHub
+ *
+ * @param workspaceFolders Workspace folder paths. Empty in single-file mode
+ *   (no folder open), in which case step 1 is skipped.
+ */
+export default async function ensureFlixExists({ globalStoragePath, workspaceFolders = [], shouldUpdateFlix }) {
   if (!shouldUpdateFlix) {
     // 1. If `flix.jar` exists in any workspace folder, use that
+    // In single-file mode workspaceFolders is [], so this loop is skipped.
     for (const folder of workspaceFolders) {
       const filename = path.join(folder, FLIX_JAR)
       if (fs.existsSync(filename)) {

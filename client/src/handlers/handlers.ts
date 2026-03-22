@@ -4,7 +4,7 @@ import { EventEmitter } from 'events'
 
 import * as jobs from '../engine/jobs'
 import ensureFlixExists from './../util/ensureFlixExists'
-import { LaunchOptions, defaultLaunchOptions, FLIX_GLOB_PATTERN } from './../extension'
+import { LaunchOptions, defaultLaunchOptions, getFlixGlobPattern } from './../extension'
 import { USER_MESSAGE } from '../util/userMessages'
 
 let flixTerminal: vscode.Terminal | null = null
@@ -155,7 +155,7 @@ export function handleChangeEditor(editor: vscode.TextEditor | undefined) {
     return
   }
 
-  const included = vscode.languages.match({ pattern: FLIX_GLOB_PATTERN }, editor.document)
+  const included = vscode.languages.match({ pattern: getFlixGlobPattern() }, editor.document)
   if (!included) {
     vscode.window.showWarningMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
   }

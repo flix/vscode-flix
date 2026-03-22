@@ -30,15 +30,21 @@ export interface UserConfiguration {
   extraFlixArgs: string
 }
 
+/**
+ * Payload sent from the client via the `internalReady` notification.
+ *
+ * In single-file mode (no folder open) `workspaceFolders` is omitted and
+ * `workspaceFiles` contains only the currently open `.flix` file(s).
+ */
 export interface StartEngineInput {
   flixFilename: string
-  workspaceFolders: [string]
+  workspaceFolders?: string[]
   extensionPath: string
   extensionVersion: string
   globalStoragePath: string
-  workspaceFiles: [string]
-  workspacePkgs: [string]
-  workspaceJars: [string]
+  workspaceFiles: string[]
+  workspacePkgs: string[]
+  workspaceJars: string[]
   userConfiguration: UserConfiguration
 }
 

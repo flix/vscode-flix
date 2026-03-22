@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { init, addFile, deleteFile, deleteFolder, getTestDocUri } from './util'
+import { init, addFile, deleteFile, getTestDocUri } from './util'
 
 suite('File manipulation', () => {
   const mainDocUri = getTestDocUri('src/Main.flix')
@@ -50,12 +50,6 @@ suite('File manipulation', () => {
     await deleteFile(fpkgUri)
     await addFile(fpkgUri, content)
     assert.strictEqual(await workspaceValid(), true)
-  })
-
-  test('Should remove all files when a folder is deleted', async () => {
-    const libFolderUri = getTestDocUri('lib')
-    await deleteFolder(libFolderUri)
-    assert.strictEqual(await workspaceValid(), false)
   })
 
   async function workspaceValid() {

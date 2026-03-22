@@ -42,6 +42,7 @@ jobs:
       matrix:
         vscode-version:
         - ${{ needs.configure.outputs.minimum-version }}
+        - '1.99.0'
         - stable
 
     steps: 

@@ -183,6 +183,16 @@ export async function deleteFile(uri: vscode.Uri) {
 }
 
 /**
+ * Delete the folder at `uri` recursively, and wait for the compiler to process this.
+ *
+ * Throws if the folder does not exist.
+ */
+export async function deleteFolder(uri: vscode.Uri) {
+  await vscode.workspace.fs.delete(uri, { recursive: true })
+  await processFileChange()
+}
+
+/**
  * Tries to delete the file at `uri`, but does nothing if the file does not exist.
  */
 export async function tryDeleteFile(uri: vscode.Uri) {

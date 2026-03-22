@@ -33,7 +33,14 @@ let flixWatcher: vscode.FileSystemWatcher
 
 let pkgWatcher: vscode.FileSystemWatcher
 
+let jarWatcher: vscode.FileSystemWatcher
+
 let tomlWatcher: vscode.FileSystemWatcher
+
+let knownFlixFiles: Set<string> = new Set()
+let knownPkgFiles: Set<string> = new Set()
+let knownJarFiles: Set<string> = new Set()
+let reconcileTimer: ReturnType<typeof setTimeout> | undefined
 
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
@@ -83,6 +90,70 @@ let flixLspTerminal: FlixLspTerminal
  */
 function vsCodeUriToUriString(uri: vscode.Uri) {
   return vscode.Uri.file(uri.path).toString(false)
+}
+
+/**
+ * Re-scans the filesystem and diffs against known files.
+ * Sends add/rem notifications for any discrepancies.
+ *
+ * This handles folder deletion/creation where onDidDelete/onDidCreate
+ * fires for the folder but not for individual files inside it.
+ */
+async function reconcileFiles() {
+  if (!isProjectMode()) return
+
+  const [currentFlix, currentPkgs, currentJars] = await Promise.all([
+    vscode.workspace.findFiles(getFlixGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
+    vscode.workspace.findFiles(getFpkgGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
+    vscode.workspace.findFiles(getJarGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
+  ])
+
+  for (const uri of knownFlixFiles) {
+    if (!currentFlix.has(uri)) {
+      client.sendNotification(jobs.Request.apiRemUri, { uri })
+    }
+  }
+  for (const uri of currentFlix) {
+    if (!knownFlixFiles.has(uri)) {
+      client.sendNotification(jobs.Request.apiAddUri, { uri })
+    }
+  }
+
+  for (const uri of knownPkgFiles) {
+    if (!currentPkgs.has(uri)) {
+      client.sendNotification(jobs.Request.apiRemPkg, { uri })
+    }
+  }
+  for (const uri of currentPkgs) {
+    if (!knownPkgFiles.has(uri)) {
+      client.sendNotification(jobs.Request.apiAddPkg, { uri })
+    }
+  }
+
+  for (const uri of knownJarFiles) {
+    if (!currentJars.has(uri)) {
+      client.sendNotification(jobs.Request.apiRemJar, { uri })
+    }
+  }
+  for (const uri of currentJars) {
+    if (!knownJarFiles.has(uri)) {
+      client.sendNotification(jobs.Request.apiAddJar, { uri })
+    }
+  }
+
+  knownFlixFiles = currentFlix
+  knownPkgFiles = currentPkgs
+  knownJarFiles = currentJars
+}
+
+function scheduleReconciliation() {
+  if (reconcileTimer !== undefined) {
+    clearTimeout(reconcileTimer)
+  }
+  reconcileTimer = setTimeout(() => {
+    reconcileTimer = undefined
+    reconcileFiles()
+  }, 300)
 }
 
 function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
@@ -215,31 +286,43 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     flixWatcher = vscode.workspace.createFileSystemWatcher(getFlixGlobPattern())
     flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownFlixFiles.delete(uri)
       client.sendNotification(jobs.Request.apiRemUri, { uri })
+      scheduleReconciliation()
     })
     flixWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownFlixFiles.add(uri)
       client.sendNotification(jobs.Request.apiAddUri, { uri })
+      scheduleReconciliation()
     })
 
     pkgWatcher = vscode.workspace.createFileSystemWatcher(getFpkgGlobPattern())
     pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownPkgFiles.delete(uri)
       client.sendNotification(jobs.Request.apiRemPkg, { uri })
+      scheduleReconciliation()
     })
     pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownPkgFiles.add(uri)
       client.sendNotification(jobs.Request.apiAddPkg, { uri })
+      scheduleReconciliation()
     })
 
-    pkgWatcher = vscode.workspace.createFileSystemWatcher(getJarGlobPattern())
-    pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
+    jarWatcher = vscode.workspace.createFileSystemWatcher(getJarGlobPattern())
+    jarWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownJarFiles.delete(uri)
       client.sendNotification(jobs.Request.apiRemJar, { uri })
+      scheduleReconciliation()
     })
-    pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
+    jarWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
       const uri = vsCodeUriToUriString(vsCodeUri)
+      knownJarFiles.add(uri)
       client.sendNotification(jobs.Request.apiAddJar, { uri })
+      scheduleReconciliation()
     })
 
     tomlWatcher = vscode.workspace.createFileSystemWatcher(getFlixTomlGlobPattern())
@@ -252,6 +335,11 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
         }
       })
     })
+
+    // Watch for folder-level deletions/creations (e.g. deleting src/) that
+    // the file-specific watchers above don't catch.
+    vscode.workspace.onDidDeleteFiles(() => scheduleReconciliation())
+    vscode.workspace.onDidCreateFiles(() => scheduleReconciliation())
   } else {
     // In single-file mode there is no workspace folder to watch.
     // Instead, track document open/close to add/remove .flix files from the compiler.
@@ -302,12 +390,18 @@ async function startSession(
     workspaceFiles = (await vscode.workspace.findFiles(getFlixGlobPattern())).map(vsCodeUriToUriString)
     workspacePkgs = (await vscode.workspace.findFiles(getFpkgGlobPattern())).map(vsCodeUriToUriString)
     workspaceJars = (await vscode.workspace.findFiles(getJarGlobPattern())).map(vsCodeUriToUriString)
+    knownFlixFiles = new Set(workspaceFiles)
+    knownPkgFiles = new Set(workspacePkgs)
+    knownJarFiles = new Set(workspaceJars)
   } else {
     workspaceFiles = vscode.workspace.textDocuments
       .filter(doc => doc.uri.path.endsWith('.flix'))
       .map(doc => vsCodeUriToUriString(doc.uri))
     workspacePkgs = []
     workspaceJars = []
+    knownFlixFiles = new Set(workspaceFiles)
+    knownPkgFiles = new Set()
+    knownJarFiles = new Set()
   }
 
   // Wait until we're sure flix exists
@@ -373,7 +467,11 @@ async function startSession(
 export function deactivate(): Thenable<void> | undefined {
   flixWatcher && flixWatcher.dispose()
   pkgWatcher && pkgWatcher.dispose()
+  jarWatcher && jarWatcher.dispose()
   tomlWatcher && tomlWatcher.dispose()
   outputChannel && outputChannel.dispose()
+  if (reconcileTimer !== undefined) {
+    clearTimeout(reconcileTimer)
+  }
   return client ? client.stop() : undefined
 }

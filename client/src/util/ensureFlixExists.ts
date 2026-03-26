@@ -110,10 +110,10 @@ export default async function ensureFlixExists({
     const filename = path.join(globalStoragePath, FLIX_JAR)
     const installedFlixRelease = getInstalledFlixVersion()
     if (fs.existsSync(filename) && installedFlixRelease) {
-      const thirtyMinutesInMilliseconds = 1000 * 60 * 30
+      const sixHoursInMilliseconds = 1000 * 60 * 60 * 6
 
-      // skip if we checked under 30 minutes ago
-      if (Date.now() < (installedFlixRelease.downloadedAt || 0) + thirtyMinutesInMilliseconds) {
+      // skip if we checked under 6 hours ago
+      if (Date.now() < (installedFlixRelease.downloadedAt || 0) + sixHoursInMilliseconds) {
         return filename
       }
 

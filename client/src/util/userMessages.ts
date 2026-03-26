@@ -90,4 +90,11 @@ export class USER_MESSAGE {
   static SINGLE_FILE_MODE() {
     return 'Running in single-file mode. Open a folder for full project support.'
   }
+
+  static ASK_RELOAD_FOR_UPDATE() {
+    return {
+      msg: 'The new Flix compiler has been downloaded. Reload the window to apply the update.',
+      option1: 'Reload Now',
+    }
+  }
 }

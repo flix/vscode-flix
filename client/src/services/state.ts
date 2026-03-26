@@ -38,7 +38,9 @@ export function getInstalledFlixVersion(): FlixRelease | undefined {
   return globalState?.get(StateKeys.installedFlixVersion)
 }
 
-export async function setInstalledFlixVersion(value: FlixRelease) {
+export async function setInstalledFlixVersion(value: FlixRelease, { showChangelog = true } = {}) {
   await globalState?.update(StateKeys.installedFlixVersion, value)
-  return openFlixReleaseOverview(value)
+  if (showChangelog) {
+    return openFlixReleaseOverview(value)
+  }
 }

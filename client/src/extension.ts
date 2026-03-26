@@ -411,6 +411,12 @@ async function startSession(
     shouldUpdateFlix: launchOptions.shouldUpdateFlix,
   })
 
+  // A staged update was downloaded — a reload prompt is already showing.
+  // Skip engine startup so the user doesn't see a stale "Starting Flix" progress.
+  if (!flixFilename) {
+    return
+  }
+
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()
 

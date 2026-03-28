@@ -1,7 +1,13 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
 import * as jobs from '../engine/jobs'
-import { isProjectMode, getFlixGlobPattern, getFpkgGlobPattern, getJarGlobPattern, getFlixTomlGlobPattern } from '../extension'
+import {
+  isProjectMode,
+  getFlixGlobPattern,
+  getFpkgGlobPattern,
+  getJarGlobPattern,
+  getFlixTomlGlobPattern,
+} from '../extension'
 import { USER_MESSAGE } from '../util/userMessages'
 
 let flixWatcher: vscode.FileSystemWatcher

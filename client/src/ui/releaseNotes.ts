@@ -15,9 +15,9 @@
  */
 
 import * as vscode from 'vscode'
-import { USER_MESSAGE } from '../util/userMessages'
-import { FlixRelease } from './releases'
-import { getInstalledFlixVersion } from './state'
+import { USER_MESSAGE } from './messages'
+import { FlixRelease } from '../compiler/releases'
+import { getInstalledFlixVersion } from '../compiler/installedVersion'
 
 /**
  * The scheme used to distinguish our documents.

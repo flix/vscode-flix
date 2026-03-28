@@ -1,17 +1,17 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
 
-import * as jobs from './engine/jobs'
+import * as jobs from './protocol/requests'
 
-import createLanguageClient from './util/createLanguageClient'
+import createLanguageClient from './lsp/clientFactory'
 
-import eventEmitter from './services/eventEmitter'
-import initialiseState from './services/state'
-import { FlixLspTerminal } from './services/flixLspTerminal'
+import eventEmitter from './util/eventBus'
+import initialiseState from './compiler/installedVersion'
+import { FlixLspTerminal } from './ui/compilerTerminal'
 
-import { callResolversAndEmptyList } from './services/timers'
-import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
-import { USER_MESSAGE } from './util/userMessages'
+import { callResolversAndEmptyList } from './util/timers'
+import { registerFlixReleaseDocumentProvider } from './ui/releaseNotes'
+import { USER_MESSAGE } from './ui/messages'
 
 import { setupProjectWatchers, setupSingleFileTracking, disposeWatchers } from './lsp/fileWatchers'
 import { startSession } from './lsp/session'

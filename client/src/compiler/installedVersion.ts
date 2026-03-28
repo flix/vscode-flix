@@ -15,7 +15,7 @@
  */
 import * as vscode from 'vscode'
 import { FlixRelease } from './releases'
-import { openFlixReleaseOverview } from './releaseVirtualDocument'
+import { openFlixReleaseOverview } from '../ui/releaseNotes'
 
 let globalState: vscode.Memento
 

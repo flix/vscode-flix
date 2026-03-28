@@ -1,11 +1,11 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
 
-import * as jobs from '../engine/jobs'
-import ensureFlixExists from '../util/ensureFlixExists'
-import showStartupProgress from '../util/showStartupProgress'
-import eventEmitter from '../services/eventEmitter'
-import { FlixLspTerminal } from '../services/flixLspTerminal'
+import * as jobs from '../protocol/requests'
+import ensureFlixExists from '../compiler/download'
+import showStartupProgress from '../ui/startupProgress'
+import eventEmitter from '../util/eventBus'
+import { FlixLspTerminal } from '../ui/compilerTerminal'
 import { discoverWorkspaceFiles } from './fileWatchers'
 import { setupNotificationListeners, getUserConfiguration } from './notifications'
 

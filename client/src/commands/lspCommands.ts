@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
 import { EventEmitter } from 'events'
-import * as jobs from '../engine/jobs'
+import * as jobs from '../protocol/requests'
 
 /**
  * Request that the server should disconnect. Returns promise that will resolve when the server has been reconnected.

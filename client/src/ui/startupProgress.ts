@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
-import * as jobs from '../engine/jobs'
-import eventEmitter from '../services/eventEmitter'
-import * as timers from '../services/timers'
-import { USER_MESSAGE } from './userMessages'
+import * as jobs from '../protocol/requests'
+import eventEmitter from '../util/eventBus'
+import * as timers from '../util/timers'
+import { USER_MESSAGE } from './messages'
 
 export default function showStartupProgress(timeout: number = 30) {
   vscode.window.withProgress(

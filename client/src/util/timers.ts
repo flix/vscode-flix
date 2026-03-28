@@ -15,7 +15,7 @@
  */
 
 import * as vscode from 'vscode'
-import { USER_MESSAGE } from '../util/userMessages'
+import { USER_MESSAGE } from '../ui/messages'
 
 // incrementing index to use as keys for resolver maps
 let indexCounter = 0

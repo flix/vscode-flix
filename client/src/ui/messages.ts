@@ -1,4 +1,4 @@
-import { FlixRelease } from '../services/releases'
+import { FlixRelease } from '../compiler/releases'
 
 export class USER_MESSAGE {
   static ASK_DOWNLOAD_NEW_FLIX(releaseName: string) {

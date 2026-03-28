@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
 import { LanguageClient } from 'vscode-languageclient/node'
-import * as jobs from '../engine/jobs'
-import eventEmitter from '../services/eventEmitter'
-import { FlixLspTerminal } from '../services/flixLspTerminal'
-import { StatusCode } from '../util/statusCodes'
-import { USER_MESSAGE } from '../util/userMessages'
+import * as jobs from '../protocol/requests'
+import eventEmitter from '../util/eventBus'
+import { FlixLspTerminal } from '../ui/compilerTerminal'
+import { StatusCode } from '../protocol/statusCodes'
+import { USER_MESSAGE } from '../ui/messages'
 
 let hasReceivedReadyMessage = false
 

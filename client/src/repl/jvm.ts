@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { LaunchOptions } from '../extension'
-import ensureFlixExists from '../util/ensureFlixExists'
+import ensureFlixExists from '../compiler/download'
 
 /**
  * It takes context and launchOptions as arguments and finds the path of `flix.jar`

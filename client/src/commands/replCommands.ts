@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { LaunchOptions, defaultLaunchOptions } from '../extension'
-import { USER_MESSAGE } from '../util/userMessages'
+import { USER_MESSAGE } from '../ui/messages'
 import { ensureReplExists, getFlixTerminal } from '../repl/manager'
 
 async function handleUnsavedFiles() {

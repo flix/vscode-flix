@@ -15,7 +15,7 @@
  */
 
 import * as vscode from 'vscode'
-import { USER_MESSAGE } from '../util/userMessages'
+import { USER_MESSAGE } from './messages'
 
 export class FlixLspTerminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>()

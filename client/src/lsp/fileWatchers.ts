@@ -7,7 +7,7 @@ import {
   getFpkgGlobPattern,
   getJarGlobPattern,
   getFlixTomlGlobPattern,
-} from '../extension'
+} from '../util/workspace'
 import { USER_MESSAGE } from '../ui/messages'
 
 let flixWatcher: vscode.FileSystemWatcher

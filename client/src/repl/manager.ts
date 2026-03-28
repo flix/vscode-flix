@@ -1,6 +1,7 @@
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { LaunchOptions, isProjectMode } from '../extension'
+import { LaunchOptions } from '../util/launchOptions'
+import { isProjectMode } from '../util/workspace'
 import { getJvmCmd, getExtraFlixArgs } from './jvm'
 
 let flixTerminal: vscode.Terminal | null = null

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { LaunchOptions } from '../extension'
+import { LaunchOptions } from '../util/launchOptions'
 import ensureFlixExists from '../compiler/download'
 
 /**

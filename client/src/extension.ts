@@ -9,7 +9,6 @@ import eventEmitter from './services/eventEmitter'
 import initialiseState from './services/state'
 import { FlixLspTerminal } from './services/flixLspTerminal'
 
-import * as handlers from './handlers'
 import { callResolversAndEmptyList } from './services/timers'
 import { registerFlixReleaseDocumentProvider } from './services/releaseVirtualDocument'
 import { USER_MESSAGE } from './util/userMessages'
@@ -17,6 +16,22 @@ import { USER_MESSAGE } from './util/userMessages'
 import { setupProjectWatchers, setupSingleFileTracking, disposeWatchers } from './lsp/fileWatchers'
 import { startSession } from './lsp/session'
 import { getUserConfiguration } from './lsp/notifications'
+
+import { simulateDisconnect, showAst, allJobsFinished } from './commands/lspCommands'
+import {
+  runMain,
+  cmdInit,
+  cmdCheck,
+  cmdBuild,
+  cmdBuildJar,
+  cmdBuildFatjar,
+  cmdBuildPkg,
+  cmdRunProject,
+  cmdTests,
+  cmdDoc,
+  cmdOutdated,
+} from './commands/replCommands'
+import { initSharedRepl, startRepl } from './repl/manager'
 
 export interface LaunchOptions {
   shouldUpdateFlix: boolean
@@ -67,11 +82,37 @@ export function getFlixTomlGlobPattern() {
   return new vscode.RelativePattern(vscode.workspace.workspaceFolders![0], 'flix.toml')
 }
 
+/**
+ * Handle the user changing the active editor, to view a different file.
+ *
+ * If the new file is not part of the project, it shows a message to the user.
+ */
+function handleChangeEditor(editor: vscode.TextEditor | undefined) {
+  if (editor === undefined) {
+    return
+  }
+
+  const isFlixFile = editor.document.uri.path.endsWith('.flix')
+  if (!isFlixFile) {
+    return
+  }
+
+  // In single-file mode every .flix file is valid — there is no project boundary.
+  if (!isProjectMode()) {
+    return
+  }
+
+  const included = vscode.languages.match({ pattern: getFlixGlobPattern() }, editor.document)
+  if (!included) {
+    vscode.window.showWarningMessage(USER_MESSAGE.FILE_NOT_PART_OF_PROJECT())
+  }
+}
+
 function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient() {
     callResolversAndEmptyList()
     await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
-      handlers.initSharedRepl(context, launchOptions)
+      initSharedRepl(context, launchOptions)
     })
   }
 }
@@ -111,27 +152,27 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.simulateDisconnect', handlers.simulateDisconnect(client))
-  registerCommand('flix.runMain', handlers.runMain(context, launchOptions))
+  registerCommand('flix.simulateDisconnect', simulateDisconnect(client))
+  registerCommand('flix.runMain', runMain(context, launchOptions))
 
-  registerCommand('flix.cmdInit', handlers.cmdInit(context, launchOptions))
-  registerCommand('flix.cmdCheck', handlers.cmdCheck(context, launchOptions))
-  registerCommand('flix.cmdBuild', handlers.cmdBuild(context, launchOptions))
-  registerCommand('flix.cmdBuildJar', handlers.cmdBuildJar(context, launchOptions))
-  registerCommand('flix.cmdBuildFatjar', handlers.cmdBuildFatjar(context, launchOptions))
-  registerCommand('flix.cmdBuildPkg', handlers.cmdBuildPkg(context, launchOptions))
-  registerCommand('flix.cmdRunProject', handlers.cmdRunProject(context, launchOptions))
-  registerCommand('flix.cmdTests', handlers.cmdTests(context, launchOptions))
-  registerCommand('flix.cmdDoc', handlers.cmdDoc(context, launchOptions))
-  registerCommand('flix.cmdOutdated', handlers.cmdOutdated(context, launchOptions))
-  registerCommand('flix.showAst', handlers.showAst(client))
-  registerCommand('flix.startRepl', handlers.startRepl(context, launchOptions))
+  registerCommand('flix.cmdInit', cmdInit(context, launchOptions))
+  registerCommand('flix.cmdCheck', cmdCheck(context, launchOptions))
+  registerCommand('flix.cmdBuild', cmdBuild(context, launchOptions))
+  registerCommand('flix.cmdBuildJar', cmdBuildJar(context, launchOptions))
+  registerCommand('flix.cmdBuildFatjar', cmdBuildFatjar(context, launchOptions))
+  registerCommand('flix.cmdBuildPkg', cmdBuildPkg(context, launchOptions))
+  registerCommand('flix.cmdRunProject', cmdRunProject(context, launchOptions))
+  registerCommand('flix.cmdTests', cmdTests(context, launchOptions))
+  registerCommand('flix.cmdDoc', cmdDoc(context, launchOptions))
+  registerCommand('flix.cmdOutdated', cmdOutdated(context, launchOptions))
+  registerCommand('flix.showAst', showAst(client))
+  registerCommand('flix.startRepl', startRepl(context, launchOptions))
 
   // Register commands for testing
 
   // Returns a promise resolving when all jobs are completely finished and the server is idle.
   // While most other commands can be awaited directly, this is useful for stuff like file creation, which indirectely triggers an asynchronous job.
-  registerCommand('flix.allJobsFinished', handlers.allJobsFinished(client, eventEmitter))
+  registerCommand('flix.allJobsFinished', allJobsFinished(client, eventEmitter))
 
   if (isProjectMode()) {
     // In project mode, watch the file system for .flix/.fpkg/.jar/flix.toml changes.
@@ -141,14 +182,14 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     setupSingleFileTracking(client)
   }
 
-  vscode.window.onDidChangeActiveTextEditor(handlers.handleChangeEditor)
+  vscode.window.onDidChangeActiveTextEditor(handleChangeEditor)
   vscode.workspace.onDidChangeConfiguration(() => {
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })
 
   await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
     // start the Flix runner (but only after the Flix LSP instance has started.)
-    handlers.initSharedRepl(context, launchOptions)
+    initSharedRepl(context, launchOptions)
   })
 }
 

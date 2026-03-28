@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { LaunchOptions, defaultLaunchOptions } from '../extension'
+import { LaunchOptions, defaultLaunchOptions } from '../util/launchOptions'
 import { USER_MESSAGE } from '../ui/messages'
 import { ensureReplExists, getFlixTerminal } from '../repl/manager'
 

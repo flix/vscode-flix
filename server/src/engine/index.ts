@@ -14,4 +14,6 @@
  * limitations under the License.
  */
 
-export * from './flix'
+export * from './config'
+export * from './process'
+export * from './workspace'

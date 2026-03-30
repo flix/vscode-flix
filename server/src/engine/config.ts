@@ -14,9 +14,25 @@
  * limitations under the License.
  */
 
-export * from './lifecycle'
-export * from './navigation'
-export * from './editing'
-export * from './symbols'
-export * from './semantic'
-export * from './resources'
+export interface UserConfiguration {
+  extraJvmArgs: string
+  extraFlixArgs: string
+}
+
+/**
+ * Payload sent from the client via the `internalReady` notification.
+ *
+ * In single-file mode (no folder open) `workspaceFolders` is omitted and
+ * `workspaceFiles` contains only the currently open `.flix` file(s).
+ */
+export interface StartEngineInput {
+  flixFilename: string
+  workspaceFolders?: string[]
+  extensionPath: string
+  extensionVersion: string
+  globalStoragePath: string
+  workspaceFiles: string[]
+  workspacePkgs: string[]
+  workspaceJars: string[]
+  userConfiguration: UserConfiguration
+}

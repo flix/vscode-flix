@@ -20,38 +20,16 @@ import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder'
 
+import { UserConfiguration, StartEngineInput } from './config'
+import { initWorkspaceFiles } from './workspace'
 import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
 import { USER_MESSAGE } from '../util/userMessages'
 
-export interface UserConfiguration {
-  extraJvmArgs: string
-  extraFlixArgs: string
-}
-
-/**
- * Payload sent from the client via the `internalReady` notification.
- *
- * In single-file mode (no folder open) `workspaceFolders` is omitted and
- * `workspaceFiles` contains only the currently open `.flix` file(s).
- */
-export interface StartEngineInput {
-  flixFilename: string
-  workspaceFolders?: string[]
-  extensionPath: string
-  extensionVersion: string
-  globalStoragePath: string
-  workspaceFiles: string[]
-  workspacePkgs: string[]
-  workspaceJars: string[]
-  userConfiguration: UserConfiguration
-}
-
 let flixInstance: ChildProcess | undefined = undefined
 let startEngineInput: StartEngineInput
 let flixRunning: boolean = false
-let currentWorkspaceFiles: Set<string> = new Set()
 
 export function isRunning() {
   return flixRunning
@@ -81,7 +59,7 @@ export async function start(input: StartEngineInput) {
 
   const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
 
-  currentWorkspaceFiles = new Set(workspaceFiles)
+  initWorkspaceFiles(workspaceFiles)
 
   // Check for valid Java version
   const { majorVersion, versionString } = await javaVersion(extensionPath)
@@ -174,95 +152,4 @@ export async function stop() {
   if (flixInstance) {
     flixInstance.kill()
   }
-}
-
-/**
- * Add the given `uri` to the workspace.
- */
-export function addUri(uri: string) {
-  currentWorkspaceFiles.add(uri)
-
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-/**
- * Handle a change in the file with the given `uri`.
- *
- * If this URI has not already been added to the workspace via {@linkcode addUri},
- * it will be ignored, making it safe to call this function on any file.
- */
-export function updateUri(uri: string, src: string) {
-  if (!currentWorkspaceFiles.has(uri)) {
-    return
-  }
-
-  // Including the source code in the job is necessary because the file might not yet have been saved
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddUri,
-    uri,
-    src,
-  }
-
-  queue.enqueue(job)
-}
-
-/**
- * Remove the given `uri` from the workspace.
- */
-export function remUri(uri: string) {
-  currentWorkspaceFiles.delete(uri)
-
-  const job: jobs.Job = {
-    request: jobs.Request.apiRemUri,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-export function addPkg(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddPkg,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-export function remPkg(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiRemPkg,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-export function addJar(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddJar,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-export function remJar(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiRemJar,
-    uri,
-  }
-  queue.enqueue(job)
-}
-
-export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: any) {
-  const job: jobs.Job = {
-    request,
-    ...(params || {}),
-  }
-  return queue.enqueue(job)
-}
-
-export function unfinishedJobs() {
-  return queue.unfinishedJobs()
 }

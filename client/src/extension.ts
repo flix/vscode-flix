@@ -31,7 +31,7 @@ import {
   cmdDoc,
   cmdOutdated,
 } from './commands/replCommands'
-import { initSharedRepl, startRepl } from './repl/manager'
+import { initSharedRepl, startRepl, disposeAllRepls } from './repl/manager'
 import { LaunchOptions, defaultLaunchOptions } from './util/launchOptions'
 import { isProjectMode, getFlixGlobPattern } from './util/workspace'
 
@@ -70,6 +70,9 @@ function handleChangeEditor(editor: vscode.TextEditor | undefined) {
 function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
   return async function handleRestartClient() {
     callResolversAndEmptyList()
+    // Dispose all REPL terminals so their JVM processes release the lock on
+    // flix.jar — otherwise applyPendingUpdate cannot replace it on Windows.
+    disposeAllRepls()
     await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
       initSharedRepl(context, launchOptions)
     })

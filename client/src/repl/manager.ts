@@ -14,6 +14,20 @@ export function getFlixTerminal(): vscode.Terminal | null {
 }
 
 /**
+ * Disposes all Flix REPL terminals — including any orphaned ones from
+ * earlier sessions — so their JVM processes release file locks (e.g. on
+ * `flix.jar` on Windows).
+ */
+export function disposeAllRepls() {
+  flixTerminal = null
+  for (const terminal of vscode.window.terminals) {
+    if (terminal.name === 'Flix REPL') {
+      terminal.dispose()
+    }
+  }
+}
+
+/**
  * Creates and initializes persistent shared REPL on startup.
  */
 export async function initSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {

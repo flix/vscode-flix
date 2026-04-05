@@ -33,7 +33,12 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
 
 /**
  * If a staged `flix.jar.new` exists from a previous download, move it into
- * place. This runs before the JVM starts, so the file is not locked.
+ * place.
+ *
+ * On Windows the unlink can fail with EBUSY / EPERM / EACCES when a JVM
+ * process (e.g. Flix REPL) still holds a lock on the file. The caller
+ * should dispose those terminals first, but if the lock persists we show
+ * a retry dialog so the user can close the process manually.
  */
 async function applyPendingUpdate(globalStoragePath: string): Promise<void> {
   const pendingFile = path.join(globalStoragePath, FLIX_JAR_NEW)
@@ -42,22 +47,31 @@ async function applyPendingUpdate(globalStoragePath: string): Promise<void> {
   }
 
   const targetFile = path.join(globalStoragePath, FLIX_JAR)
-  try {
-    // Node.js fs.rename on Windows does NOT atomically replace an existing
-    // file, so we must unlink first. Safe here because the JVM hasn't started.
-    await fs.promises.unlink(targetFile).catch(err => {
-      if (err.code !== 'ENOENT') {
-        throw err
+
+  while (true) {
+    try {
+      // Node.js fs.rename on Windows does NOT atomically replace an existing
+      // file, so we must unlink first.
+      await fs.promises.unlink(targetFile).catch(err => {
+        if (err.code !== 'ENOENT') {
+          throw err
+        }
+      })
+      await fs.promises.rename(pendingFile, targetFile)
+      // Show the changelog that was deferred from the download.
+      const installedVersion = getInstalledFlixVersion()
+      if (installedVersion) {
+        openFlixReleaseOverview(installedVersion)
       }
-    })
-    await fs.promises.rename(pendingFile, targetFile)
-    // Show the changelog that was deferred from the download.
-    const installedVersion = getInstalledFlixVersion()
-    if (installedVersion) {
-      openFlixReleaseOverview(installedVersion)
+      return
+    } catch (err) {
+      const { msg, option1, option2 } = USER_MESSAGE.ASK_APPLY_UPDATE_RETRY()
+      const selected = await vscode.window.showErrorMessage(msg, option1, option2)
+      if (selected === option1) {
+        continue
+      }
+      return
     }
-  } catch (err) {
-    console.warn('Failed to apply pending flix.jar update, will retry on next startup:', err)
   }
 }
 

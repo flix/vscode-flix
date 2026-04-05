@@ -97,4 +97,12 @@ export class USER_MESSAGE {
       option1: 'Reload Now',
     }
   }
+
+  static ASK_APPLY_UPDATE_RETRY() {
+    return {
+      msg: 'Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry.',
+      option1: 'Retry',
+      option2: 'Dismiss',
+    }
+  }
 }

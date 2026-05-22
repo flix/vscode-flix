@@ -16,7 +16,7 @@
     "reconnecting-websocket": "^4.4.0",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.8",
-    "ws": "^8.17.1"
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@types/ws": "^8.5.10"

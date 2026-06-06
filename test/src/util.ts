@@ -18,6 +18,14 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 /**
+ * The maximum time to wait for a filesystem change to trigger an `lsp/check` before falling back to
+ * {@linkcode awaitIdle}. Generous on purpose: every mutation in the suite triggers a check, so this
+ * should never be hit in practice — it only prevents a hang if a change unexpectedly produces no
+ * check (e.g. the compiler is still downloading on a cold CI run).
+ */
+const CHECK_TIMEOUT_MS = 20000
+
+/**
  * Activates the extension and copies the contents of the given test workspace directory into the active workspace.
  *
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
@@ -140,14 +148,6 @@ export async function sleep(ms: number) {
 async function getCheckCount(): Promise<number> {
   return (await vscode.commands.executeCommand<number>('flix.checkCount')) ?? 0
 }
-
-/**
- * The maximum time to wait for a filesystem change to trigger an `lsp/check` before falling back to
- * {@linkcode awaitIdle}. Generous on purpose: every mutation in the suite triggers a check, so this
- * should never be hit in practice — it only prevents a hang if a change unexpectedly produces no
- * check (e.g. the compiler is still downloading on a cold CI run).
- */
-const CHECK_TIMEOUT_MS = 20000
 
 /**
  * Waits until the observed check count exceeds `since`, i.e. an `lsp/check` has completed.

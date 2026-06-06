@@ -76,7 +76,8 @@ async function copyWorkspace(testWorkspaceName: string) {
     const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
     await Promise.allSettled(urisToDelete.map(uri => vscode.workspace.fs.delete(uri)))
   }
-  await awaitCheck(() => clearDir(activeWorkspaceUri))
+  await clearDir(activeWorkspaceUri)
+  await processFileChange()
 
   const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
   await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
@@ -173,11 +174,32 @@ async function awaitIdle() {
 }
 
 /**
+ * Waits for the processing of a filesystem change to finish, using fixed sleeps to bracket the idle
+ * wait.
+ *
+ * Only used for the workspace setup in {@linkcode init}, which runs *before* the extension is
+ * active: there is no idle baseline to capture and the very first command triggers activation, so
+ * the check-count strategy used by {@linkcode awaitCheck} does not apply. In-test mutations (which
+ * run while the extension is active and idle) use {@linkcode awaitCheck} instead.
+ */
+async function processFileChange() {
+  // Wait for the file system watcher to pick up the change
+  await sleep(1000)
+
+  // Wait for the compiler to process the change
+  await awaitIdle()
+
+  // Wait for the diagnostics to be updated
+  await sleep(1000)
+}
+
+/**
  * Runs the filesystem `mutation`, then waits until the `lsp/check` it triggers has finished and the
  * compiler is idle.
  *
- * This is the synchronization primitive for all file-changing test helpers, and it is race-free
- * because it baselines the check count *before* the mutation:
+ * This is the synchronization primitive for in-test file mutations (those that run while the
+ * extension is already active and idle), and it is race-free because it baselines the check count
+ * *before* the mutation:
  *
  * - The leading {@linkcode waitForCheckSince} proves the file-system watcher fired and a check
  *   completed, so we never sample idle against stale, pre-change state (the old `sleep(1000)` was a
@@ -208,14 +230,13 @@ export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
  * Copies the contents of the given folder `from` to the folder `to`, leaving non-overlapping files intact.
  */
 export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
-  await awaitCheck(async () => {
-    const contents = await vscode.workspace.fs.readDirectory(from)
-    const names = contents.map(([name, _]) => name)
+  const contents = await vscode.workspace.fs.readDirectory(from)
+  const names = contents.map(([name, _]) => name)
 
-    const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
+  const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
 
-    await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
-  })
+  await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
+  await processFileChange()
 }
 
 /**

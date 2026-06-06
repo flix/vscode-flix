@@ -80,6 +80,11 @@
         "command": "flix.allJobsFinished",
         "title": "Flix (debugging): Wait for the compiler to finish processing",
         "enablement": "false"
+      },
+      {
+        "command": "flix.checkCount",
+        "title": "Flix (debugging): Get the number of lsp/check responses observed",
+        "enablement": "false"
       }
     ],
     "menus": {

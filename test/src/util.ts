@@ -76,8 +76,7 @@ async function copyWorkspace(testWorkspaceName: string) {
     const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
     await Promise.allSettled(urisToDelete.map(uri => vscode.workspace.fs.delete(uri)))
   }
-  await clearDir(activeWorkspaceUri)
-  await processFileChange()
+  await awaitCheck(() => clearDir(activeWorkspaceUri))
 
   const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
   await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
@@ -95,9 +94,10 @@ export async function open(docUri: vscode.Uri) {
  * Types the given `text` in the editor at the current position.
  */
 export async function typeText(text: string) {
-  await vscode.commands.executeCommand('type', { text })
-  await vscode.window.activeTextEditor.document.save()
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.commands.executeCommand('type', { text })
+    await vscode.window.activeTextEditor.document.save()
+  })
 }
 
 /**
@@ -106,12 +106,13 @@ export async function typeText(text: string) {
 export async function replaceDocumentContent(docUri: vscode.Uri, newContent: string) {
   const doc = await vscode.workspace.openTextDocument(docUri)
   await vscode.window.showTextDocument(doc)
-  const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
-  const edit = new vscode.WorkspaceEdit()
-  edit.replace(docUri, fullRange, newContent)
-  await vscode.workspace.applyEdit(edit)
-  await doc.save()
-  await processFileChange()
+  await awaitCheck(async () => {
+    const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
+    const edit = new vscode.WorkspaceEdit()
+    edit.replace(docUri, fullRange, newContent)
+    await vscode.workspace.applyEdit(edit)
+    await doc.save()
+  })
 }
 
 /**
@@ -130,46 +131,100 @@ export async function sleep(ms: number) {
 }
 
 /**
- * Waits for the processing of a newly added or deleted file to finish.
+ * Returns the number of `lsp/check` responses the extension has observed since startup.
+ *
+ * Backed by the `flix.checkCount` test command, which is incremented once per check response —
+ * before the corresponding idle signal.
  */
-async function processFileChange() {
-  // Wait for the file system watcher to pick up the change
-  await sleep(1000)
+async function getCheckCount(): Promise<number> {
+  return (await vscode.commands.executeCommand<number>('flix.checkCount')) ?? 0
+}
 
-  // Wait for the compiler to process the change
+/**
+ * The maximum time to wait for a filesystem change to trigger an `lsp/check` before falling back to
+ * {@linkcode awaitIdle}. Generous on purpose: every mutation in the suite triggers a check, so this
+ * should never be hit in practice — it only prevents a hang if a change unexpectedly produces no
+ * check (e.g. the compiler is still downloading on a cold CI run).
+ */
+const CHECK_TIMEOUT_MS = 20000
+
+/**
+ * Waits until the observed check count exceeds `since`, i.e. an `lsp/check` has completed.
+ *
+ * Resolves early (with a warning) after {@linkcode CHECK_TIMEOUT_MS} so a no-op change cannot hang
+ * the suite; the subsequent {@linkcode awaitIdle} still guarantees correctness in that case.
+ */
+async function waitForCheckSince(since: number) {
+  const deadline = Date.now() + CHECK_TIMEOUT_MS
+  while ((await getCheckCount()) <= since) {
+    if (Date.now() > deadline) {
+      console.warn(`waitForCheckSince: no lsp/check observed within ${CHECK_TIMEOUT_MS}ms (count still ${since})`)
+      return
+    }
+    await sleep(25)
+  }
+}
+
+/**
+ * Waits until the compiler is idle (all queued jobs finished).
+ */
+async function awaitIdle() {
   await vscode.commands.executeCommand('flix.allJobsFinished')
+}
 
-  // Wait for the diagnostics to be updated
-  await sleep(1000)
+/**
+ * Runs the filesystem `mutation`, then waits until the `lsp/check` it triggers has finished and the
+ * compiler is idle.
+ *
+ * This is the synchronization primitive for all file-changing test helpers, and it is race-free
+ * because it baselines the check count *before* the mutation:
+ *
+ * - The leading {@linkcode waitForCheckSince} proves the file-system watcher fired and a check
+ *   completed, so we never sample idle against stale, pre-change state (the old `sleep(1000)` was a
+ *   guess that the watcher had fired).
+ * - The trailing {@linkcode awaitIdle} proves the queue drained. At that point all
+ *   `publishDiagnostics` for this check have already been applied to VS Code's diagnostics
+ *   collection, because the server sends them before the idle signal on the same ordered channel
+ *   (so the old trailing `sleep(1000)` is unnecessary).
+ */
+async function awaitCheck<T>(mutation: () => Promise<T>): Promise<T> {
+  const before = await getCheckCount()
+  const result = await mutation()
+  await waitForCheckSince(before)
+  await awaitIdle()
+  return result
 }
 
 /**
  * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
  */
 export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
-  await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
+  })
 }
 
 /**
  * Copies the contents of the given folder `from` to the folder `to`, leaving non-overlapping files intact.
  */
 export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
-  const contents = await vscode.workspace.fs.readDirectory(from)
-  const names = contents.map(([name, _]) => name)
+  await awaitCheck(async () => {
+    const contents = await vscode.workspace.fs.readDirectory(from)
+    const names = contents.map(([name, _]) => name)
 
-  const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
+    const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
 
-  await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
-  await processFileChange()
+    await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
+  })
 }
 
 /**
  * Copy the file from `from` to `to`, and wait for the compiler to process this.
  */
 export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
-  await vscode.workspace.fs.copy(from, to, { overwrite: true })
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.copy(from, to, { overwrite: true })
+  })
 }
 
 /**
@@ -178,8 +233,9 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  * Throws if the file does not exist.
  */
 export async function deleteFile(uri: vscode.Uri) {
-  await vscode.workspace.fs.delete(uri)
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.delete(uri)
+  })
 }
 
 /**

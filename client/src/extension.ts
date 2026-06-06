@@ -15,7 +15,7 @@ import { USER_MESSAGE } from './ui/messages'
 
 import { setupProjectWatchers, setupSingleFileTracking, disposeWatchers } from './lsp/fileWatchers'
 import { startSession } from './lsp/session'
-import { getUserConfiguration } from './lsp/notifications'
+import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 
 import { simulateDisconnect, showAst, allJobsFinished } from './commands/lspCommands'
 import {
@@ -135,6 +135,10 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // Returns a promise resolving when all jobs are completely finished and the server is idle.
   // While most other commands can be awaited directly, this is useful for stuff like file creation, which indirectely triggers an asynchronous job.
   registerCommand('flix.allJobsFinished', allJobsFinished(client, eventEmitter))
+
+  // Returns the number of lsp/check responses observed since startup. Tests baseline this before a
+  // filesystem change and wait for it to advance, to deterministically detect the resulting check.
+  registerCommand('flix.checkCount', () => getCheckCount())
 
   if (isProjectMode()) {
     // In project mode, watch the file system for .flix/.fpkg/.jar/flix.toml changes.

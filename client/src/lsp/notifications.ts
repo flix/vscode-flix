@@ -8,6 +8,22 @@ import { USER_MESSAGE } from '../ui/messages'
 
 let hasReceivedReadyMessage = false
 
+/**
+ * Number of `lsp/check` responses the client has observed since startup.
+ *
+ * Incremented once per check response, before the corresponding `internalFinishedAllJobs` signal.
+ * Used by the test suite to deterministically wait for the check triggered by a filesystem change,
+ * instead of sleeping a fixed duration.
+ */
+let checkCount = 0
+
+/**
+ * Returns the number of `lsp/check` responses observed since startup. See {@link checkCount}.
+ */
+export function getCheckCount() {
+  return checkCount
+}
+
 export function getUserConfiguration() {
   return vscode.workspace.getConfiguration('flix')
 }
@@ -68,6 +84,11 @@ export function setupNotificationListeners(
   )
 
   client.onNotification(jobs.Request.internalDiagnostics, ({ status, result }) => {
+    // Tick once per lsp/check response. The server sends this before `internalFinishedAllJobs`,
+    // so a test can baseline this count before a change and wait for it to advance.
+    checkCount++
+    eventEmitter.emit('checkCount', checkCount)
+
     if (getUserConfiguration().clearOutput.enabled) {
       flixLspTerminal.clear()
     }

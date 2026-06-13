@@ -18,6 +18,14 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 /**
+ * The maximum time to wait for a filesystem change to trigger an `lsp/check` before falling back to
+ * {@linkcode awaitIdle}. Generous on purpose: every mutation in the suite triggers a check, so this
+ * should never be hit in practice — it only prevents a hang if a change unexpectedly produces no
+ * check (e.g. the compiler is still downloading on a cold CI run).
+ */
+const CHECK_TIMEOUT_MS = 20000
+
+/**
  * Activates the extension and copies the contents of the given test workspace directory into the active workspace.
  *
  * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
@@ -95,9 +103,10 @@ export async function open(docUri: vscode.Uri) {
  * Types the given `text` in the editor at the current position.
  */
 export async function typeText(text: string) {
-  await vscode.commands.executeCommand('type', { text })
-  await vscode.window.activeTextEditor.document.save()
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.commands.executeCommand('type', { text })
+    await vscode.window.activeTextEditor.document.save()
+  })
 }
 
 /**
@@ -106,12 +115,13 @@ export async function typeText(text: string) {
 export async function replaceDocumentContent(docUri: vscode.Uri, newContent: string) {
   const doc = await vscode.workspace.openTextDocument(docUri)
   await vscode.window.showTextDocument(doc)
-  const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
-  const edit = new vscode.WorkspaceEdit()
-  edit.replace(docUri, fullRange, newContent)
-  await vscode.workspace.applyEdit(edit)
-  await doc.save()
-  await processFileChange()
+  await awaitCheck(async () => {
+    const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
+    const edit = new vscode.WorkspaceEdit()
+    edit.replace(docUri, fullRange, newContent)
+    await vscode.workspace.applyEdit(edit)
+    await doc.save()
+  })
 }
 
 /**
@@ -130,25 +140,90 @@ export async function sleep(ms: number) {
 }
 
 /**
- * Waits for the processing of a newly added or deleted file to finish.
+ * Returns the number of `lsp/check` responses the extension has observed since startup.
+ *
+ * Backed by the `flix.checkCount` test command, which is incremented once per check response —
+ * before the corresponding idle signal.
+ */
+async function getCheckCount(): Promise<number> {
+  return (await vscode.commands.executeCommand<number>('flix.checkCount')) ?? 0
+}
+
+/**
+ * Waits until the observed check count exceeds `since`, i.e. an `lsp/check` has completed.
+ *
+ * Resolves early (with a warning) after {@linkcode CHECK_TIMEOUT_MS} so a no-op change cannot hang
+ * the suite; the subsequent {@linkcode awaitIdle} still guarantees correctness in that case.
+ */
+async function waitForCheckSince(since: number) {
+  const deadline = Date.now() + CHECK_TIMEOUT_MS
+  while ((await getCheckCount()) <= since) {
+    if (Date.now() > deadline) {
+      console.warn(`waitForCheckSince: no lsp/check observed within ${CHECK_TIMEOUT_MS}ms (count still ${since})`)
+      return
+    }
+    await sleep(25)
+  }
+}
+
+/**
+ * Waits until the compiler is idle (all queued jobs finished).
+ */
+async function awaitIdle() {
+  await vscode.commands.executeCommand('flix.allJobsFinished')
+}
+
+/**
+ * Waits for the processing of a filesystem change to finish, using fixed sleeps to bracket the idle
+ * wait.
+ *
+ * Only used for the workspace setup in {@linkcode init}, which runs *before* the extension is
+ * active: there is no idle baseline to capture and the very first command triggers activation, so
+ * the check-count strategy used by {@linkcode awaitCheck} does not apply. In-test mutations (which
+ * run while the extension is active and idle) use {@linkcode awaitCheck} instead.
  */
 async function processFileChange() {
   // Wait for the file system watcher to pick up the change
   await sleep(1000)
 
   // Wait for the compiler to process the change
-  await vscode.commands.executeCommand('flix.allJobsFinished')
+  await awaitIdle()
 
   // Wait for the diagnostics to be updated
   await sleep(1000)
 }
 
 /**
+ * Runs the filesystem `mutation`, then waits until the `lsp/check` it triggers has finished and the
+ * compiler is idle.
+ *
+ * This is the synchronization primitive for in-test file mutations (those that run while the
+ * extension is already active and idle), and it is race-free because it baselines the check count
+ * *before* the mutation:
+ *
+ * - The leading {@linkcode waitForCheckSince} proves the file-system watcher fired and a check
+ *   completed, so we never sample idle against stale, pre-change state (the old `sleep(1000)` was a
+ *   guess that the watcher had fired).
+ * - The trailing {@linkcode awaitIdle} proves the queue drained. At that point all
+ *   `publishDiagnostics` for this check have already been applied to VS Code's diagnostics
+ *   collection, because the server sends them before the idle signal on the same ordered channel
+ *   (so the old trailing `sleep(1000)` is unnecessary).
+ */
+async function awaitCheck<T>(mutation: () => Promise<T>): Promise<T> {
+  const before = await getCheckCount()
+  const result = await mutation()
+  await waitForCheckSince(before)
+  await awaitIdle()
+  return result
+}
+
+/**
  * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
  */
 export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
-  await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
+  })
 }
 
 /**
@@ -168,8 +243,9 @@ export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
  * Copy the file from `from` to `to`, and wait for the compiler to process this.
  */
 export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
-  await vscode.workspace.fs.copy(from, to, { overwrite: true })
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.copy(from, to, { overwrite: true })
+  })
 }
 
 /**
@@ -178,8 +254,9 @@ export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
  * Throws if the file does not exist.
  */
 export async function deleteFile(uri: vscode.Uri) {
-  await vscode.workspace.fs.delete(uri)
-  await processFileChange()
+  await awaitCheck(async () => {
+    await vscode.workspace.fs.delete(uri)
+  })
 }
 
 /**

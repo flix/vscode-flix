@@ -95,6 +95,7 @@ export function handleInitialize(_params: InitializeParams) {
         full: true,
       },
       documentFormattingProvider: true,
+      foldingRangeProvider: true,
     },
   }
 

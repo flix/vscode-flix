@@ -51,6 +51,7 @@ export enum Request {
   lspSemanticTokens = 'lsp/semanticTokens',
   lspShowAst = 'lsp/showAst',
   lspFormatting = 'lsp/formatting',
+  lspFoldingRange = 'lsp/foldingRange',
 
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request

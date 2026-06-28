@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { FoldingRange, FoldingRangeParams } from 'vscode-languageserver'
+
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
 import * as socket from '../engine/socket'
@@ -24,6 +26,21 @@ import { makePositionalHandler, makeEnqueuePromise, makeDefaultResponseHandler }
  * @function
  */
 export const handleDocumentSymbols = makePositionalHandler(jobs.Request.lspDocumentSymbols)
+
+/**
+ * Handle folding range requests.
+ *
+ * @param params - The folding range parameters.
+ * @returns A promise that resolves to an array of folding ranges.
+ */
+export const handleFoldingRanges = (params: FoldingRangeParams): Promise<FoldingRange[]> =>
+  new Promise(function (resolve) {
+    const uri = params.textDocument?.uri
+    const job = engine.enqueueJobWithFlattenedParams(jobs.Request.lspFoldingRange, { uri })
+    socket.eventEmitter.once(job.id, ({ result }: socket.FlixResponse) => {
+      resolve((result ?? []) as unknown as FoldingRange[])
+    })
+  })
 
 /**
  * @function

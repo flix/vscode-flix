@@ -1,6 +1,7 @@
 # Meta
 .github
 .vscode
+.claude
 
 # NPM
 node_modules

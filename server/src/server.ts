@@ -83,6 +83,9 @@ connection.onDocumentSymbol(handlers.handleDocumentSymbols)
 // Find WorkspaceSymbols information.
 connection.onWorkspaceSymbol(handlers.handleWorkspaceSymbols)
 
+// Folding ranges (e.g. collapsible multi-line comments)
+connection.onFoldingRanges(handlers.handleFoldingRanges)
+
 connection.onCodeAction(handlers.handleCodeAction)
 
 // Semantic tokens

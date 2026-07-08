@@ -11,3 +11,4 @@ test/activeWorkspace
 flix.jar
 *.vsix
 tsconfig.tsbuildinfo
+.DS_Store

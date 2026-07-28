@@ -28,11 +28,6 @@ suite('File manipulation', () => {
     await init('files')
   })
 
-  test('Should remove deleted source-file', async () => {
-    await deleteFile(areaDocUri)
-    assert.strictEqual(await workspaceValid(), false)
-  })
-
   test('Should add created source-file', async () => {
     const content = await vscode.workspace.fs.readFile(areaDocUri)
     await deleteFile(areaDocUri)
@@ -40,8 +35,8 @@ suite('File manipulation', () => {
     assert.strictEqual(await workspaceValid(), true)
   })
 
-  test('Should remove deleted fpkg-file', async () => {
-    await deleteFile(fpkgUri)
+  test('Should remove deleted source-file', async () => {
+    await deleteFile(areaDocUri)
     assert.strictEqual(await workspaceValid(), false)
   })
 
@@ -50,6 +45,11 @@ suite('File manipulation', () => {
     await deleteFile(fpkgUri)
     await addFile(fpkgUri, content)
     assert.strictEqual(await workspaceValid(), true)
+  })
+
+  test('Should remove deleted fpkg-file', async () => {
+    await deleteFile(fpkgUri)
+    assert.strictEqual(await workspaceValid(), false)
   })
 
   async function workspaceValid() {

@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { blankFile, getFixtureDocUri, init2, loadFile, teardown2 } from './util'
 
 suite('Diagnostics', () => {
-  /** The optional URI of the file which should be blanked again after each test. */
+  /** The optional URI of the latent file which should be blanked again after each test. */
   let loadedDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {
@@ -38,27 +38,27 @@ suite('Diagnostics', () => {
   })
 
   test('Should show WeederError', async () => {
-    await testDiagnostics('WeederError.flix', ['duplicate', 'parameter'])
+    await testLatentDiagnostics('WeederError.flix', ['duplicate', 'parameter'])
   })
 
-  test('Should show NameError', async () => {
-    await testDiagnostics('NameError.flix', ['duplicate', 'definition'])
+  test('Should show NameError', () => {
+    testDiagnostics('NameError.flix', ['duplicate', 'definition'])
   })
 
   test('Should show ResolutionError', async () => {
-    await testDiagnostics('ResolutionError.flix', ['cyclic', 'type'])
+    await testLatentDiagnostics('ResolutionError.flix', ['cyclic', 'type'])
   })
 
-  test('Should show TypeError', async () => {
-    await testDiagnostics('TypeError.flix', ['expected', 'type', 'found'])
+  test('Should show TypeError', () => {
+    testDiagnostics('TypeError.flix', ['expected', 'type', 'found'])
   })
 
-  test('Should show RedundancyError', async () => {
-    await testDiagnostics('RedundancyError.flix', ['shadowed'])
+  test('Should show RedundancyError', () => {
+    testDiagnostics('RedundancyError.flix', ['shadowed'])
   })
 
-  test('Should show SafetyError', async () => {
-    await testDiagnostics('SafetyError.flix', ['throw'])
+  test('Should show SafetyError', () => {
+    testDiagnostics('SafetyError.flix', ['throw'])
   })
 
   test('Should clear diagnostics when file content is cleared', async () => {
@@ -90,11 +90,27 @@ suite('Diagnostics', () => {
   }
 
   /**
-   * Assert that loading the file `fileName` from the `latent` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
+   * Assert that the file `fileName` of the test workspace has a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
+   *
+   * The file is part of the program from the start, since `init2` loads it along with the rest.
    */
-  async function testDiagnostics(fileName: string, expectedKeywords: string[]) {
-    const docUri = await loadLatentFile(fileName)
+  function testDiagnostics(fileName: string, expectedKeywords: string[]) {
+    assertDiagnostics(getFixtureDocUri('diagnostics', fileName), expectedKeywords)
+  }
 
+  /**
+   * Assert the same as {@linkcode testDiagnostics}, but for a file of the `latent` directory, which
+   * is part of the program for the duration of this test only.
+   *
+   * Its error suppresses the errors of the other files, so it cannot be part of the program the
+   * other tests assert on.
+   */
+  async function testLatentDiagnostics(fileName: string, expectedKeywords: string[]) {
+    const docUri = await loadLatentFile(fileName)
+    assertDiagnostics(docUri, expectedKeywords)
+  }
+
+  function assertDiagnostics(docUri: vscode.Uri, expectedKeywords: string[]) {
     const diagnostics = vscode.languages.getDiagnostics(docUri)
     assert.strictEqual(
       diagnostics.some(d => {

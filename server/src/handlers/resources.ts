@@ -27,8 +27,13 @@ interface UriInput {
   uri: string
 }
 
-export function handleAddUri({ uri }: UriInput) {
-  engine.addUri(uri)
+interface AddUriInput extends UriInput {
+  /** The content of the file. If omitted, it is read from disk when the job is processed. */
+  src?: string
+}
+
+export function handleAddUri({ uri, src }: AddUriInput) {
+  engine.addUri(uri, src)
 }
 
 export function handleRemUri({ uri }: UriInput) {

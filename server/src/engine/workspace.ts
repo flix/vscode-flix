@@ -25,13 +25,17 @@ export function initWorkspaceFiles(files: string[]) {
 
 /**
  * Add the given `uri` to the workspace.
+ *
+ * If `src` is given, it is used as the content of the file, which therefore does not have to exist
+ * on disk. Otherwise the content is read from disk when the job is processed.
  */
-export function addUri(uri: string) {
+export function addUri(uri: string, src?: string) {
   currentWorkspaceFiles.add(uri)
 
   const job: jobs.Job = {
     request: jobs.Request.apiAddUri,
     uri,
+    src,
   }
   queue.enqueue(job)
 }

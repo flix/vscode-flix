@@ -16,25 +16,23 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { addFile, getTestDocUri, init2, teardown2, tryDeleteFile, typeText } from './util'
+import { getFixtureDocUri, init2, teardown2, typeText } from './util'
 
 suite('CompletionProvider', () => {
-  // Unlike the other suites, this file is not part of the test workspace directory: the test creates
-  // it and types into it, so it has to be a real file in the active workspace.
-  const docUri = getTestDocUri('src/Temp.flix')
+  const docUri = getFixtureDocUri('completions', 'Empty.flix')
 
   suiteSetup(async () => {
     await init2('completions')
   })
 
   suiteTeardown(async () => {
-    await tryDeleteFile(docUri)
+    // Discard the typed text without saving it, so that the fixture is left empty on disk, and no
+    // dirty editor is left for the next suite to trip over when it closes all editors.
+    await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor')
     await teardown2('completions')
   })
 
   test('Should propose completing mod', async () => {
-    await addFile(docUri, '')
-
     // Typing goes to the active editor, so the document has to be shown
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(docUri))
     await typeText('mo')

@@ -181,12 +181,16 @@ async function findFixtureFiles(testWorkspaceName: string): Promise<vscode.Uri[]
 }
 
 /**
- * Types the given `text` in the editor at the current position.
+ * Types the given `text` in the editor at the current position, and waits for the compiler to
+ * process it.
+ *
+ * The document is deliberately not saved: the extension sends the compiler the content of the
+ * editor, so the change reaches it either way, and leaving the file on disk alone means the caller
+ * can type into a fixture without modifying it.
  */
 export async function typeText(text: string) {
   await awaitCheck(async () => {
     await vscode.commands.executeCommand('type', { text })
-    await vscode.window.activeTextEditor.document.save()
   })
 }
 

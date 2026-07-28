@@ -90,11 +90,6 @@
         "command": "flix.addUri",
         "title": "Flix (debugging): Add a file with the given content to the compiler",
         "enablement": "false"
-      },
-      {
-        "command": "flix.remUri",
-        "title": "Flix (debugging): Remove a file from the compiler",
-        "enablement": "false"
       }
     ],
     "menus": {

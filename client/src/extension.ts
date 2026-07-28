@@ -17,7 +17,7 @@ import { setupProjectWatchers, setupSingleFileTracking, disposeWatchers } from '
 import { startSession } from './lsp/session'
 import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 
-import { showAst, allJobsFinished, addUri, remUri } from './commands/lspCommands'
+import { showAst, allJobsFinished, addUri } from './commands/lspCommands'
 import {
   runMain,
   cmdInit,
@@ -139,10 +139,9 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // filesystem change and wait for it to advance, to deterministically detect the resulting check.
   registerCommand('flix.checkCount', () => getCheckCount())
 
-  // Add/remove a file directly in the compiler, bypassing the file system. Tests use these to set up
-  // a workspace without copying files into place.
+  // Add a file directly to the compiler, bypassing the file system. Tests use this to set up a
+  // workspace without copying files into place.
   registerCommand('flix.addUri', addUri(client))
-  registerCommand('flix.remUri', remUri(client))
 
   if (isProjectMode()) {
     // In project mode, watch the file system for .flix/.fpkg/.jar/flix.toml changes.

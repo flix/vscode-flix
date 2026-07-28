@@ -27,19 +27,10 @@ export function showAst(client: LanguageClient) {
  *
  * Unlike the file watchers, this does not require the file to be part of the workspace, and the
  * content is taken from `src` rather than from disk. Tests use this to load a workspace without
- * copying any files into place.
+ * copying any files into place, and to empty a file again by adding it with no content.
  */
 export function addUri(client: LanguageClient) {
   return (uri: string, src: string) => client.sendNotification(jobs.Request.apiAddUri, { uri, src })
-}
-
-/**
- * Removes the file with the given `uri` from the compiler.
- *
- * The counterpart of {@linkcode addUri}, for files which no file watcher will report as gone.
- */
-export function remUri(client: LanguageClient) {
-  return (uri: string) => client.sendNotification(jobs.Request.apiRemUri, { uri })
 }
 
 export function allJobsFinished(client: LanguageClient, eventEmitter: EventEmitter) {

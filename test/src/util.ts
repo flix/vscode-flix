@@ -59,31 +59,21 @@ export async function init2(testWorkspaceName: string) {
 
   const fixtureUris = await findFixtureFiles(testWorkspaceName)
 
+  if (!ext.isActive) {
+    // Every suite which puts files in the active workspace deletes them again, so it is only left
+    // dirty by an interrupted run. Clean it before the extension starts, so that the compiler never
+    // hears about those files: making it forget them afterwards would race with the workspace scan,
+    // which is only enqueued once the compiler connects — that is, after `activate()` has returned.
+    await deleteWorkspaceFiles()
+  }
+
   // Ensure the extension is active. On the first suite this starts (and, on a cold CI run,
   // downloads) the compiler. `ext.activate()` only resolves once the server has been told to start,
   // so the notifications sent below are ordered after it.
-  const wasActive = ext.isActive
   await ext.activate()
-
-  // Whatever is in the active workspace belongs to a previous suite, which copied it there with
-  // `init`, or to an earlier test run which left it behind. The compiler is given these files when
-  // it scans the workspace, so make it forget them: the fixture loaded below is the whole program.
-  const workspaceUris = await findWorkspaceFiles()
-
-  if (!wasActive && workspaceUris.length > 0) {
-    // On the first suite the compiler is only starting up, and it is handed the files above once it
-    // connects — which happens after `activate()` returns, and hence after the removals below are
-    // sent. Wait for the check that scan triggers, so that it cannot undo them. A check is
-    // guaranteed here precisely because the scan found files.
-    await waitForCheckSince(0)
-    await awaitIdle()
-  }
 
   const baseline = await getCheckCount()
 
-  for (const uri of workspaceUris) {
-    await vscode.commands.executeCommand('flix.remUri', uri.toString())
-  }
   for (const uri of fixtureUris) {
     await addFileToCompiler(uri, await readFileContent(uri))
   }
@@ -92,10 +82,10 @@ export async function init2(testWorkspaceName: string) {
   // rather than in the middle of a test.
   await Promise.all(fixtureUris.map(uri => vscode.workspace.openTextDocument(uri)))
 
-  // Wait for the compiler to finish compiling the new workspace and go idle. Adding and removing
-  // files are priority jobs, so the compiler runs a check once it has processed all of them — unless
-  // there was nothing to do, as for a workspace whose files are all loaded by the tests themselves.
-  if (workspaceUris.length + fixtureUris.length > 0) {
+  // Wait for the compiler to finish compiling the new workspace and go idle. Adding a file is a
+  // priority job, so the compiler runs a check once it has processed all of them — unless there was
+  // nothing to add, as for a workspace whose files are all created by the tests themselves.
+  if (fixtureUris.length > 0) {
     await waitForCheckSince(baseline)
   }
   await awaitIdle()
@@ -160,15 +150,22 @@ async function addFileToCompiler(uri: vscode.Uri, src: string) {
 }
 
 /**
- * Finds the `.flix` files of the active workspace, i.e. the ones the extension hands to the compiler
- * when it scans the workspace.
+ * Deletes the files of the active workspace which the extension would hand to the compiler when it
+ * scans the workspace.
+ *
+ * Must only be called while the extension is not running: there is no file-system watcher to report
+ * the deletions then, which is the point — the compiler is never told about these files at all.
  */
-async function findWorkspaceFiles(): Promise<vscode.Uri[]> {
+async function deleteWorkspaceFiles() {
   const activeWorkspaceFolder = vscode.workspace.workspaceFolders![0]
-  // NB: Must match `getFlixGlobPattern` in `client/src/util/workspace.ts`.
-  const pattern = new vscode.RelativePattern(activeWorkspaceFolder, '{*.flix,src/**/*.flix,test/**/*.flix}')
+  // NB: Must match `getFlixGlobPattern` and `getFpkgGlobPattern` in `client/src/util/workspace.ts`.
+  const pattern = new vscode.RelativePattern(
+    activeWorkspaceFolder,
+    '{*.flix,src/**/*.flix,test/**/*.flix,lib/**/*.fpkg}',
+  )
 
-  return vscode.workspace.findFiles(pattern)
+  const uris = await vscode.workspace.findFiles(pattern)
+  await Promise.all(uris.map(uri => vscode.workspace.fs.delete(uri)))
 }
 
 /**

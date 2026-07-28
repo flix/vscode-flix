@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getFixtureDocUri, init2, open, teardown2 } from './util'
 
 suite('RenameProvider', () => {
-  const mainDocUri = getFixtureDocUri('rename', 'src/Main.flix')
+  const mainDocUri = getFixtureDocUri('rename', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('rename')

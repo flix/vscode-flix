@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { getFixtureDocUri, init2, open, teardown2 } from './util'
 
 suite('FoldingRangeProvider', () => {
-  const mainDocUri = getFixtureDocUri('foldingRanges', 'src/Main.flix')
+  const mainDocUri = getFixtureDocUri('foldingRanges', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('foldingRanges')
@@ -36,7 +36,7 @@ suite('FoldingRangeProvider', () => {
       mainDocUri,
     )
 
-    // Lines are zero-indexed. See `test/testWorkspaces/foldingRanges/src/Main.flix`.
+    // Lines are zero-indexed. See `test/testWorkspaces/foldingRanges/Main.flix`.
     const actual = ranges.map(r => ({ start: r.start, end: r.end, kind: r.kind })).sort((a, b) => a.start - b.start)
 
     const expected = [

@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('DocumentHighlightProvider', () => {
-  const mainDocUri = getFixtureDocUri('highlight', 'src/Main.flix')
+  const mainDocUri = getFixtureDocUri('highlight', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('highlight')

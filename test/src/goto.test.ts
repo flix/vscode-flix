@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('GotoDefinitionProvider', () => {
-  const mainDocUri = getFixtureDocUri('goto', 'src/Main.flix')
+  const mainDocUri = getFixtureDocUri('goto', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('goto')

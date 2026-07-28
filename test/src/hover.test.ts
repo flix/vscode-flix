@@ -19,7 +19,7 @@ import * as vscode from 'vscode'
 import { findMarkerPosition, getFixtureDocUri, init2, open, teardown2 } from './util'
 
 suite('HoverProvider', () => {
-  const docUri = getFixtureDocUri('hover', 'src/Main.flix')
+  const docUri = getFixtureDocUri('hover', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('hover')

@@ -19,8 +19,8 @@ import * as vscode from 'vscode'
 import { getFixtureDocUri, init2, open, stringify, teardown2 } from './util'
 
 suite('CodeActionProvider', () => {
-  const mainDocUri = getFixtureDocUri('codeActions', 'src/Main.flix')
-  const dateDocUri = getFixtureDocUri('codeActions', 'src/Date.flix')
+  const mainDocUri = getFixtureDocUri('codeActions', 'Main.flix')
+  const dateDocUri = getFixtureDocUri('codeActions', 'Date.flix')
 
   suiteSetup(async () => {
     await init2('codeActions')

@@ -19,8 +19,8 @@ import * as vscode from 'vscode'
 import { getFixtureDocUri, init2, open, teardown2 } from './util'
 
 suite('CodeLensProvider', () => {
-  const mainDocUri = getFixtureDocUri('codeLenses', 'src/Main.flix')
-  const areaDocUri = getFixtureDocUri('codeLenses', 'src/Area.flix')
+  const mainDocUri = getFixtureDocUri('codeLenses', 'Main.flix')
+  const areaDocUri = getFixtureDocUri('codeLenses', 'Area.flix')
 
   suiteSetup(async () => {
     await init2('codeLenses')

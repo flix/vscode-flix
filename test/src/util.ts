@@ -90,10 +90,13 @@ export async function init(testWorkspaceName: string) {
  * Activates the extension and loads the contents of the given test workspace directory into the
  * compiler directly, without touching the file system.
  *
- * Every `.flix` file of the directory is handed to the compiler by URI and content via the
+ * Every `.flix` file directly in the directory is handed to the compiler by URI and content via the
  * `flix.addUri` test command, so the files are compiled where they live in `testWorkspaces` — use
  * {@linkcode getFixtureDocUri} to refer to them. Nothing is copied into the active workspace, and
  * since nothing changes on disk, no file-system watcher is involved.
+ *
+ * The directory therefore holds plain files rather than a workspace layout: no `flix.toml`, and no
+ * `src` directory. Files in a subdirectory are not loaded — see {@linkcode loadFile}.
  *
  * The suite must call {@linkcode teardown2} with the same name when it is done, since no file-system
  * watcher will ever report these files as gone.
@@ -237,44 +240,19 @@ async function readFileContent(uri: vscode.Uri): Promise<string> {
 }
 
 /**
- * Finds the `.flix` files of the given test workspace directory which the compiler would be given if
- * the directory was copied into the active workspace, i.e. the ones in its root, `src` and `test`.
+ * Finds the `.flix` files directly in the given test workspace directory, which are the ones
+ * {@linkcode init2} loads.
  *
- * Dormant fixtures, such as the ones in `latent`, are thereby ignored — exactly as they are when the
- * directory is copied into place.
+ * Subdirectories are left alone: they hold dormant fixtures, such as the erroring files in
+ * `diagnostics/latent`, which the tests load themselves with {@linkcode loadFile}.
  */
 async function findFixtureFiles(testWorkspaceName: string): Promise<vscode.Uri[]> {
   const dirUri = getFileUri(path.resolve(__dirname, '../testWorkspaces', testWorkspaceName))
   const contents = await vscode.workspace.fs.readDirectory(dirUri)
 
-  const inRoot = contents
+  return contents
     .filter(([name, type]) => type !== vscode.FileType.Directory && name.endsWith('.flix'))
     .map(([name, _]) => vscode.Uri.joinPath(dirUri, name))
-
-  const compiledDirs = contents.filter(
-    ([name, type]) => type === vscode.FileType.Directory && (name === 'src' || name === 'test'),
-  )
-  const inCompiledDirs = await Promise.all(
-    compiledDirs.map(([name, _]) => findFlixFiles(vscode.Uri.joinPath(dirUri, name))),
-  )
-
-  return [...inRoot, ...inCompiledDirs.flat()]
-}
-
-/**
- * Recursively finds the `.flix` files in the directory at `uri`.
- */
-async function findFlixFiles(uri: vscode.Uri): Promise<vscode.Uri[]> {
-  const contents = await vscode.workspace.fs.readDirectory(uri)
-
-  const files = contents
-    .filter(([name, type]) => type !== vscode.FileType.Directory && name.endsWith('.flix'))
-    .map(([name, _]) => vscode.Uri.joinPath(uri, name))
-
-  const dirs = contents.filter(([_, type]) => type === vscode.FileType.Directory)
-  const filesInSubdirs = await Promise.all(dirs.map(([name, _]) => findFlixFiles(vscode.Uri.joinPath(uri, name))))
-
-  return [...files, ...filesInSubdirs.flat()]
 }
 
 /**
@@ -338,7 +316,7 @@ export function getTestDocUri(p: string) {
 
 /**
  * Get the URI of the file at `p` in the test workspace directory `testWorkspaceName`, e.g.
- * `src/Main.flix` in `codeActions`.
+ * `Main.flix` in `codeActions`.
  *
  * Unlike {@linkcode getTestDocUri}, this points at the file where it lives in `testWorkspaces`,
  * which is where {@linkcode init2} leaves it.

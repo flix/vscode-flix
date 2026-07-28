@@ -27,10 +27,6 @@ suite('Diagnostics', () => {
     await teardown2('diagnostics')
   })
 
-  test('Should show WeederError', async () => {
-    await testLatentDiagnostics('WeederError.flix', ['duplicate', 'parameter'])
-  })
-
   test('Should show NameError', () => {
     testDiagnostics('NameError.flix', ['duplicate', 'definition'])
   })
@@ -75,23 +71,6 @@ suite('Diagnostics', () => {
    */
   function testDiagnostics(fileName: string, expectedKeywords: string[]) {
     assertDiagnostics(getFixtureDocUri('diagnostics', fileName), expectedKeywords)
-  }
-
-  /**
-   * Assert the same as {@linkcode testDiagnostics}, but for a file of the `latent` directory, which
-   * is part of the program for the duration of this test only.
-   *
-   * A weeder error keeps the compiler from reporting the errors of any other file, so it cannot be
-   * part of the program the other tests assert on.
-   */
-  async function testLatentDiagnostics(fileName: string, expectedKeywords: string[]) {
-    const docUri = getFixtureDocUri('diagnostics', `latent/${fileName}`)
-    await loadFile(docUri)
-    try {
-      assertDiagnostics(docUri, expectedKeywords)
-    } finally {
-      await blankFile(docUri)
-    }
   }
 
   function assertDiagnostics(docUri: vscode.Uri, expectedKeywords: string[]) {

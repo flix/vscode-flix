@@ -243,8 +243,8 @@ async function readFileContent(uri: vscode.Uri): Promise<string> {
  * Finds the `.flix` files directly in the given test workspace directory, which are the ones
  * {@linkcode init2} loads.
  *
- * Subdirectories are left alone: they hold dormant fixtures, such as the erroring files in
- * `diagnostics/latent`, which the tests load themselves with {@linkcode loadFile}.
+ * Subdirectories are left alone, so that a fixture which must not be part of the program from the
+ * start can be put in one, and loaded by the test itself with {@linkcode loadFile}.
  */
 async function findFixtureFiles(testWorkspaceName: string): Promise<vscode.Uri[]> {
   const dirUri = getFileUri(path.resolve(__dirname, '../testWorkspaces', testWorkspaceName))

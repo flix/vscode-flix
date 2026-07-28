@@ -72,8 +72,6 @@ export async function init2(testWorkspaceName: string) {
   // so the notifications sent below are ordered after it.
   await ext.activate()
 
-  const baseline = await getCheckCount()
-
   for (const uri of fixtureUris) {
     await addFileToCompiler(uri, await readFileContent(uri))
   }
@@ -82,12 +80,6 @@ export async function init2(testWorkspaceName: string) {
   // rather than in the middle of a test.
   await Promise.all(fixtureUris.map(uri => vscode.workspace.openTextDocument(uri)))
 
-  // Wait for the compiler to finish compiling the new workspace and go idle. Adding a file is a
-  // priority job, so the compiler runs a check once it has processed all of them — unless there was
-  // nothing to add, as for a workspace whose files are all created by the tests themselves.
-  if (fixtureUris.length > 0) {
-    await waitForCheckSince(baseline)
-  }
   await awaitIdle()
 }
 
@@ -104,18 +96,9 @@ export async function init2(testWorkspaceName: string) {
  * @param testWorkspaceName The name of the workspace directory which was loaded, e.g. `codeActions`.
  */
 export async function teardown2(testWorkspaceName: string) {
-  const fixtureUris = await findFixtureFiles(testWorkspaceName)
-  if (fixtureUris.length === 0) {
-    return
-  }
-
-  const baseline = await getCheckCount()
-  for (const uri of fixtureUris) {
+  for (const uri of await findFixtureFiles(testWorkspaceName)) {
     await addFileToCompiler(uri, '')
   }
-
-  // Adding a file is a priority job, so the compiler runs a check once it has processed all of them.
-  await waitForCheckSince(baseline)
   await awaitIdle()
 }
 
@@ -127,8 +110,8 @@ export async function teardown2(testWorkspaceName: string) {
  * caller has to {@linkcode blankFile} it again once it should no longer be part of the program.
  */
 export async function loadFile(uri: vscode.Uri) {
-  const src = await readFileContent(uri)
-  await awaitCheck(() => addFileToCompiler(uri, src))
+  await addFileToCompiler(uri, await readFileContent(uri))
+  await awaitIdle()
 }
 
 /**
@@ -138,12 +121,18 @@ export async function loadFile(uri: vscode.Uri) {
  * The file itself is left untouched on disk.
  */
 export async function blankFile(uri: vscode.Uri) {
-  await awaitCheck(() => addFileToCompiler(uri, ''))
+  await addFileToCompiler(uri, '')
+  await awaitIdle()
 }
 
 /**
  * Hands the file at `uri` to the compiler with `src` as its content, without waiting for the
  * compiler to process it.
+ *
+ * The notification this sends and the one {@linkcode awaitIdle} sends travel the same ordered
+ * connection, and the server enqueues the resulting job as it handles the notification. Waiting for
+ * the compiler to go idle afterwards therefore covers this file — no check has to be counted, as it
+ * does for a change the extension only hears about through a file-system watcher.
  */
 async function addFileToCompiler(uri: vscode.Uri, src: string) {
   await vscode.commands.executeCommand('flix.addUri', uri.toString(), src)

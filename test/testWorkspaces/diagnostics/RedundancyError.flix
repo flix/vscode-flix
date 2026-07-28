@@ -1,8 +1,8 @@
-// Contains a function in which the name 'file' is shadowed.
+// Contains a function which is never used, and in which the name 'x' is shadowed.
 
-def printFile(file: String): Unit \ IO = {
-    match Files.readLines(file) {
-        case Ok(file) => println(file)
-        case Err(msg)   => println("An error occurred with message: ${msg}")
+def unusedFunction(): Int32 =
+    let x = 1;
+    match Some(2) {
+        case Some(x) => x
+        case None    => x
     }
-}

@@ -19,22 +19,12 @@ import * as vscode from 'vscode'
 import { blankFile, getFixtureDocUri, init2, loadFile, teardown2 } from './util'
 
 suite('Diagnostics', () => {
-  /** The optional URI of the latent file which should be blanked again after each test. */
-  let loadedDocUri: vscode.Uri | null = null
-
   suiteSetup(async () => {
     await init2('diagnostics')
   })
 
   suiteTeardown(async () => {
     await teardown2('diagnostics')
-  })
-
-  teardown(async () => {
-    if (loadedDocUri !== null) {
-      await blankFile(loadedDocUri)
-      loadedDocUri = null
-    }
   })
 
   test('Should show WeederError', async () => {
@@ -45,8 +35,8 @@ suite('Diagnostics', () => {
     testDiagnostics('NameError.flix', ['duplicate', 'definition'])
   })
 
-  test('Should show ResolutionError', async () => {
-    await testLatentDiagnostics('ResolutionError.flix', ['cyclic', 'type'])
+  test('Should show ResolutionError', () => {
+    testDiagnostics('ResolutionError.flix', ['undefined', 'name'])
   })
 
   test('Should show TypeError', () => {
@@ -62,7 +52,7 @@ suite('Diagnostics', () => {
   })
 
   test('Should clear diagnostics when file content is cleared', async () => {
-    const docUri = await loadLatentFile('WeederError.flix')
+    const docUri = getFixtureDocUri('diagnostics', 'NameError.flix')
 
     // Verify the error is present
     const before = vscode.languages.getDiagnostics(docUri)
@@ -73,26 +63,15 @@ suite('Diagnostics', () => {
 
     // Verify the error is gone
     const after = vscode.languages.getDiagnostics(docUri)
+
+    // Restore the file, so that this test does not depend on being the last one
+    await loadFile(docUri)
+
     assert.strictEqual(after.length, 0, `Expected no diagnostics after clearing, got: ${JSON.stringify(after)}`)
   })
 
   /**
-   * Loads the file `fileName` of the `latent` directory into the compiler, so that it becomes part of
-   * the program, and blanks it again after the test.
-   *
-   * @returns the URI of the loaded file
-   */
-  async function loadLatentFile(fileName: string): Promise<vscode.Uri> {
-    const docUri = getFixtureDocUri('diagnostics', `latent/${fileName}`)
-    loadedDocUri = docUri
-    await loadFile(docUri)
-    return docUri
-  }
-
-  /**
    * Assert that the file `fileName` of the test workspace has a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
-   *
-   * The file is part of the program from the start, since `init2` loads it along with the rest.
    */
   function testDiagnostics(fileName: string, expectedKeywords: string[]) {
     assertDiagnostics(getFixtureDocUri('diagnostics', fileName), expectedKeywords)
@@ -102,12 +81,17 @@ suite('Diagnostics', () => {
    * Assert the same as {@linkcode testDiagnostics}, but for a file of the `latent` directory, which
    * is part of the program for the duration of this test only.
    *
-   * Its error suppresses the errors of the other files, so it cannot be part of the program the
-   * other tests assert on.
+   * A weeder error keeps the compiler from reporting the errors of any other file, so it cannot be
+   * part of the program the other tests assert on.
    */
   async function testLatentDiagnostics(fileName: string, expectedKeywords: string[]) {
-    const docUri = await loadLatentFile(fileName)
-    assertDiagnostics(docUri, expectedKeywords)
+    const docUri = getFixtureDocUri('diagnostics', `latent/${fileName}`)
+    await loadFile(docUri)
+    try {
+      assertDiagnostics(docUri, expectedKeywords)
+    } finally {
+      await blankFile(docUri)
+    }
   }
 
   function assertDiagnostics(docUri: vscode.Uri, expectedKeywords: string[]) {

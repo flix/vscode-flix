@@ -37,12 +37,12 @@ const CHECK_TIMEOUT_MS = 20000
  * The directory therefore holds plain files rather than a workspace layout: no `flix.toml`, and no
  * `src` directory. Files in a subdirectory are not loaded — see {@linkcode loadFile}.
  *
- * The suite must call {@linkcode teardown2} with the same name when it is done, since no file-system
+ * The suite must call {@linkcode teardown} with the same name when it is done, since no file-system
  * watcher will ever report these files as gone.
  *
  * @param testWorkspaceName The name of the workspace directory to load, e.g. `codeActions`.
  */
-export async function init2(testWorkspaceName: string) {
+export async function init(testWorkspaceName: string) {
   // Show errors in the console
   // TODO: Fail tests if an error message is displayed
   vscode.window.showErrorMessage = (message: string) => {
@@ -84,7 +84,7 @@ export async function init2(testWorkspaceName: string) {
 }
 
 /**
- * Blanks every file loaded by {@linkcode init2} from the given test workspace directory, so that
+ * Blanks every file loaded by {@linkcode init} from the given test workspace directory, so that
  * they no longer contribute anything to the program, and waits for the compiler to finish
  * recompiling.
  *
@@ -95,7 +95,7 @@ export async function init2(testWorkspaceName: string) {
  *
  * @param testWorkspaceName The name of the workspace directory which was loaded, e.g. `codeActions`.
  */
-export async function teardown2(testWorkspaceName: string) {
+export async function teardown(testWorkspaceName: string) {
   for (const uri of await findFixtureFiles(testWorkspaceName)) {
     await addFileToCompiler(uri, '')
   }
@@ -106,7 +106,7 @@ export async function teardown2(testWorkspaceName: string) {
  * Loads the file at `uri` into the compiler with its content as it is on disk, without copying it
  * anywhere, and waits for the compiler to process it.
  *
- * As with {@linkcode init2}, no file-system watcher will ever report this file as gone, so the
+ * As with {@linkcode init}, no file-system watcher will ever report this file as gone, so the
  * caller has to {@linkcode blankFile} it again once it should no longer be part of the program.
  */
 export async function loadFile(uri: vscode.Uri) {
@@ -166,7 +166,7 @@ async function readFileContent(uri: vscode.Uri): Promise<string> {
 
 /**
  * Finds the `.flix` files directly in the given test workspace directory, which are the ones
- * {@linkcode init2} loads.
+ * {@linkcode init} loads.
  *
  * Subdirectories are left alone, so that a fixture which must not be part of the program from the
  * start can be put in one, and loaded by the test itself with {@linkcode loadFile}.
@@ -198,7 +198,7 @@ export async function typeText(text: string) {
  * Get the URI of the file at `p` in the test workspace directory `testWorkspaceName`, e.g.
  * `Main.flix` in `codeActions`.
  *
- * This points at the file where it lives in `testWorkspaces`, which is where {@linkcode init2}
+ * This points at the file where it lives in `testWorkspaces`, which is where {@linkcode init}
  * leaves it.
  */
 export function getFixtureDocUri(testWorkspaceName: string, p: string) {

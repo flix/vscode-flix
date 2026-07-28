@@ -17,17 +17,17 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
+import { findMarkerPosition, getFixtureDocUri, init, teardown } from './util'
 
 suite('FindReferencesProvider', () => {
   const mainDocUri = getFixtureDocUri('findReferences', 'Main.flix')
 
   suiteSetup(async () => {
-    await init2('findReferences')
+    await init('findReferences')
   })
 
   suiteTeardown(async () => {
-    await teardown2('findReferences')
+    await teardown('findReferences')
   })
 
   test('Should find references to function parameter', async () => {

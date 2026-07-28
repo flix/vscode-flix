@@ -16,17 +16,17 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getFixtureDocUri, init2, teardown2 } from './util'
+import { getFixtureDocUri, init, teardown } from './util'
 
 suite('FoldingRangeProvider', () => {
   const mainDocUri = getFixtureDocUri('foldingRanges', 'Main.flix')
 
   suiteSetup(async () => {
-    await init2('foldingRanges')
+    await init('foldingRanges')
   })
 
   suiteTeardown(async () => {
-    await teardown2('foldingRanges')
+    await teardown('foldingRanges')
   })
 
   test('Should fold multi-line doc, line, and block comments', async () => {

@@ -17,7 +17,7 @@
 import * as assert from 'assert'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { awaitCheck, getFileUri, getFixtureDocUri, init2, teardown2 } from './util'
+import { awaitCheck, getFileUri, getFixtureDocUri, init, teardown } from './util'
 
 suite('File manipulation', () => {
   // `Main.flix` and `Assert.flix` are compiled where they lie, as in every other suite.
@@ -29,13 +29,13 @@ suite('File manipulation', () => {
   const fpkgUri = getWorkspaceDocUri('lib/circleArea.fpkg')
 
   suiteSetup(async () => {
-    await init2('files')
+    await init('files')
   })
 
   suiteTeardown(async () => {
     await tryDeleteFile(areaDocUri)
     await tryDeleteFile(fpkgUri)
-    await teardown2('files')
+    await teardown('files')
   })
 
   setup(async () => {

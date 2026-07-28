@@ -16,18 +16,18 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getFixtureDocUri, init2, stringify, teardown2 } from './util'
+import { getFixtureDocUri, init, stringify, teardown } from './util'
 
 suite('CodeActionProvider', () => {
   const mainDocUri = getFixtureDocUri('codeActions', 'Main.flix')
   const dateDocUri = getFixtureDocUri('codeActions', 'Date.flix')
 
   suiteSetup(async () => {
-    await init2('codeActions')
+    await init('codeActions')
   })
 
   suiteTeardown(async () => {
-    await teardown2('codeActions')
+    await teardown('codeActions')
   })
 
   test('Empty line should not suggest code actions', async () => {

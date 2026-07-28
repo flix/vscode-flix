@@ -16,15 +16,15 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { blankFile, getFixtureDocUri, init2, loadFile, teardown2 } from './util'
+import { blankFile, getFixtureDocUri, init, loadFile, teardown } from './util'
 
 suite('Diagnostics', () => {
   suiteSetup(async () => {
-    await init2('diagnostics')
+    await init('diagnostics')
   })
 
   suiteTeardown(async () => {
-    await teardown2('diagnostics')
+    await teardown('diagnostics')
   })
 
   test('Should show NameError', () => {

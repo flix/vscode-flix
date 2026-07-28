@@ -16,13 +16,17 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getTestDocUri, init } from './util'
+import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('DocumentHighlightProvider', () => {
-  const mainDocUri = getTestDocUri('src/Main.flix')
+  const mainDocUri = getFixtureDocUri('highlight', 'src/Main.flix')
 
   suiteSetup(async () => {
-    await init('highlight')
+    await init2('highlight')
+  })
+
+  suiteTeardown(async () => {
+    await teardown2('highlight')
   })
 
   test('Should find highlights of function parameter', async () => {

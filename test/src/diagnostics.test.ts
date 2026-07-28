@@ -16,19 +16,24 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, copyFile, deleteFile, replaceDocumentContent } from './util'
+import { blankFile, getFixtureDocUri, init2, loadFile, teardown2 } from './util'
 
 suite('Diagnostics', () => {
-  /** The optional URI of the document which should be deleted after each test. */
-  let tempDocUri: vscode.Uri | null = null
+  /** The optional URI of the file which should be blanked again after each test. */
+  let loadedDocUri: vscode.Uri | null = null
 
   suiteSetup(async () => {
-    await init('diagnostics')
+    await init2('diagnostics')
+  })
+
+  suiteTeardown(async () => {
+    await teardown2('diagnostics')
   })
 
   teardown(async () => {
-    if (tempDocUri !== null) {
-      await deleteFile(tempDocUri)
+    if (loadedDocUri !== null) {
+      await blankFile(loadedDocUri)
+      loadedDocUri = null
     }
   })
 
@@ -57,39 +62,40 @@ suite('Diagnostics', () => {
   })
 
   test('Should clear diagnostics when file content is cleared', async () => {
-    const srcUri = getTestDocUri('src/ClearTest.flix')
-    const latentUri = getTestDocUri('latent/WeederError.flix')
-
-    // Delete the file after the test
-    tempDocUri = srcUri
-
-    // Copy a file with errors into src/
-    await copyFile(latentUri, srcUri)
+    const docUri = await loadLatentFile('WeederError.flix')
 
     // Verify the error is present
-    const before = vscode.languages.getDiagnostics(srcUri)
+    const before = vscode.languages.getDiagnostics(docUri)
     assert.strictEqual(before.length > 0, true, 'Expected diagnostics before clearing')
 
     // Clear the file content (simulates select all + delete)
-    await replaceDocumentContent(srcUri, '')
+    await blankFile(docUri)
 
     // Verify the error is gone
-    const after = vscode.languages.getDiagnostics(srcUri)
+    const after = vscode.languages.getDiagnostics(docUri)
     assert.strictEqual(after.length, 0, `Expected no diagnostics after clearing, got: ${JSON.stringify(after)}`)
   })
 
   /**
-   * Assert that copying the file `fileName` from the `latent` directory to the `src` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
+   * Loads the file `fileName` of the `latent` directory into the compiler, so that it becomes part of
+   * the program, and blanks it again after the test.
+   *
+   * @returns the URI of the loaded file
+   */
+  async function loadLatentFile(fileName: string): Promise<vscode.Uri> {
+    const docUri = getFixtureDocUri('diagnostics', `latent/${fileName}`)
+    loadedDocUri = docUri
+    await loadFile(docUri)
+    return docUri
+  }
+
+  /**
+   * Assert that loading the file `fileName` from the `latent` directory results in a diagnostic message containing all of the `expectedKeywords` (case-insensitive).
    */
   async function testDiagnostics(fileName: string, expectedKeywords: string[]) {
-    const latentUri = getTestDocUri(`latent/${fileName}`)
-    const srcUri = getTestDocUri(`src/${fileName}`)
+    const docUri = await loadLatentFile(fileName)
 
-    // Delete the file after the test
-    tempDocUri = srcUri
-    await copyFile(latentUri, srcUri)
-
-    const diagnostics = vscode.languages.getDiagnostics(srcUri)
+    const diagnostics = vscode.languages.getDiagnostics(docUri)
     assert.strictEqual(
       diagnostics.some(d => {
         const msgLower = d.message.toLowerCase()

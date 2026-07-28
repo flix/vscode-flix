@@ -16,13 +16,20 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, open, typeText, addFile } from './util'
+import { addFile, getTestDocUri, init2, open, teardown2, tryDeleteFile, typeText } from './util'
 
 suite('CompletionProvider', () => {
+  // Unlike the other suites, this file is not part of the test workspace directory: the test creates
+  // it and types into it, so it has to be a real file in the active workspace.
   const docUri = getTestDocUri('src/Temp.flix')
 
   suiteSetup(async () => {
-    await init('completions')
+    await init2('completions')
+  })
+
+  suiteTeardown(async () => {
+    await tryDeleteFile(docUri)
+    await teardown2('completions')
   })
 
   test('Should propose completing mod', async () => {

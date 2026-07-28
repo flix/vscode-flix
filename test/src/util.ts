@@ -119,19 +119,31 @@ export async function init2(testWorkspaceName: string) {
 
   // Ensure the extension is active. On the first suite this starts (and, on a cold CI run,
   // downloads) the compiler. `ext.activate()` only resolves once the server has been told to start,
-  // so the notifications sent below are ordered after the compiler's initial workspace scan — which
-  // would otherwise overwrite the set of files the compiler knows about.
+  // so the notifications sent below are ordered after it.
+  const wasActive = ext.isActive
   await ext.activate()
+
+  // Whatever is in the active workspace belongs to a previous suite, which copied it there with
+  // `init`, or to an earlier test run which left it behind. The compiler is given these files when
+  // it scans the workspace, so make it forget them: the fixture loaded below is the whole program.
+  const workspaceUris = await findWorkspaceFiles()
+
+  if (!wasActive && workspaceUris.length > 0) {
+    // On the first suite the compiler is only starting up, and it is handed the files above once it
+    // connects — which happens after `activate()` returns, and hence after the removals below are
+    // sent. Wait for the check that scan triggers, so that it cannot undo them. A check is
+    // guaranteed here precisely because the scan found files.
+    await waitForCheckSince(0)
+    await awaitIdle()
+  }
 
   const baseline = await getCheckCount()
 
-  // Whatever the initial scan found in the active workspace belongs to a previous suite, which
-  // copied it there with `init`, or to an earlier test run which left it behind.
-  await remWorkspaceFiles()
-
+  for (const uri of workspaceUris) {
+    await vscode.commands.executeCommand('flix.remUri', uri.toString())
+  }
   for (const uri of fixtureUris) {
-    const src = Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8')
-    await vscode.commands.executeCommand('flix.addUri', uri.toString(), src)
+    await addFileToCompiler(uri, await readFileContent(uri))
   }
 
   // Open the documents here, so the `didOpen` each of them triggers is handled as part of the setup
@@ -139,8 +151,11 @@ export async function init2(testWorkspaceName: string) {
   await Promise.all(fixtureUris.map(uri => vscode.workspace.openTextDocument(uri)))
 
   // Wait for the compiler to finish compiling the new workspace and go idle. Adding and removing
-  // files are priority jobs, so the compiler runs a check once it has processed all of them.
-  await waitForCheckSince(baseline)
+  // files are priority jobs, so the compiler runs a check once it has processed all of them — unless
+  // there was nothing to do, as for a workspace whose files are all loaded by the tests themselves.
+  if (workspaceUris.length + fixtureUris.length > 0) {
+    await waitForCheckSince(baseline)
+  }
   await awaitIdle()
 }
 
@@ -164,7 +179,7 @@ export async function teardown2(testWorkspaceName: string) {
 
   const baseline = await getCheckCount()
   for (const uri of fixtureUris) {
-    await vscode.commands.executeCommand('flix.addUri', uri.toString(), '')
+    await addFileToCompiler(uri, '')
   }
 
   // Adding a file is a priority job, so the compiler runs a check once it has processed all of them.
@@ -173,17 +188,52 @@ export async function teardown2(testWorkspaceName: string) {
 }
 
 /**
- * Makes the compiler forget every `.flix` file of the active workspace, so that a workspace loaded
- * by {@linkcode init2} is the entire program. The files themselves are left untouched on disk.
+ * Loads the file at `uri` into the compiler with its content as it is on disk, without copying it
+ * anywhere, and waits for the compiler to process it.
+ *
+ * As with {@linkcode init2}, no file-system watcher will ever report this file as gone, so the
+ * caller has to {@linkcode blankFile} it again once it should no longer be part of the program.
  */
-async function remWorkspaceFiles() {
+export async function loadFile(uri: vscode.Uri) {
+  const src = await readFileContent(uri)
+  await awaitCheck(() => addFileToCompiler(uri, src))
+}
+
+/**
+ * Empties the content the compiler holds for the file at `uri`, so that it no longer contributes
+ * anything to the program, and waits for the compiler to process it.
+ *
+ * The file itself is left untouched on disk.
+ */
+export async function blankFile(uri: vscode.Uri) {
+  await awaitCheck(() => addFileToCompiler(uri, ''))
+}
+
+/**
+ * Hands the file at `uri` to the compiler with `src` as its content, without waiting for the
+ * compiler to process it.
+ */
+async function addFileToCompiler(uri: vscode.Uri, src: string) {
+  await vscode.commands.executeCommand('flix.addUri', uri.toString(), src)
+}
+
+/**
+ * Finds the `.flix` files of the active workspace, i.e. the ones the extension hands to the compiler
+ * when it scans the workspace.
+ */
+async function findWorkspaceFiles(): Promise<vscode.Uri[]> {
   const activeWorkspaceFolder = vscode.workspace.workspaceFolders![0]
   // NB: Must match `getFlixGlobPattern` in `client/src/util/workspace.ts`.
   const pattern = new vscode.RelativePattern(activeWorkspaceFolder, '{*.flix,src/**/*.flix,test/**/*.flix}')
 
-  for (const uri of await vscode.workspace.findFiles(pattern)) {
-    await vscode.commands.executeCommand('flix.remUri', uri.toString())
-  }
+  return vscode.workspace.findFiles(pattern)
+}
+
+/**
+ * Returns the content of the file at `uri` as a string.
+ */
+async function readFileContent(uri: vscode.Uri): Promise<string> {
+  return Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8')
 }
 
 /**
@@ -276,21 +326,6 @@ export async function typeText(text: string) {
   await awaitCheck(async () => {
     await vscode.commands.executeCommand('type', { text })
     await vscode.window.activeTextEditor.document.save()
-  })
-}
-
-/**
- * Replaces the entire content of the given document with `newContent`, saves, and waits for the compiler to process.
- */
-export async function replaceDocumentContent(docUri: vscode.Uri, newContent: string) {
-  const doc = await vscode.workspace.openTextDocument(docUri)
-  await vscode.window.showTextDocument(doc)
-  await awaitCheck(async () => {
-    const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length))
-    const edit = new vscode.WorkspaceEdit()
-    edit.replace(docUri, fullRange, newContent)
-    await vscode.workspace.applyEdit(edit)
-    await doc.save()
   })
 }
 
@@ -435,15 +470,6 @@ export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
   const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
 
   await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
-}
-
-/**
- * Copy the file from `from` to `to`, and wait for the compiler to process this.
- */
-export async function copyFile(from: vscode.Uri, to: vscode.Uri) {
-  await awaitCheck(async () => {
-    await vscode.workspace.fs.copy(from, to, { overwrite: true })
-  })
 }
 
 /**

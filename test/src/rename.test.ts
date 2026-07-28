@@ -16,13 +16,17 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getTestDocUri, init, open } from './util'
+import { findMarkerPosition, getFixtureDocUri, init2, open, teardown2 } from './util'
 
 suite('RenameProvider', () => {
-  const mainDocUri = getTestDocUri('src/Main.flix')
+  const mainDocUri = getFixtureDocUri('rename', 'src/Main.flix')
 
   suiteSetup(async () => {
-    await init('rename')
+    await init2('rename')
+  })
+
+  suiteTeardown(async () => {
+    await teardown2('rename')
   })
 
   test('Should rename variable', async () => {

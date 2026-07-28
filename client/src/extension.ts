@@ -17,7 +17,7 @@ import { setupProjectWatchers, setupSingleFileTracking, disposeWatchers } from '
 import { startSession } from './lsp/session'
 import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 
-import { simulateDisconnect, showAst, allJobsFinished } from './commands/lspCommands'
+import { showAst, allJobsFinished } from './commands/lspCommands'
 import {
   runMain,
   cmdInit,
@@ -114,7 +114,6 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // Register commands for command palette
   registerCommand('flix.internalRestart', makeHandleRestartClient(context, { shouldUpdateFlix: false }))
   registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
-  registerCommand('flix.simulateDisconnect', simulateDisconnect(client))
   registerCommand('flix.runMain', runMain(context, launchOptions))
 
   registerCommand('flix.cmdInit', cmdInit(context, launchOptions))

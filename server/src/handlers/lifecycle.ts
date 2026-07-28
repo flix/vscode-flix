@@ -114,15 +114,6 @@ export function handleExit() {
 }
 
 /**
- * Simulates the compiler disconnecting.
- * Used for testing.
- */
-export function handleDisconnect() {
-  const expectResponse = false
-  socket.sendMessage({ id: 'disconnect', request: jobs.Request.apiDisconnect }, expectResponse)
-}
-
-/**
  * Request a response to be sent when all jobs are finished.
  */
 export function handleFinishedAllJobs() {

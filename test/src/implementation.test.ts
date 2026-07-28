@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getTestDocUri, init, normalizeLocation } from './util'
+import { getTestDocUri, init } from './util'
 
 suite('ImplementationProvider', () => {
   const dividableDocUri = getTestDocUri('src/Dividable.flix')
@@ -33,23 +33,5 @@ suite('ImplementationProvider', () => {
       position,
     )
     assert.deepStrictEqual(r, [])
-  })
-
-  async function testImplementations(uri: vscode.Uri, position: vscode.Position, expectedLocations: vscode.Location[]) {
-    const r = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>(
-      'vscode.executeImplementationProvider',
-      uri,
-      position,
-    )
-
-    const actualLocations = r.map(normalizeLocation)
-
-    assert.deepStrictEqual(new Set(actualLocations), new Set(expectedLocations))
-  }
-
-  test.skip('Should find Dividable trait implementation', async () => {
-    await testImplementations(dividableDocUri, new vscode.Position(1, 6), [
-      new vscode.Location(dividableDocUri, new vscode.Range(5, 9, 5, 18)),
-    ])
   })
 })

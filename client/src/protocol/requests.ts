@@ -32,7 +32,6 @@ export enum Request {
   apiRemJar = 'api/remJar',
   apiVersion = 'api/version',
   apiShutdown = 'api/shutdown',
-  apiDisconnect = 'api/disconnect',
 
   lspCheck = 'lsp/check',
   lspCodelens = 'lsp/codelens',

@@ -37,18 +37,6 @@ suite('RenameProvider', () => {
     assert.strictEqual(ranges.length, 2)
   })
 
-  test.skip('Should rename function', async () => {
-    const position = await findMarkerPosition(mainDocUri, 'area1')
-    const ranges = await testRename(mainDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
-
-  test.skip('Should rename function-use', async () => {
-    const position = await findMarkerPosition(mainDocUri, 'area2')
-    const ranges = await testRename(mainDocUri, position)
-    assert.strictEqual(ranges.length, 2)
-  })
-
   async function testRename(uri: vscode.Uri, position: vscode.Position): Promise<vscode.Range[]> {
     await open(uri)
     const newName = 'NewName'

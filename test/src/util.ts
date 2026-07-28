@@ -336,7 +336,7 @@ function getFileUri(p: string) {
 /**
  * Sleeps for `ms` milliseconds.
  */
-export async function sleep(ms: number) {
+async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -441,7 +441,7 @@ export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
  * Does not wait for the compiler to react — callers synchronize via {@linkcode settleAfterChange}
  * (workspace setup) or {@linkcode awaitCheck} (in-test mutations).
  */
-export async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
+async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
   const contents = await vscode.workspace.fs.readDirectory(from)
   const names = contents.map(([name, _]) => name)
 
@@ -477,26 +477,6 @@ export async function tryDeleteFile(uri: vscode.Uri) {
  */
 export function stringify(val: unknown): string {
   return JSON.stringify(val, null, 2)
-}
-
-/**
- * Normalize the given `uri` to a canonical form.
- */
-function normalizeUri(uri: vscode.Uri) {
-  // Strip out unnecessary information such as _formatted
-  return vscode.Uri.parse(uri.toString())
-}
-
-/**
- * Returns the given `location` (which can be either a {@linkcode vscode.Location} or {@linkcode vscode.LocationLink})
- * as a {@linkcode vscode.Location} in a canonical form.
- */
-export function normalizeLocation(location: vscode.Location | vscode.LocationLink) {
-  if (location instanceof vscode.Location) {
-    return new vscode.Location(normalizeUri(location.uri), location.range)
-  } else {
-    return new vscode.Location(normalizeUri(location.targetUri), location.targetRange)
-  }
 }
 
 /**

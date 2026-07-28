@@ -90,6 +90,36 @@ function promptReloadForUpdate() {
 }
 
 /**
+ * Offers the user the newer `flixRelease`. If they accept, downloads it to a
+ * staged `flix.jar.new` (so we don't disturb the jar the running compiler may
+ * have locked), records it as the installed version, and prompts a reload.
+ *
+ * @returns `true` if a new version was staged — the caller should skip engine
+ *   startup and let the update apply on the next reload; `false` if the user
+ *   declined.
+ */
+async function offerUpdate(globalStoragePath: string, flixRelease: FlixRelease): Promise<boolean> {
+  const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(flixRelease.name)
+  const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2)
+  if (updateResponse !== option1) {
+    return false
+  }
+
+  const stagingFilename = path.join(globalStoragePath, FLIX_JAR_NEW)
+  await downloadWithRetryDialog(async () => {
+    await download({
+      url: flixRelease.downloadUrl,
+      dest: stagingFilename,
+      progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
+      overwrite: true,
+    })
+    await setInstalledFlixVersion(flixRelease, { showChangelog: false })
+  })
+  promptReloadForUpdate()
+  return true
+}
+
+/**
  * Ensures that `flix.jar` is available, returning its path.
  *
  * Returns `undefined` when a new compiler was staged as `flix.jar.new` and a
@@ -122,41 +152,37 @@ export default async function ensureFlixExists({
     }
     // 2. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)
-    const installedFlixRelease = getInstalledFlixVersion()
-    if (fs.existsSync(filename) && installedFlixRelease) {
-      const sixHoursInMilliseconds = 1000 * 60 * 60 * 6
+    if (fs.existsSync(filename)) {
+      // Only check for a newer version when we know which version is installed.
+      // Without this metadata we cannot compare versions, so we use the existing
+      // jar as-is instead of re-downloading it. This notably happens in the test
+      // environment, where the Memento is reset between runs (making
+      // `getInstalledFlixVersion()` return `undefined`) even though the jar on
+      // disk persists — the old behaviour re-staged `flix.jar.new` and prompted a
+      // reload on every run, hanging the test suite.
+      const installedFlixRelease = getInstalledFlixVersion()
+      if (installedFlixRelease) {
+        const sixHoursInMilliseconds = 1000 * 60 * 60 * 6
 
-      // skip if we checked under 6 hours ago
-      if (Date.now() < (installedFlixRelease.downloadedAt || 0) + sixHoursInMilliseconds) {
-        return filename
-      }
-
-      // Check if a newer version is available
-      try {
-        const flixRelease = await fetchRelease()
-        // Give the user the option to update if there's a newer version available
-        if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
-          const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(flixRelease.name)
-          const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2)
-          if (updateResponse === 'Download') {
-            const stagingFilename = path.join(globalStoragePath, FLIX_JAR_NEW)
-            await downloadWithRetryDialog(async () => {
-              await download({
-                url: flixRelease.downloadUrl,
-                dest: stagingFilename,
-                progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
-                overwrite: true,
-              })
-              await setInstalledFlixVersion(flixRelease, { showChangelog: false })
-            })
-            promptReloadForUpdate()
-            return undefined
+        // skip the update check if we checked under 6 hours ago
+        if (Date.now() >= (installedFlixRelease.downloadedAt || 0) + sixHoursInMilliseconds) {
+          // Check if a newer version is available
+          try {
+            const flixRelease = await fetchRelease()
+            // Give the user the option to update if there's a newer version available
+            if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
+              const staged = await offerUpdate(globalStoragePath, flixRelease)
+              if (staged) {
+                return undefined
+              }
+            }
+          } catch (error) {
+            // If the fetch request fails, we simply do not check for a new version of the compiler.
+            // Since the extension can still work, avoid bothering the user.
           }
         }
-      } catch (error) {
-        // If the fetch request fails, we simply do not check for a new version of the compiler.
-        // Since the extension can still work, avoid bothering the user.
       }
+
       return filename
     }
   }

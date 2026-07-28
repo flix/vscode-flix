@@ -15,8 +15,9 @@
  */
 
 import * as assert from 'assert'
+import * as path from 'path'
 import * as vscode from 'vscode'
-import { addFile, deleteFile, getFixtureDocUri, getTestDocUri, init2, teardown2, tryDeleteFile } from './util'
+import { awaitCheck, getFileUri, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('File manipulation', () => {
   // `Main.flix` and `Assert.flix` are compiled where they lie, as in every other suite.
@@ -24,8 +25,8 @@ suite('File manipulation', () => {
 
   // These two are real files of the active workspace: this suite is about the extension noticing
   // that they appear and disappear, which only a file-system watcher can report.
-  const areaDocUri = getTestDocUri('src/Area.flix')
-  const fpkgUri = getTestDocUri('lib/circleArea.fpkg')
+  const areaDocUri = getWorkspaceDocUri('src/Area.flix')
+  const fpkgUri = getWorkspaceDocUri('lib/circleArea.fpkg')
 
   suiteSetup(async () => {
     await init2('files')
@@ -73,6 +74,16 @@ suite('File manipulation', () => {
   }
 
   /**
+   * Get the URI of the file at `p` in the active workspace, e.g. `src/Area.flix`.
+   *
+   * Unlike {@linkcode getFixtureDocUri}, this points at a file which only exists while this suite is
+   * running: no other suite puts anything in the active workspace.
+   */
+  function getWorkspaceDocUri(p: string) {
+    return getFileUri(path.resolve(__dirname, '../activeWorkspace', p))
+  }
+
+  /**
    * Returns the content of the file at `p` in the `workspace` directory of the test workspace, which
    * holds the files this suite copies into the active workspace.
    */
@@ -86,5 +97,36 @@ suite('File manipulation', () => {
   async function recreateFile(uri: vscode.Uri, p: string) {
     await tryDeleteFile(uri)
     await addFile(uri, await fixtureContent(p))
+  }
+
+  /**
+   * Add a file with the given `uri` and `content`, and wait for the compiler to process this.
+   */
+  async function addFile(uri: vscode.Uri, content: Uint8Array) {
+    await awaitCheck(async () => {
+      await vscode.workspace.fs.writeFile(uri, content)
+    })
+  }
+
+  /**
+   * Delete the file at `uri`, and wait for the compiler to process this.
+   *
+   * Throws if the file does not exist.
+   */
+  async function deleteFile(uri: vscode.Uri) {
+    await awaitCheck(async () => {
+      await vscode.workspace.fs.delete(uri)
+    })
+  }
+
+  /**
+   * Tries to delete the file at `uri`, but does nothing if the file does not exist.
+   */
+  async function tryDeleteFile(uri: vscode.Uri) {
+    try {
+      await deleteFile(uri)
+    } catch {
+      // File does not exist - no need to delete
+    }
   }
 })

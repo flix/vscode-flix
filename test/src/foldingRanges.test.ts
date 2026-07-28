@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getFixtureDocUri, init2, open, teardown2 } from './util'
+import { getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('FoldingRangeProvider', () => {
   const mainDocUri = getFixtureDocUri('foldingRanges', 'Main.flix')
@@ -30,7 +30,6 @@ suite('FoldingRangeProvider', () => {
   })
 
   test('Should fold multi-line doc, line, and block comments', async () => {
-    await open(mainDocUri)
     const ranges = await vscode.commands.executeCommand<vscode.FoldingRange[]>(
       'vscode.executeFoldingRangeProvider',
       mainDocUri,

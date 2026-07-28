@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getFixtureDocUri, init2, open, teardown2 } from './util'
+import { getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('CodeLensProvider', () => {
   const mainDocUri = getFixtureDocUri('codeLenses', 'Main.flix')
@@ -31,7 +31,6 @@ suite('CodeLensProvider', () => {
   })
 
   test('Should propose running main function', async () => {
-    await open(mainDocUri)
     const r = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', mainDocUri)
     assert.strictEqual(
       r.some(l => l.command?.command === 'flix.runMain'),
@@ -40,7 +39,6 @@ suite('CodeLensProvider', () => {
   })
 
   test('Should propose running test function', async () => {
-    await open(areaDocUri)
     const r = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', areaDocUri)
     assert.strictEqual(
       r.some(l => l.command?.command === 'flix.runMain'),

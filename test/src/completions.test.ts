@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { addFile, getTestDocUri, init2, open, teardown2, tryDeleteFile, typeText } from './util'
+import { addFile, getTestDocUri, init2, teardown2, tryDeleteFile, typeText } from './util'
 
 suite('CompletionProvider', () => {
   // Unlike the other suites, this file is not part of the test workspace directory: the test creates
@@ -34,7 +34,9 @@ suite('CompletionProvider', () => {
 
   test('Should propose completing mod', async () => {
     await addFile(docUri, '')
-    await open(docUri)
+
+    // Typing goes to the active editor, so the document has to be shown
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(docUri))
     await typeText('mo')
 
     const position = new vscode.Position(0, 2)

@@ -16,14 +16,13 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getFixtureDocUri, init2, open, teardown2 } from './util'
+import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('HoverProvider', () => {
   const docUri = getFixtureDocUri('hover', 'Main.flix')
 
   suiteSetup(async () => {
     await init2('hover')
-    await open(docUri)
   })
 
   suiteTeardown(async () => {

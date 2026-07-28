@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { getFixtureDocUri, init2, open, stringify, teardown2 } from './util'
+import { getFixtureDocUri, init2, stringify, teardown2 } from './util'
 
 suite('CodeActionProvider', () => {
   const mainDocUri = getFixtureDocUri('codeActions', 'Main.flix')
@@ -31,8 +31,6 @@ suite('CodeActionProvider', () => {
   })
 
   test('Empty line should not suggest code actions', async () => {
-    await open(mainDocUri)
-
     const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
       'vscode.executeCodeActionProvider',
       mainDocUri,
@@ -51,8 +49,6 @@ suite('CodeActionProvider', () => {
   })
 
   async function testCodeAction(docUri: vscode.Uri, position: vscode.Position, expectedKeywords: string[]) {
-    await open(docUri)
-
     const r = await vscode.commands.executeCommand<vscode.CodeAction[]>(
       'vscode.executeCodeActionProvider',
       docUri,

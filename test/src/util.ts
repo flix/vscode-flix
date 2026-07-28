@@ -181,14 +181,6 @@ async function findFixtureFiles(testWorkspaceName: string): Promise<vscode.Uri[]
 }
 
 /**
- * Opens the document at `docUri` in the main editor.
- */
-export async function open(docUri: vscode.Uri) {
-  const doc = await vscode.workspace.openTextDocument(docUri)
-  await vscode.window.showTextDocument(doc)
-}
-
-/**
  * Types the given `text` in the editor at the current position.
  */
 export async function typeText(text: string) {

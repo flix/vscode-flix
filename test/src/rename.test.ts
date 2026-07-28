@@ -16,7 +16,7 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getFixtureDocUri, init2, open, teardown2 } from './util'
+import { findMarkerPosition, getFixtureDocUri, init2, teardown2 } from './util'
 
 suite('RenameProvider', () => {
   const mainDocUri = getFixtureDocUri('rename', 'Main.flix')
@@ -42,7 +42,6 @@ suite('RenameProvider', () => {
   })
 
   async function testRename(uri: vscode.Uri, position: vscode.Position): Promise<vscode.Range[]> {
-    await open(uri)
     const newName = 'NewName'
     const r = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
       'vscode.executeDocumentRenameProvider',

@@ -26,67 +26,6 @@ import * as vscode from 'vscode'
 const CHECK_TIMEOUT_MS = 20000
 
 /**
- * How long to wait for the compiler to stay quiescent before considering a batch of workspace file
- * changes fully settled. Must exceed the reconciliation debounce in the client's file watchers
- * (`scheduleReconciliation`, currently 300ms), which can enqueue a follow-up check *after* the
- * change's initial check has already gone idle. See {@linkcode settleAfterChange}.
- */
-const RECONCILE_SETTLE_MS = 500
-
-/**
- * Activates the extension and swaps the active workspace to the contents of the given test workspace
- * directory, waiting deterministically for the compiler to finish compiling the result.
- *
- * @param testWorkspaceName The name of the workspace directory to copy, e.g. `codeActions`.
- */
-export async function init(testWorkspaceName: string) {
-  // Show errors in the console
-  // TODO: Fail tests if an error message is displayed
-  vscode.window.showErrorMessage = (message: string) => {
-    throw new Error(`Error message displayed: ${message}`)
-  }
-
-  // The extensionId is `publisher.name` from package.json
-  const ext = vscode.extensions.getExtension('flix.flix')
-  if (ext === undefined) {
-    throw new Error('Failed to activate extension')
-  }
-
-  vscode.commands.executeCommand('workbench.action.closeAllEditors')
-  const activeWorkspaceUri = vscode.workspace.workspaceFolders![0].uri
-
-  // The `flix.checkCount` synchronization used below only works once the extension is running.
-  //
-  // On the very first suite the extension has not started yet: there is no check baseline to capture
-  // and no file-system watcher to report the changes below, so the copied files are instead picked
-  // up by the initial workspace scan performed when `ext.activate()` runs. On every later suite the
-  // extension is already active and we synchronize on the checks its watchers trigger.
-  const wasActive = ext.isActive
-
-  // Remove the previous suite's files. When the extension is already running, wait for the compiler
-  // to observe the removals *before* copying the new files. Otherwise VS Code can coalesce a
-  // delete-then-create of the same path into a single change event, which the file-system watcher
-  // does not handle — leaving the compiler with stale file contents.
-  const clearBaseline = wasActive ? await getCheckCount() : 0
-  const removedFlixFiles = await clearDir(activeWorkspaceUri)
-  if (wasActive && removedFlixFiles > 0) {
-    await settleAfterChange(clearBaseline)
-  }
-
-  // Copy in the new workspace.
-  const copyBaseline = wasActive ? await getCheckCount() : 0
-  const testWorkspacePath = path.resolve(__dirname, '../testWorkspaces', testWorkspaceName)
-  await copyDirContents(vscode.Uri.file(testWorkspacePath), activeWorkspaceUri)
-
-  // Ensure the extension is active. On the first suite this starts (and, on a cold CI run,
-  // downloads) the compiler and triggers the initial scan+compile of the files copied above.
-  await ext.activate()
-
-  // Wait for the compiler to finish compiling the new workspace and go idle.
-  await settleAfterChange(copyBaseline)
-}
-
-/**
  * Activates the extension and loads the contents of the given test workspace directory into the
  * compiler directly, without touching the file system.
  *
@@ -256,40 +195,6 @@ async function findFixtureFiles(testWorkspaceName: string): Promise<vscode.Uri[]
 }
 
 /**
- * Recursively deletes all test-owned files (matched by extension) from `uri`, always keeping
- * `.gitkeep` and `flix.jar`.
- *
- * @returns the number of `.flix` files that were removed, so the caller can tell whether the
- * deletion will trigger a recompile to wait for.
- */
-async function clearDir(uri: vscode.Uri): Promise<number> {
-  const contents = await vscode.workspace.fs.readDirectory(uri)
-
-  // Recurse into subdirectories
-  const dirs = contents.filter(([_, type]) => type === vscode.FileType.Directory)
-  const dirUris = dirs.map(([name, _]) => vscode.Uri.joinPath(uri, name))
-  const removedInSubdirs = await Promise.all(dirUris.map(clearDir))
-
-  const files = contents.filter(([_, type]) => type !== vscode.FileType.Directory)
-  const fileNames = files.map(([name, _]) => name)
-
-  // Be careful, and only delete files with known extensions
-  const extensionsToDelete = ['flix', 'toml', 'jar', 'fpkg', 'txt']
-
-  // Always keep .gitkeep and flix.jar
-  const namesToKeep = ['.gitkeep', 'flix.jar']
-
-  const namesToDelete = fileNames.filter(
-    name => !namesToKeep.includes(name) && extensionsToDelete.includes(name.split('.').at(-1)),
-  )
-  const urisToDelete = namesToDelete.map(name => vscode.Uri.joinPath(uri, name))
-  await Promise.allSettled(urisToDelete.map(uri => vscode.workspace.fs.delete(uri)))
-
-  const removedHere = namesToDelete.filter(name => name.endsWith('.flix')).length
-  return removedHere + removedInSubdirs.reduce((sum, n) => sum + n, 0)
-}
-
-/**
  * Opens the document at `docUri` in the main editor.
  */
 export async function open(docUri: vscode.Uri) {
@@ -375,33 +280,6 @@ async function awaitIdle() {
 }
 
 /**
- * Waits for the compiler to finish reacting to a batch of workspace file changes (the setup in
- * {@linkcode init}) and reach a stable idle state, given the {@linkcode getCheckCount} value
- * observed *before* the changes were made.
- *
- * Unlike a fixed sleep, this is anchored to observable compiler progress:
- *
- * 1. {@linkcode waitForCheckSince} blocks until the file-system watcher has fired and a check has
- *    completed, so we never sample idle against stale, pre-change state.
- * 2. We then repeatedly drain the queue ({@linkcode awaitIdle}) until the observed check count stops
- *    advancing across a full {@linkcode RECONCILE_SETTLE_MS} window. A create/delete schedules a
- *    debounced reconciliation that can enqueue a *follow-up* check (e.g. when VS Code delivers a
- *    single folder-level event instead of per-file events), so returning on the first idle would be
- *    premature.
- */
-async function settleAfterChange(baseline: number) {
-  await waitForCheckSince(baseline)
-  for (;;) {
-    await awaitIdle()
-    const count = await getCheckCount()
-    await sleep(RECONCILE_SETTLE_MS)
-    if ((await getCheckCount()) === count) {
-      return
-    }
-  }
-}
-
-/**
  * Runs the filesystem `mutation`, then waits until the `lsp/check` it triggers has finished and the
  * compiler is idle.
  *
@@ -432,22 +310,6 @@ export async function addFile(uri: vscode.Uri, content: string | Uint8Array) {
   await awaitCheck(async () => {
     await vscode.workspace.fs.writeFile(uri, Buffer.from(content))
   })
-}
-
-/**
- * Copies the contents of the given folder `from` to the folder `to`, leaving non-overlapping files
- * intact.
- *
- * Does not wait for the compiler to react — callers synchronize via {@linkcode settleAfterChange}
- * (workspace setup) or {@linkcode awaitCheck} (in-test mutations).
- */
-async function copyDirContents(from: vscode.Uri, to: vscode.Uri) {
-  const contents = await vscode.workspace.fs.readDirectory(from)
-  const names = contents.map(([name, _]) => name)
-
-  const uris = names.map(name => ({ from: vscode.Uri.joinPath(from, name), to: vscode.Uri.joinPath(to, name) }))
-
-  await Promise.allSettled(uris.map(({ from, to }) => vscode.workspace.fs.copy(from, to, { overwrite: true })))
 }
 
 /**

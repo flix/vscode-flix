@@ -16,22 +16,37 @@
 
 import * as assert from 'assert'
 import * as vscode from 'vscode'
-import { init, addFile, deleteFile, getTestDocUri } from './util'
+import { addFile, deleteFile, getFixtureDocUri, getTestDocUri, init2, teardown2, tryDeleteFile } from './util'
 
 suite('File manipulation', () => {
-  const mainDocUri = getTestDocUri('src/Main.flix')
+  // `Main.flix` and `Assert.flix` are compiled where they lie, as in every other suite.
+  const mainDocUri = getFixtureDocUri('files', 'Main.flix')
+
+  // These two are real files of the active workspace: this suite is about the extension noticing
+  // that they appear and disappear, which only a file-system watcher can report.
   const areaDocUri = getTestDocUri('src/Area.flix')
   const fpkgUri = getTestDocUri('lib/circleArea.fpkg')
 
+  suiteSetup(async () => {
+    await init2('files')
+  })
+
+  suiteTeardown(async () => {
+    await tryDeleteFile(areaDocUri)
+    await tryDeleteFile(fpkgUri)
+    await teardown2('files')
+  })
+
   setup(async () => {
-    // Restore the original content of the files before each test
-    await init('files')
+    // Create the files from scratch before each test, so that the compiler is given them by the file
+    // watcher no matter what the previous test did to them.
+    await recreateFile(areaDocUri, 'src/Area.flix')
+    await recreateFile(fpkgUri, 'lib/circleArea.fpkg')
   })
 
   test('Should add created source-file', async () => {
-    const content = await vscode.workspace.fs.readFile(areaDocUri)
     await deleteFile(areaDocUri)
-    await addFile(areaDocUri, content)
+    await addFile(areaDocUri, await fixtureContent('src/Area.flix'))
     assert.strictEqual(await workspaceValid(), true)
   })
 
@@ -41,9 +56,8 @@ suite('File manipulation', () => {
   })
 
   test('Should add created fpkg-file', async () => {
-    const content = await vscode.workspace.fs.readFile(fpkgUri)
     await deleteFile(fpkgUri)
-    await addFile(fpkgUri, content)
+    await addFile(fpkgUri, await fixtureContent('lib/circleArea.fpkg'))
     assert.strictEqual(await workspaceValid(), true)
   })
 
@@ -56,5 +70,21 @@ suite('File manipulation', () => {
     // If all files are not present in the compiler, then Main.flix will contain a resolution error
     const r = [...vscode.languages.getDiagnostics(mainDocUri), ...vscode.languages.getDiagnostics(areaDocUri)]
     return r.length === 0
+  }
+
+  /**
+   * Returns the content of the file at `p` in the `workspace` directory of the test workspace, which
+   * holds the files this suite copies into the active workspace.
+   */
+  async function fixtureContent(p: string): Promise<Uint8Array> {
+    return vscode.workspace.fs.readFile(getFixtureDocUri('files', `workspace/${p}`))
+  }
+
+  /**
+   * Deletes the file at `uri` if it exists, and creates it again with the content of `p`.
+   */
+  async function recreateFile(uri: vscode.Uri, p: string) {
+    await tryDeleteFile(uri)
+    await addFile(uri, await fixtureContent(p))
   }
 })

@@ -47,7 +47,9 @@ suite('GotoDefinitionProvider', () => {
       uri,
       position,
     )
-    if (r.length === 0) return undefined
+    if (r.length === 0) {
+      return undefined
+    }
     const loc = r[0]
     const targetUri = loc instanceof vscode.Location ? loc.uri : loc.targetUri
     const targetRange = loc instanceof vscode.Location ? loc.range : loc.targetRange

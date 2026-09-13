@@ -15,7 +15,8 @@
     "flix"
   ],
   "engines": {
-    "vscode": "^1.82.0"
+    "vscode": "^1.82.0",
+    "node": "24.x"
   },
   "main": "./client/out/extension.js",
   "contributes": {
@@ -184,7 +185,15 @@
     "build": "node build.js",
     "watch": "tsc -b -w",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-    "test": "npm run build && tsc --build ./test && vscode-test"
+    "test": "npm run build && tsc --build ./test && vscode-test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier . --check",
+    "prettier:fix": "prettier . --write",
+    "typecheck": "tsc -b --noEmit",
+    "typecheck:client": "tsc -p client --noEmit",
+    "typecheck:server": "tsc -p server --noEmit",
+    "typecheck:test": "tsc -p test --noEmit"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",

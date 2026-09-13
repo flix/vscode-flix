@@ -1,13 +1,11 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2019",
     "lib": ["ES2019"],
     "outDir": "out",
     "rootDir": "src",
-    "sourceMap": true,
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", ".vscode-test"]
+  "exclude": ["node_modules", ".vscode-test", "out"]
 }

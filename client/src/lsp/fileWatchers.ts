@@ -37,7 +37,9 @@ export function vsCodeUriToUriString(uri: vscode.Uri) {
  * fires for the folder but not for individual files inside it.
  */
 async function reconcileFiles(client: LanguageClient) {
-  if (!isProjectMode()) return
+  if (!isProjectMode()) {
+    return
+  }
 
   const [currentFlix, currentPkgs, currentJars] = await Promise.all([
     vscode.workspace.findFiles(getFlixGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),

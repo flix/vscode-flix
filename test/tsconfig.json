@@ -1,8 +1,10 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "out",
-    "rootDir": "src"
+    "rootDir": "src",
+    "lib": ["ES2022"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", ".vscode-test", "out"]
 }

@@ -17,35 +17,26 @@
 import * as assert from 'assert'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getFileUri, getFixtureDocUri, init, teardown } from './util'
+import { findMarkerPosition, getFileUri, initWorkspace } from '../util'
 
 /**
  * Checks that a dependency declared in `flix.toml` is part of the program.
  *
- * `Main.flix` calls into `Extras.Queue`, which nothing in the workspace defines: it is only
+ * This suite runs in `test/dependencyWorkspace`, a workspace folder of its own, launched as a
+ * separate VS Code instance by `.vscode-test.js`. It therefore gets a Flix compiler no other suite
+ * has touched, started against a project which already has its manifest on disk — the manifest
+ * cannot arrive late, as it would in the workspace the other suites share.
+ *
+ * `src/Main.flix` calls into `Extras.Queue`, which nothing in the workspace defines: it is only
  * available if the compiler has resolved the `github:flix/extras` dependency declared in the
- * manifest this suite writes into the active workspace. Hovering the calls is what proves the
- * symbols actually made it into the program — a resolution error would leave nothing to hover.
+ * manifest. Hovering the calls is what proves the symbols made it into the program — a resolution
+ * error would leave nothing to hover.
  */
 suite('Dependencies', () => {
-  // `Main.flix` is compiled where it lies, as in every other suite.
-  const docUri = getFixtureDocUri('dependencies', 'Main.flix')
-
-  // The manifest is a real file of the active workspace, since that is the project root the
-  // compiler resolves dependencies for. No other suite puts anything there.
-  const tomlUri = getWorkspaceDocUri('flix.toml')
+  const docUri = getWorkspaceDocUri('src/Main.flix')
 
   suiteSetup(async () => {
-    // Written before `init`, so the manifest is already in place when the compiler starts.
-    await vscode.workspace.fs.writeFile(tomlUri, await fixtureContent('flix.toml'))
-    await init('dependencies')
-  })
-
-  suiteTeardown(async () => {
-    await teardown('dependencies')
-    // The manifest is not covered by the cleanup `init` does, so it has to be removed here —
-    // otherwise it is left behind for the next run.
-    await tryDeleteFile(tomlUri)
+    await initWorkspace()
   })
 
   test('Should show def when hovering on enqueue()-call', async () => {
@@ -64,32 +55,10 @@ suite('Dependencies', () => {
   })
 
   /**
-   * Get the URI of the file at `p` in the active workspace, e.g. `flix.toml`.
-   *
-   * Unlike {@linkcode getFixtureDocUri}, this points at a file which only exists while this suite is
-   * running.
+   * Get the URI of the file at `p` in this suite's workspace folder, e.g. `src/Main.flix`.
    */
   function getWorkspaceDocUri(p: string) {
-    return getFileUri(path.resolve(__dirname, '../activeWorkspace', p))
-  }
-
-  /**
-   * Returns the content of the file at `p` in the `workspace` directory of the test workspace, which
-   * holds the files this suite copies into the active workspace.
-   */
-  async function fixtureContent(p: string): Promise<Uint8Array> {
-    return vscode.workspace.fs.readFile(getFixtureDocUri('dependencies', `workspace/${p}`))
-  }
-
-  /**
-   * Tries to delete the file at `uri`, but does nothing if the file does not exist.
-   */
-  async function tryDeleteFile(uri: vscode.Uri) {
-    try {
-      await vscode.workspace.fs.delete(uri)
-    } catch {
-      // The file was not there to begin with, which is what we wanted anyway.
-    }
+    return getFileUri(path.resolve(__dirname, '../../dependencyWorkspace', p))
   }
 
   /**

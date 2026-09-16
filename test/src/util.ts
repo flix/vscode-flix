@@ -84,6 +84,40 @@ export async function init(testWorkspaceName: string) {
 }
 
 /**
+ * Activates the extension and waits for the compiler to go idle, leaving the workspace exactly as
+ * it is on disk.
+ *
+ * Unlike {@linkcode init}, nothing is handed to the compiler directly and nothing is deleted: the
+ * files of the workspace folder are the program, found by the extension's own workspace scan. This
+ * is for a suite which runs in a workspace folder of its own — see the entries in
+ * `.vscode-test.js` — where the layout on disk is itself what is under test.
+ *
+ * Such a suite needs no teardown: it runs in its own VS Code instance, so nothing it compiles can
+ * reach another suite, and it leaves the workspace as it found it.
+ */
+export async function initWorkspace() {
+  // Show errors in the console
+  // TODO: Fail tests if an error message is displayed
+  vscode.window.showErrorMessage = (message: string) => {
+    throw new Error(`Error message displayed: ${message}`)
+  }
+
+  // The extensionId is `publisher.name` from package.json
+  const ext = vscode.extensions.getExtension('flix.flix')
+  if (ext === undefined) {
+    throw new Error('Failed to activate extension')
+  }
+
+  await vscode.commands.executeCommand('workbench.action.closeAllEditors')
+
+  // Ensure the extension is active. This starts (and, on a cold CI run, downloads) the compiler,
+  // which then resolves the workspace — including any manifest — before its first check.
+  await ext.activate()
+
+  await awaitIdle()
+}
+
+/**
  * Blanks every file loaded by {@linkcode init} from the given test workspace directory, so that
  * they no longer contribute anything to the program, and waits for the compiler to finish
  * recompiling.

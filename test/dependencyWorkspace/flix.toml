@@ -6,4 +6,4 @@ flix        = "0.75.1"
 authors     = ["John Doe <john@example.com>"]
 
 [dependencies]
-"github:flix/extras" = "0.2.0"
+"github:flix/extras" = { version = "0.2.0", security = "unrestricted" }

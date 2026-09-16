@@ -30,7 +30,7 @@ export async function startSession(
 
   // In project mode, discover files via workspace glob patterns.
   // In single-file mode, use the currently open .flix documents instead.
-  const { workspaceFiles, workspacePkgs, workspaceJars } = await discoverWorkspaceFiles()
+  const workspaceFiles = await discoverWorkspaceFiles()
 
   // Wait until we're sure flix exists
   const flixFilename = await ensureFlixExists({
@@ -56,8 +56,6 @@ export async function startSession(
     extensionVersion: extensionObject.packageJSON.version,
     globalStoragePath,
     workspaceFiles,
-    workspacePkgs,
-    workspaceJars,
     userConfiguration: getUserConfiguration(),
   })
 

@@ -26,11 +26,8 @@
 export enum Request {
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
-  apiAddPkg = 'api/addPkg',
-  apiRemPkg = 'api/remPkg',
-  apiAddJar = 'api/addJar',
-  apiRemJar = 'api/remJar',
   apiVersion = 'api/version',
+  apiRestart = 'api/restart',
   apiShutdown = 'api/shutdown',
 
   lspCheck = 'lsp/check',

@@ -17,7 +17,16 @@
 import * as assert from 'assert'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { findMarkerPosition, getFileUri, initWorkspace } from '../util'
+import { findMarkerPosition, getFileUri, initWorkspace, sleep } from '../util'
+
+/**
+ * How long to wait after the compiler has gone idle before hovering.
+ *
+ * Resolving the dependency means downloading it, which is not covered by the idle signal the rest
+ * of the suites synchronise on: the compiler can report itself idle while the package is still on
+ * its way. Waiting is blunt, but there is nothing finer to wait for yet.
+ */
+const DEPENDENCY_RESOLUTION_MS = 30000
 
 /**
  * Checks that a dependency declared in `flix.toml` is part of the program.
@@ -35,8 +44,13 @@ import { findMarkerPosition, getFileUri, initWorkspace } from '../util'
 suite('Dependencies', () => {
   const docUri = getWorkspaceDocUri('src/Main.flix')
 
-  suiteSetup(async () => {
+  suiteSetup(async function () {
+    // The wait below is on top of whatever starting the compiler costs, so give the hook room for
+    // both rather than letting it run into the default timeout.
+    this.timeout(DEPENDENCY_RESOLUTION_MS * 2 + 120000)
+
     await initWorkspace()
+    await sleep(DEPENDENCY_RESOLUTION_MS)
   })
 
   test('Should show def when hovering on enqueue()-call', async () => {

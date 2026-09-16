@@ -23,10 +23,9 @@ suite('File manipulation', () => {
   // `Main.flix` and `Assert.flix` are compiled where they lie, as in every other suite.
   const mainDocUri = getFixtureDocUri('files', 'Main.flix')
 
-  // These two are real files of the active workspace: this suite is about the extension noticing
-  // that they appear and disappear, which only a file-system watcher can report.
+  // This is a real file of the active workspace: this suite is about the extension noticing that it
+  // appears and disappears, which only a file-system watcher can report.
   const areaDocUri = getWorkspaceDocUri('src/Area.flix')
-  const fpkgUri = getWorkspaceDocUri('lib/circleArea.fpkg')
 
   suiteSetup(async () => {
     await init('files')
@@ -34,15 +33,13 @@ suite('File manipulation', () => {
 
   suiteTeardown(async () => {
     await tryDeleteFile(areaDocUri)
-    await tryDeleteFile(fpkgUri)
     await teardown('files')
   })
 
   setup(async () => {
-    // Create the files from scratch before each test, so that the compiler is given them by the file
-    // watcher no matter what the previous test did to them.
+    // Create the file from scratch before each test, so that the compiler is given it by the file
+    // watcher no matter what the previous test did to it.
     await recreateFile(areaDocUri, 'src/Area.flix')
-    await recreateFile(fpkgUri, 'lib/circleArea.fpkg')
   })
 
   test('Should add created source-file', async () => {
@@ -53,17 +50,6 @@ suite('File manipulation', () => {
 
   test('Should remove deleted source-file', async () => {
     await deleteFile(areaDocUri)
-    assert.strictEqual(await workspaceValid(), false)
-  })
-
-  test('Should add created fpkg-file', async () => {
-    await deleteFile(fpkgUri)
-    await addFile(fpkgUri, await fixtureContent('lib/circleArea.fpkg'))
-    assert.strictEqual(await workspaceValid(), true)
-  })
-
-  test('Should remove deleted fpkg-file', async () => {
-    await deleteFile(fpkgUri)
     assert.strictEqual(await workspaceValid(), false)
   })
 

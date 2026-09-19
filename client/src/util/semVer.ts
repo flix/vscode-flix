@@ -8,6 +8,27 @@ export interface SemVer {
 }
 
 /**
+ * Returns `true` if the given `value` is a {@link SemVer}.
+ */
+export function isSemVer(value: any): value is SemVer {
+  return Number.isInteger(value?.major) && Number.isInteger(value?.minor) && Number.isInteger(value?.patch)
+}
+
+/**
+ * Parses the given string `s` as a {@link SemVer}.
+ *
+ * Returns `undefined` if `s` does not start with a version of the form `major.minor.patch`.
+ */
+export function parseSemVer(s: string): SemVer | undefined {
+  const match = /^(\d+)\.(\d+)\.(\d+)/.exec(s)
+  if (match === null) {
+    return undefined
+  }
+  const [major, minor, patch] = match.slice(1).map(n => parseInt(n))
+  return { major, minor, patch }
+}
+
+/**
  * Compares the version `v1` to the version `v2`.
  *
  * Returns a negative number if `v1` is older than `v2`, zero if they are the same version, and a

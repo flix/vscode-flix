@@ -18,7 +18,7 @@ import * as jobs from './jobs'
 import * as queue from './queue'
 import { clearDiagnostics, sendNotification } from '../server'
 import { EventEmitter } from 'events'
-import { handleCrash, lspCheckResponseHandler } from '../handlers'
+import { handleCrash, lspCheckResponseHandler, minVSCodeVersionResponseHandler } from '../handlers'
 import { USER_MESSAGE } from '../util/userMessages'
 import { StatusCode } from '../util/statusCodes'
 import ReconnectingWebSocket from 'reconnecting-websocket'
@@ -171,6 +171,13 @@ export function sendMessage(job: jobs.EnqueuedJob, expectResponse = true) {
 }
 
 function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
+  if (job.request === jobs.Request.apiMinVSCodeVersion) {
+    // The request was sent ahead of the queue, so its response must not advance the queue:
+    // that would send the next job while the response to the current one is still outstanding.
+    minVSCodeVersionResponseHandler(flixResponse)
+    return
+  }
+
   if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)

@@ -92,6 +92,16 @@ export function enqueue(job: jobs.Job): jobs.EnqueuedJob {
 }
 
 /**
+ * Sends the given `job` right away, ahead of the queues, without waiting for a response to it.
+ *
+ * The queues send one job at a time and advance when its response arrives, so a response to `job`
+ * must not advance them. See `handleResponse` in `socket.ts`.
+ */
+export function sendAheadOfQueue(job: jobs.Job) {
+  socket.sendMessage(jobToEnqueuedJob(job), false)
+}
+
+/**
  * Initialises the queues.
  *
  * @param jobs

@@ -5,6 +5,9 @@ import eventEmitter from '../util/eventBus'
 import { FlixLspTerminal } from '../ui/compilerTerminal'
 import { StatusCode } from '../protocol/statusCodes'
 import { USER_MESSAGE } from '../ui/messages'
+import { compareSemVer, isSemVer, parseSemVer } from '../util/semVer'
+
+const EXTENSION_ID = 'flix.flix'
 
 let hasReceivedReadyMessage = false
 
@@ -52,6 +55,32 @@ async function handleError({ message, actions }: { message: string; actions: Act
   if (action?.command?.type === 'openFile') {
     const uri = vscode.Uri.file(action.command.path)
     vscode.window.showTextDocument(uri)
+  }
+}
+
+/**
+ * Handles the answer to `api/minVSCodeVersion`: the oldest version of the extension which the
+ * compiler can talk to.
+ *
+ * The compiler is left running if the extension is older: much of the protocol may still work, and
+ * the user is better off with an editor which works in part until the extension has been updated.
+ */
+async function handleMinVSCodeVersion({ status, result }) {
+  if (status !== StatusCode.Success || !isSemVer(result)) {
+    // The compiler does not know the request, which means that it has no requirement.
+    return
+  }
+
+  const extensionVersion = parseSemVer(vscode.extensions.getExtension(EXTENSION_ID)?.packageJSON.version ?? '')
+  if (extensionVersion === undefined || compareSemVer(extensionVersion, result) >= 0) {
+    return
+  }
+
+  const { msg, option1 } = USER_MESSAGE.ASK_UPDATE_EXTENSION(extensionVersion, result)
+  const selection = await vscode.window.showErrorMessage(msg, option1)
+  if (selection === option1) {
+    // Shows the page of the extension, which offers to update it when a newer version exists.
+    vscode.commands.executeCommand('extension.open', EXTENSION_ID)
   }
 }
 
@@ -128,4 +157,6 @@ export function setupNotificationListeners(
   client.onNotification(jobs.Request.internalError, handleError)
 
   client.onNotification(jobs.Request.lspShowAst, handleShowAst)
+
+  client.onNotification(jobs.Request.apiMinVSCodeVersion, handleMinVSCodeVersion)
 }

@@ -1,5 +1,5 @@
 import { FlixRelease } from '../compiler/releases'
-import { showSemVer } from '../util/semVer'
+import { SemVer, showSemVer } from '../util/semVer'
 
 export class USER_MESSAGE {
   static ASK_DOWNLOAD_NEW_FLIX(releaseName: string) {
@@ -96,6 +96,13 @@ export class USER_MESSAGE {
     return {
       msg: 'The new Flix compiler has been downloaded. Reload the window to apply the update.',
       option1: 'Reload Now',
+    }
+  }
+
+  static ASK_UPDATE_EXTENSION(extensionVersion: SemVer, minVersion: SemVer) {
+    return {
+      msg: `The Flix extension (${showSemVer(extensionVersion)}) is too old for this Flix compiler, which requires version ${showSemVer(minVersion)} or later. Please update the extension.`,
+      option1: 'Show Extension',
     }
   }
 

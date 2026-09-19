@@ -18,6 +18,7 @@ import { InitializeParams, InitializeResult, TextDocumentSyncKind } from 'vscode
 
 import * as jobs from '../engine/jobs'
 import * as engine from '../engine'
+import * as queue from '../engine/queue'
 import * as socket from '../engine/socket'
 
 import { clearDiagnostics, sendDiagnostics, sendNotification } from '../server'
@@ -151,6 +152,30 @@ function makeVersionResponseHandler(promiseResolver: () => void) {
     }
     promiseResolver()
   }
+}
+
+/**
+ * Asks the compiler for the oldest version of the extension it can talk to.
+ *
+ * The request is sent ahead of the queue, so an extension which is too old is told so before it
+ * sends anything the compiler may no longer understand. No response to it is awaited: a compiler
+ * from before the request existed answers it with `invalid_request`, and an older one still does
+ * not answer an unknown request at all.
+ */
+export function handleMinVSCodeVersion() {
+  queue.sendAheadOfQueue({ request: jobs.Request.apiMinVSCodeVersion })
+}
+
+/**
+ * Handle response from api/minVSCodeVersion
+ *
+ * Like the handler for lsp/check, this one isn't tied together with its enqueueing function.
+ *
+ * The response is passed on as it is: the client knows its own version and owns the UI, so the
+ * comparison and the wording are left to it.
+ */
+export function minVSCodeVersionResponseHandler({ status, result }: any) {
+  sendNotification(jobs.Request.apiMinVSCodeVersion, { status, result })
 }
 
 /**

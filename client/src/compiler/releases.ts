@@ -91,11 +91,14 @@ export function firstNewerThanSecond(first: FlixRelease, second: FlixRelease): b
   ) {
     return true
   }
-  return (
-    first.version.major > second.version.major ||
-    first.version.minor > second.version.minor ||
-    first.version.patch > second.version.patch
-  )
+  // A component only counts when every component before it is equal: 0.76.3 is older than 0.77.0.
+  if (first.version.major !== second.version.major) {
+    return first.version.major > second.version.major
+  }
+  if (first.version.minor !== second.version.minor) {
+    return first.version.minor > second.version.minor
+  }
+  return first.version.patch > second.version.patch
 }
 
 export interface FlixVersion {

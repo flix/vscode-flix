@@ -8,7 +8,6 @@ import {
   getJarGlobPattern,
   getFlixTomlGlobPattern,
 } from '../util/workspace'
-import { USER_MESSAGE } from '../ui/messages'
 
 let flixWatcher: vscode.FileSystemWatcher
 let pkgWatcher: vscode.FileSystemWatcher
@@ -17,6 +16,13 @@ let tomlWatcher: vscode.FileSystemWatcher
 
 let knownFlixFiles: Set<string> = new Set()
 let reconcileTimer: ReturnType<typeof setTimeout> | undefined
+
+/**
+ * How long a manifest event waits for the next one before the REPL is rebooted.
+ */
+const REPL_REBOOT_DEBOUNCE_MS = 300
+
+let replRebootTimer: ReturnType<typeof setTimeout> | undefined
 
 /**
  * Convert URI to file scheme URI shared by e.g. TextDocument's URI.
@@ -69,10 +75,28 @@ function scheduleReconciliation(client: LanguageClient) {
 }
 
 /**
+ * Reboot the REPL once the manifest events have settled.
+ *
+ * Writing a file is not one event: an editor which saves it, or a tool which rewrites it, can
+ * report a handful in a row. Rebooting the REPL spawns a JVM in a terminal, so a burst is collapsed
+ * into a single reboot. The restart sent to the compiler needs no such care: the server throttles
+ * it already.
+ */
+function scheduleReplReboot(onRestartRepl: () => void) {
+  if (replRebootTimer !== undefined) {
+    clearTimeout(replRebootTimer)
+  }
+  replRebootTimer = setTimeout(() => {
+    replRebootTimer = undefined
+    onRestartRepl()
+  }, REPL_REBOOT_DEBOUNCE_MS)
+}
+
+/**
  * Set up file system watchers for project mode.
  * Watches .flix, .fpkg, .jar, and flix.toml files.
  */
-export function setupProjectWatchers(client: LanguageClient, onRestartClient: () => void) {
+export function setupProjectWatchers(client: LanguageClient, onRestartRepl: () => void) {
   flixWatcher = vscode.workspace.createFileSystemWatcher(getFlixGlobPattern())
   flixWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
     const uri = vsCodeUriToUriString(vsCodeUri)
@@ -102,16 +126,24 @@ export function setupProjectWatchers(client: LanguageClient, onRestartClient: ()
   jarWatcher.onDidChange(sendRestart)
   jarWatcher.onDidDelete(sendRestart)
 
+  // The manifest is watched for creation and deletion too, not only for change: it is what makes a
+  // folder of loose files a project, and back. It joins the packages and JARs above rather than
+  // asking first, since loading the project is what resolves the dependencies it declares — the
+  // same grouping the plain LSP server watches.
+  //
+  // The REPL is rebooted alongside the restart: it resolves the dependencies of the manifest when
+  // it is launched, so a running one keeps serving the ones it started with. Only the manifest
+  // reboots it. Loading the project installs what it resolves into `lib/`, so rebooting on the
+  // packages and JARs as well would restart the REPL again for every dependency just installed.
+  const onManifestChange = () => {
+    sendRestart()
+    scheduleReplReboot(onRestartRepl)
+  }
+
   tomlWatcher = vscode.workspace.createFileSystemWatcher(getFlixTomlGlobPattern())
-  tomlWatcher.onDidChange(() => {
-    const { msg, option1, option2 } = USER_MESSAGE.ASK_RELOAD_TOML()
-    const doReload = vscode.window.showInformationMessage(msg, option1, option2)
-    doReload.then(res => {
-      if (res === 'Yes') {
-        onRestartClient()
-      }
-    })
-  })
+  tomlWatcher.onDidCreate(onManifestChange)
+  tomlWatcher.onDidChange(onManifestChange)
+  tomlWatcher.onDidDelete(onManifestChange)
 
   // Watch for folder-level deletions/creations (e.g. deleting src/) that
   // the file-specific watchers above don't catch.
@@ -169,5 +201,9 @@ export function disposeWatchers() {
   tomlWatcher && tomlWatcher.dispose()
   if (reconcileTimer !== undefined) {
     clearTimeout(reconcileTimer)
+  }
+  if (replRebootTimer !== undefined) {
+    clearTimeout(replRebootTimer)
+    replRebootTimer = undefined
   }
 }

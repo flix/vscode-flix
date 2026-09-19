@@ -40,6 +40,28 @@ export async function initSharedRepl(context: vscode.ExtensionContext, launchOpt
 }
 
 /**
+ * Reboots the REPL this extension launched, so that it resolves the dependencies of the manifest
+ * again.
+ *
+ * A REPL resolves them when it is launched, so one which is already running keeps serving the set
+ * it started with. Only the REPL held by {@linkcode flixTerminal} is replaced: a terminal the user
+ * renamed is no longer ours, and one they closed is left closed rather than reopened behind them.
+ */
+export async function restartRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+  if (flixTerminal === null) {
+    return
+  }
+
+  // The close event compares the terminal it is given against the current one, so replacing the
+  // handle before disposing keeps it from clearing the REPL launched just below.
+  const previous = flixTerminal
+  flixTerminal = null
+  previous.dispose()
+
+  await launchRepl(context, launchOptions)
+}
+
+/**
  * Ensures that a REPL still exists and launches a new one if not.
  *
  * @returns Whether or not a new REPL was launched.

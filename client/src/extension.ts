@@ -19,7 +19,7 @@ import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 
 import { showAst, allJobsFinished, addUri } from './commands/lspCommands'
 import { runMain, cmdTests } from './commands/replCommands'
-import { initSharedRepl, startRepl, disposeAllRepls } from './repl/manager'
+import { initSharedRepl, startRepl, disposeAllRepls, restartRepl } from './repl/manager'
 import { LaunchOptions, defaultLaunchOptions } from './util/launchOptions'
 import { isProjectMode, getFlixGlobPattern } from './util/workspace'
 
@@ -130,7 +130,10 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
 
   if (isProjectMode()) {
     // In project mode, watch the file system for .flix/.fpkg/.jar/flix.toml changes.
-    setupProjectWatchers(client, makeHandleRestartClient(context, launchOptions))
+    //
+    // A manifest change reboots the REPL: the compiler is told to load the project again, which it
+    // does in place, but the REPL resolved its dependencies when it was launched.
+    setupProjectWatchers(client, () => restartRepl(context, launchOptions))
   } else {
     // In single-file mode there is no workspace folder to watch.
     setupSingleFileTracking(client)

@@ -25,14 +25,6 @@ export class USER_MESSAGE {
     }
   }
 
-  static ASK_RELOAD_TOML() {
-    return {
-      msg: 'The flix.toml file has changed. Do you want to restart the compiler?',
-      option1: 'Yes',
-      option2: 'No',
-    }
-  }
-
   static ASK_SAVE_CHANGED_FILES() {
     return {
       msg: 'The workspace contains unsaved files. Do you want to save?',

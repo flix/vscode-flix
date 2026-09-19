@@ -22,105 +22,18 @@
   "contributes": {
     "commands": [
       {
-        "command": "flix.internalDownloadLatest",
+        "command": "flix.cmdDownload",
         "title": "Flix: Download Latest Version"
       },
       {
-        "command": "flix.cmdInit",
-        "title": "Flix: init"
-      },
-      {
-        "command": "flix.cmdCheck",
-        "title": "Flix: check"
-      },
-      {
-        "command": "flix.cmdBuild",
-        "title": "Flix: build"
-      },
-      {
-        "command": "flix.cmdBuildJar",
-        "title": "Flix: build-jar"
-      },
-      {
-        "command": "flix.cmdBuildFatjar",
-        "title": "Flix: build-fatjar"
-      },
-      {
-        "command": "flix.cmdBuildPkg",
-        "title": "Flix: build-pkg"
-      },
-      {
-        "command": "flix.cmdRunProject",
-        "title": "Flix: run"
-      },
-      {
-        "command": "flix.cmdTests",
-        "title": "Flix: test"
-      },
-      {
-        "command": "flix.cmdDoc",
-        "title": "Flix: doc"
-      },
-      {
-        "command": "flix.cmdOutdated",
-        "title": "Flix: outdated"
-      },
-      {
-        "command": "flix.showAst",
+        "command": "flix.cmdShowAst",
         "title": "Flix: Show AST"
       },
       {
-        "command": "flix.startRepl",
+        "command": "flix.cmdStartRepl",
         "title": "Flix: Start REPL"
-      },
-      {
-        "command": "flix.allJobsFinished",
-        "title": "Flix (debugging): Wait for the compiler to finish processing",
-        "enablement": "false"
-      },
-      {
-        "command": "flix.checkCount",
-        "title": "Flix (debugging): Get the number of lsp/check responses observed",
-        "enablement": "false"
-      },
-      {
-        "command": "flix.addUri",
-        "title": "Flix (debugging): Add a file with the given content to the compiler",
-        "enablement": "false"
       }
     ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "flix.cmdInit",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.cmdBuildJar",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.cmdBuildFatjar",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.cmdBuildPkg",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.cmdDoc",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.cmdOutdated",
-          "when": "workspaceFolderCount > 0"
-        },
-        {
-          "command": "flix.showAst",
-          "when": "workspaceFolderCount > 0"
-        }
-      ]
-    },
     "languages": [
       {
         "id": "flix",

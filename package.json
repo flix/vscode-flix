@@ -22,10 +22,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "flix.internalRestart",
-        "title": "Flix: Restart Compiler"
-      },
-      {
         "command": "flix.internalDownloadLatest",
         "title": "Flix: Download Latest Version"
       },

@@ -1,4 +1,5 @@
 import { FlixRelease } from '../compiler/releases'
+import { showSemVer } from '../util/semVer'
 
 export class USER_MESSAGE {
   static ASK_DOWNLOAD_NEW_FLIX(releaseName: string) {
@@ -74,7 +75,7 @@ export class USER_MESSAGE {
   static SHOW_CHANGELOG(installedVersion: FlixRelease) {
     return (
       `# New Flix Release!\n` +
-      `## Version: ${installedVersion.version.major}.${installedVersion.version.minor}.${installedVersion.version.patch}\n` +
+      `## Version: ${showSemVer(installedVersion.version)}\n` +
       `${installedVersion.description}`
     )
   }

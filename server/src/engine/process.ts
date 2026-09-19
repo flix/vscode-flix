@@ -19,9 +19,10 @@ import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
 import { getPortPromise } from 'portfinder'
+import { pathToFileURL } from 'url'
 
 import { UserConfiguration, StartEngineInput } from './config'
-import { initWorkspaceFiles } from './workspace'
+import { cancelPendingRestart, initWorkspaceFiles } from './workspace'
 import * as jobs from './jobs'
 import * as queue from './queue'
 import * as socket from './socket'
@@ -57,7 +58,7 @@ export async function start(input: StartEngineInput) {
   // copy input to local var for later use
   startEngineInput = { ...input }
 
-  const { flixFilename, extensionPath, workspaceFiles, workspacePkgs, workspaceJars } = input
+  const { flixFilename, extensionPath, workspaceFiles, workspaceFolders } = input
 
   initWorkspaceFiles(workspaceFiles)
 
@@ -113,11 +114,11 @@ export async function start(input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen() {
           flixRunning = true
-          const addUriJobs = workspaceFiles.map(uri => ({ uri, request: jobs.Request.apiAddUri }))
-          const addPkgJobs = workspacePkgs.map(uri => ({ uri, request: jobs.Request.apiAddPkg }))
-          const addJarJobs = workspaceJars.map(uri => ({ uri, request: jobs.Request.apiAddJar }))
-          const Jobs: jobs.Job[] = [...addUriJobs, ...addPkgJobs, ...addJarJobs]
-          queue.initialiseQueues(Jobs)
+          // The packages and JARs of the project are not sent: the compiler loads them itself,
+          // from the manifest of the project. It is told where the project is instead, which it
+          // must know before the first check.
+          const addUriJobs: jobs.Job[] = workspaceFiles.map(uri => ({ uri, request: jobs.Request.apiAddUri }))
+          queue.initialiseQueues([...mkAddWorkspaceJobs(workspaceFolders), ...addUriJobs])
           handleVersion()
           sendNotification(jobs.Request.internalFinishedJob)
         },
@@ -135,6 +136,22 @@ export async function start(input: StartEngineInput) {
 }
 
 /**
+ * Returns the job which tells the compiler where the project is, or no job at all in single-file
+ * mode, where there is no workspace folder to point it at.
+ *
+ * Only the first folder is used: a Flix project is one directory with one manifest, and the
+ * compiler ignores any further root.
+ */
+function mkAddWorkspaceJobs(workspaceFolders?: string[]): jobs.Job[] {
+  if (workspaceFolders === undefined || workspaceFolders.length === 0) {
+    return []
+  }
+  // The compiler takes a uri, whereas the client reports the folder as a path.
+  const uri = pathToFileURL(workspaceFolders[0]).href
+  return [{ request: jobs.Request.apiAddWorkspace, uri }]
+}
+
+/**
  * Parses the argument string into a list of arguments.
  */
 function parseArgs(args: string): Array<string> {
@@ -147,6 +164,7 @@ function parseArgs(args: string): Array<string> {
 }
 
 export async function stop() {
+  cancelPendingRestart()
   queue.terminateQueue()
   await socket.closeSocket()
   if (flixInstance) {

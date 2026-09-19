@@ -16,8 +16,6 @@ let jarWatcher: vscode.FileSystemWatcher
 let tomlWatcher: vscode.FileSystemWatcher
 
 let knownFlixFiles: Set<string> = new Set()
-let knownPkgFiles: Set<string> = new Set()
-let knownJarFiles: Set<string> = new Set()
 let reconcileTimer: ReturnType<typeof setTimeout> | undefined
 
 /**
@@ -30,22 +28,21 @@ export function vsCodeUriToUriString(uri: vscode.Uri) {
 }
 
 /**
- * Re-scans the filesystem and diffs against known files.
+ * Re-scans the filesystem and diffs against the known source files.
  * Sends add/rem notifications for any discrepancies.
  *
  * This handles folder deletion/creation where onDidDelete/onDidCreate
  * fires for the folder but not for individual files inside it.
+ *
+ * Packages and JARs are not reconciled: `lib/` is where the compiler installs the dependencies the
+ * manifest declares, so it is the compiler's to keep, and a change to it is reported as it happens.
  */
 async function reconcileFiles(client: LanguageClient) {
   if (!isProjectMode()) {
     return
   }
 
-  const [currentFlix, currentPkgs, currentJars] = await Promise.all([
-    vscode.workspace.findFiles(getFlixGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
-    vscode.workspace.findFiles(getFpkgGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
-    vscode.workspace.findFiles(getJarGlobPattern()).then(uris => new Set(uris.map(vsCodeUriToUriString))),
-  ])
+  const currentFlix = new Set((await vscode.workspace.findFiles(getFlixGlobPattern())).map(vsCodeUriToUriString))
 
   for (const uri of knownFlixFiles) {
     if (!currentFlix.has(uri)) {
@@ -58,31 +55,7 @@ async function reconcileFiles(client: LanguageClient) {
     }
   }
 
-  for (const uri of knownPkgFiles) {
-    if (!currentPkgs.has(uri)) {
-      client.sendNotification(jobs.Request.apiRemPkg, { uri })
-    }
-  }
-  for (const uri of currentPkgs) {
-    if (!knownPkgFiles.has(uri)) {
-      client.sendNotification(jobs.Request.apiAddPkg, { uri })
-    }
-  }
-
-  for (const uri of knownJarFiles) {
-    if (!currentJars.has(uri)) {
-      client.sendNotification(jobs.Request.apiRemJar, { uri })
-    }
-  }
-  for (const uri of currentJars) {
-    if (!knownJarFiles.has(uri)) {
-      client.sendNotification(jobs.Request.apiAddJar, { uri })
-    }
-  }
-
   knownFlixFiles = currentFlix
-  knownPkgFiles = currentPkgs
-  knownJarFiles = currentJars
 }
 
 function scheduleReconciliation(client: LanguageClient) {
@@ -114,33 +87,20 @@ export function setupProjectWatchers(client: LanguageClient, onRestartClient: ()
     scheduleReconciliation(client)
   })
 
+  // A package or JAR is never handed to the compiler: it loads the ones the manifest declares
+  // itself. A change to one of them is reported as a restart, which loads the project again.
+  // Rebuilding a package overwrites it in place, which is a change rather than a creation.
+  const sendRestart = () => client.sendNotification(jobs.Request.apiRestart)
+
   pkgWatcher = vscode.workspace.createFileSystemWatcher(getFpkgGlobPattern())
-  pkgWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
-    const uri = vsCodeUriToUriString(vsCodeUri)
-    knownPkgFiles.delete(uri)
-    client.sendNotification(jobs.Request.apiRemPkg, { uri })
-    scheduleReconciliation(client)
-  })
-  pkgWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
-    const uri = vsCodeUriToUriString(vsCodeUri)
-    knownPkgFiles.add(uri)
-    client.sendNotification(jobs.Request.apiAddPkg, { uri })
-    scheduleReconciliation(client)
-  })
+  pkgWatcher.onDidCreate(sendRestart)
+  pkgWatcher.onDidChange(sendRestart)
+  pkgWatcher.onDidDelete(sendRestart)
 
   jarWatcher = vscode.workspace.createFileSystemWatcher(getJarGlobPattern())
-  jarWatcher.onDidDelete((vsCodeUri: vscode.Uri) => {
-    const uri = vsCodeUriToUriString(vsCodeUri)
-    knownJarFiles.delete(uri)
-    client.sendNotification(jobs.Request.apiRemJar, { uri })
-    scheduleReconciliation(client)
-  })
-  jarWatcher.onDidCreate((vsCodeUri: vscode.Uri) => {
-    const uri = vsCodeUriToUriString(vsCodeUri)
-    knownJarFiles.add(uri)
-    client.sendNotification(jobs.Request.apiAddJar, { uri })
-    scheduleReconciliation(client)
-  })
+  jarWatcher.onDidCreate(sendRestart)
+  jarWatcher.onDidChange(sendRestart)
+  jarWatcher.onDidDelete(sendRestart)
 
   tomlWatcher = vscode.workspace.createFileSystemWatcher(getFlixTomlGlobPattern())
   tomlWatcher.onDidChange(() => {
@@ -178,31 +138,24 @@ export function setupSingleFileTracking(client: LanguageClient) {
 }
 
 /**
- * Discover all workspace files and update the known file sets.
+ * Discover the source files of the workspace and update the known file set.
  * In project mode, uses workspace glob patterns.
  * In single-file mode, uses currently open .flix documents.
+ *
+ * Only the source files are discovered: the compiler loads the packages and JARs of the project
+ * itself, from the manifest.
  */
-export async function discoverWorkspaceFiles(): Promise<{
-  workspaceFiles: string[]
-  workspacePkgs: string[]
-  workspaceJars: string[]
-}> {
+export async function discoverWorkspaceFiles(): Promise<string[]> {
   if (isProjectMode()) {
     const workspaceFiles = (await vscode.workspace.findFiles(getFlixGlobPattern())).map(vsCodeUriToUriString)
-    const workspacePkgs = (await vscode.workspace.findFiles(getFpkgGlobPattern())).map(vsCodeUriToUriString)
-    const workspaceJars = (await vscode.workspace.findFiles(getJarGlobPattern())).map(vsCodeUriToUriString)
     knownFlixFiles = new Set(workspaceFiles)
-    knownPkgFiles = new Set(workspacePkgs)
-    knownJarFiles = new Set(workspaceJars)
-    return { workspaceFiles, workspacePkgs, workspaceJars }
+    return workspaceFiles
   } else {
     const workspaceFiles = vscode.workspace.textDocuments
       .filter(doc => doc.uri.path.endsWith('.flix'))
       .map(doc => vsCodeUriToUriString(doc.uri))
     knownFlixFiles = new Set(workspaceFiles)
-    knownPkgFiles = new Set()
-    knownJarFiles = new Set()
-    return { workspaceFiles, workspacePkgs: [], workspaceJars: [] }
+    return workspaceFiles
   }
 }
 

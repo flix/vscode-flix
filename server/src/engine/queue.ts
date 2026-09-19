@@ -35,12 +35,10 @@ let waitingForPriorityQueue: jobs.JobMap = {
 
 function isPriorityJob(job: jobs.Job) {
   return (
+    job.request === jobs.Request.apiAddWorkspace ||
     job.request === jobs.Request.apiAddUri ||
     job.request === jobs.Request.apiRemUri ||
-    job.request === jobs.Request.apiAddPkg ||
-    job.request === jobs.Request.apiRemPkg ||
-    job.request === jobs.Request.apiAddJar ||
-    job.request === jobs.Request.apiRemJar
+    job.request === jobs.Request.apiRestart
   )
 }
 
@@ -66,7 +64,9 @@ function handleEnqueue() {
 }
 
 function enqueueWithPriority(job: jobs.EnqueuedJob) {
-  waitingForPriorityQueue[job.uri!] = job
+  // A job for a file replaces an earlier job for the same file. A restart has no file of its own,
+  // so it is keyed by its request name instead: several restarts in a row do the same work once.
+  waitingForPriorityQueue[job.uri ?? job.request] = job
   handleEnqueue()
   return job
 }
@@ -126,7 +126,9 @@ function dequeue() {
     // priorityQueue has items
     const first = priorityQueue[0]
     priorityQueue.shift()
-    if (priorityQueue.length === 0) {
+    // A restart brings its own check, sent once the restarts have settled, so draining one does not
+    // ask for the ordinary check: that would check the project once per restart of a burst.
+    if (priorityQueue.length === 0 && first.request !== jobs.Request.apiRestart) {
       enqueue({
         request: jobs.Request.lspCheck,
       })
@@ -164,9 +166,6 @@ export async function processQueue() {
       if (job.request === jobs.Request.apiAddUri && (job.src === null || job.src === undefined)) {
         const src = fs.readFileSync(fileURLToPath(job.uri!), 'utf8')
         socket.sendMessage({ ...job, src })
-      } else if (job.request === jobs.Request.apiAddPkg && (job.src === null || job.src === undefined)) {
-        const base64 = fs.readFileSync(fileURLToPath(job.uri!)).toString('base64')
-        socket.sendMessage({ ...job, base64 })
       } else {
         socket.sendMessage(job)
       }

@@ -181,11 +181,8 @@ async function addFileToCompiler(uri: vscode.Uri, src: string) {
  */
 async function deleteWorkspaceFiles() {
   const activeWorkspaceFolder = vscode.workspace.workspaceFolders![0]
-  // NB: Must match `getFlixGlobPattern` and `getFpkgGlobPattern` in `client/src/util/workspace.ts`.
-  const pattern = new vscode.RelativePattern(
-    activeWorkspaceFolder,
-    '{*.flix,src/**/*.flix,test/**/*.flix,lib/**/*.fpkg}',
-  )
+  // NB: Must match `getFlixGlobPattern` in `client/src/util/workspace.ts`.
+  const pattern = new vscode.RelativePattern(activeWorkspaceFolder, '{*.flix,src/**/*.flix,test/**/*.flix}')
 
   const uris = await vscode.workspace.findFiles(pattern)
   await Promise.all(uris.map(uri => vscode.workspace.fs.delete(uri)))

@@ -12,6 +12,10 @@ export class USER_MESSAGE {
     return 'Failed starting Flix'
   }
 
+  static FAILED_TO_RESTART(message?: string) {
+    return message ? `Failed loading the Flix project: ${message}` : 'Failed loading the Flix project'
+  }
+
   static FAILED_TO_READ_FILE(filePath: string, err: any) {
     return `Could not read file (${filePath}) in queue. \nError: ${err}`
   }

@@ -74,36 +74,65 @@ export function remUri(uri: string) {
   queue.enqueue(job)
 }
 
-export function addPkg(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddPkg,
-    uri,
+/**
+ * How long a restart holds off the next one.
+ */
+const RESTART_THROTTLE_MS = 300
+
+let restartTimer: ReturnType<typeof setTimeout> | undefined
+let restartRequested = false
+
+/**
+ * Load the project again and start over with a fresh compiler.
+ *
+ * The packages and JARs of a project are the ones its `flix.toml` declares, and they are fixed for
+ * the lifetime of a compiler instance. A change to one of them is therefore applied by loading the
+ * project again rather than by handing the individual file to the compiler.
+ *
+ * Loading a project resolves its dependencies, so the restarts are throttled: the first one is sent
+ * at once, and the ones which follow within the window are folded into a single restart sent when
+ * the window closes. A build which rewrites several packages therefore loads the project a handful
+ * of times rather than once per package, and nothing which arrived late is missed.
+ *
+ * The check comes last, when a window closes with nothing left to load, so that a burst is checked
+ * once, against the project it ends up with.
+ */
+export function restart() {
+  if (restartTimer !== undefined) {
+    // Within the window of an earlier restart: fold into the one sent when it closes.
+    restartRequested = true
+    return
   }
-  queue.enqueue(job)
+  queue.enqueue({ request: jobs.Request.apiRestart })
+  openRestartTimerWindow()
 }
 
-export function remPkg(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiRemPkg,
-    uri,
-  }
-  queue.enqueue(job)
+/**
+ * Holds off the next restart until the window closes, and checks the project once they have settled.
+ */
+function openRestartTimerWindow() {
+  restartTimer = setTimeout(() => {
+    restartTimer = undefined
+    if (restartRequested) {
+      restartRequested = false
+      queue.enqueue({ request: jobs.Request.apiRestart })
+      openRestartTimerWindow()
+    } else {
+      queue.enqueue({ request: jobs.Request.lspCheck })
+    }
+  }, RESTART_THROTTLE_MS)
 }
 
-export function addJar(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiAddJar,
-    uri,
+/**
+ * Forgets a restart which has not been sent yet, so that it does not outlive the compiler it was
+ * meant for.
+ */
+export function cancelPendingRestart() {
+  if (restartTimer !== undefined) {
+    clearTimeout(restartTimer)
+    restartTimer = undefined
   }
-  queue.enqueue(job)
-}
-
-export function remJar(uri: string) {
-  const job: jobs.Job = {
-    request: jobs.Request.apiRemJar,
-    uri,
-  }
-  queue.enqueue(job)
+  restartRequested = false
 }
 
 export function enqueueJobWithFlattenedParams(request: jobs.Request, params?: any) {

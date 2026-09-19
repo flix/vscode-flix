@@ -24,13 +24,11 @@
  * @see https://github.com/flix/flix/blob/b4b9041cc89b8be04c173ce0b0f58a69e6993739/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L163
  */
 export enum Request {
+  apiAddWorkspace = 'api/addWorkspace',
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
-  apiAddPkg = 'api/addPkg',
-  apiRemPkg = 'api/remPkg',
-  apiAddJar = 'api/addJar',
-  apiRemJar = 'api/remJar',
   apiVersion = 'api/version',
+  apiRestart = 'api/restart',
   apiShutdown = 'api/shutdown',
 
   lspCheck = 'lsp/check',

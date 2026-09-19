@@ -65,6 +65,8 @@ export interface FlixResponse {
   id: string
   status: StatusCode
   result?: FlixResult
+  /** An explanation of a non-successful status, if the compiler gave one. */
+  message?: string
 }
 
 interface InitialiseSocketInput {
@@ -172,6 +174,15 @@ function handleResponse(flixResponse: FlixResponse, job: jobs.EnqueuedJob) {
   if (flixResponse.status === StatusCode.CompilerError) {
     clearDiagnostics()
     handleCrash(flixResponse)
+  } else if (job.request === jobs.Request.apiRestart) {
+    // Nothing waits for a restart, so a project which could not be loaded is reported here. The
+    // compiler keeps the project it was last loaded with, so the editor is not left empty.
+    if (flixResponse.status !== StatusCode.Success) {
+      sendNotification(jobs.Request.internalError, {
+        message: USER_MESSAGE.FAILED_TO_RESTART(flixResponse.message),
+        actions: [],
+      })
+    }
   } else if (job.request === jobs.Request.lspCheck) {
     lspCheckResponseHandler(flixResponse)
   } else {

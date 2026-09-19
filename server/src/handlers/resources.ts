@@ -40,20 +40,8 @@ export function handleRemUri({ uri }: UriInput) {
   engine.remUri(uri)
 }
 
-export function handleAddPkg({ uri }: UriInput) {
-  engine.addPkg(uri)
-}
-
-export function handleRemPkg({ uri }: UriInput) {
-  engine.remPkg(uri)
-}
-
-export function handleAddJar({ uri }: UriInput) {
-  engine.addJar(uri)
-}
-
-export function handleRemJar({ uri }: UriInput) {
-  engine.remJar(uri)
+export function handleRestart() {
+  engine.restart()
 }
 
 export function handleReplaceConfiguration(userConfiguration: engine.UserConfiguration) {

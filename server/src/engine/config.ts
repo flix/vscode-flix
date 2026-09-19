@@ -32,7 +32,5 @@ export interface StartEngineInput {
   extensionVersion: string
   globalStoragePath: string
   workspaceFiles: string[]
-  workspacePkgs: string[]
-  workspaceJars: string[]
   userConfiguration: UserConfiguration
 }

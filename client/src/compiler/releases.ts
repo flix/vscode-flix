@@ -10,6 +10,7 @@ import * as zlib from 'zlib'
 import * as util from 'util'
 import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
+import { compareSemVer, SemVer } from '../util/semVer'
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -71,7 +72,7 @@ export async function fetchRelease(
   return flixRelease
 }
 
-function tagToVersion(tagName: string = ''): FlixVersion {
+function tagToVersion(tagName: string = ''): SemVer {
   const versionString = tagName[0] === 'v' ? tagName.slice(1) : tagName
   const [major, minor, patch] = versionString.split('.').map(s => parseInt(s))
   return {
@@ -91,20 +92,7 @@ export function firstNewerThanSecond(first: FlixRelease, second: FlixRelease): b
   ) {
     return true
   }
-  // A component only counts when every component before it is equal: 0.76.3 is older than 0.77.0.
-  if (first.version.major !== second.version.major) {
-    return first.version.major > second.version.major
-  }
-  if (first.version.minor !== second.version.minor) {
-    return first.version.minor > second.version.minor
-  }
-  return first.version.patch > second.version.patch
-}
-
-export interface FlixVersion {
-  major: number
-  minor: number
-  patch: number
+  return compareSemVer(first.version, second.version) > 0
 }
 
 export interface FlixRelease {
@@ -112,7 +100,7 @@ export interface FlixRelease {
   id: number
   name: string
   description: string
-  version: FlixVersion
+  version: SemVer
   downloadUrl: string
   downloadedAt: number
 }

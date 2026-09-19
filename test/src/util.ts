@@ -254,11 +254,11 @@ export async function sleep(ms: number) {
 /**
  * Returns the number of `lsp/check` responses the extension has observed since startup.
  *
- * Backed by the `flix.checkCount` test command, which is incremented once per check response —
+ * Backed by the `flix.internalCheckCount` test command, which is incremented once per check response —
  * before the corresponding idle signal.
  */
 async function getCheckCount(): Promise<number> {
-  return (await vscode.commands.executeCommand<number>('flix.checkCount')) ?? 0
+  return (await vscode.commands.executeCommand<number>('flix.internalCheckCount')) ?? 0
 }
 
 /**
@@ -282,7 +282,7 @@ async function waitForCheckSince(since: number) {
  * Waits until the compiler is idle (all queued jobs finished).
  */
 async function awaitIdle() {
-  await vscode.commands.executeCommand('flix.allJobsFinished')
+  await vscode.commands.executeCommand('flix.internalAllJobsFinish')
 }
 
 /**

@@ -18,19 +18,7 @@ import { startSession } from './lsp/session'
 import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 
 import { showAst, allJobsFinished, addUri } from './commands/lspCommands'
-import {
-  runMain,
-  cmdInit,
-  cmdCheck,
-  cmdBuild,
-  cmdBuildJar,
-  cmdBuildFatjar,
-  cmdBuildPkg,
-  cmdRunProject,
-  cmdTests,
-  cmdDoc,
-  cmdOutdated,
-} from './commands/replCommands'
+import { runMain, cmdTests } from './commands/replCommands'
 import { initSharedRepl, startRepl, disposeAllRepls } from './repl/manager'
 import { LaunchOptions, defaultLaunchOptions } from './util/launchOptions'
 import { isProjectMode, getFlixGlobPattern } from './util/workspace'
@@ -111,32 +99,30 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     }
   }
 
-  // Register commands for command palette
-  registerCommand('flix.internalDownloadLatest', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
+  // Commands contributed in package.json, and so offered in the command palette.
+  registerCommand('flix.cmdDownload', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
+  registerCommand('flix.cmdShowAst', showAst(client))
+  registerCommand('flix.cmdStartRepl', startRepl(context, launchOptions))
+
+  // Commands invoked from the code lenses the compiler provides. Registering them is enough for the
+  // lens to resolve them; they are not contributed, so they never appear in the command palette.
+  //
+  // These two ids are not ours to choose: the compiler hard-codes them in CodeLensProvider.scala
+  // and VS Code resolves a lens by the string the server sends. Renaming one here breaks the lens
+  // until the compiler agrees, so they do not follow the cmd/lens/internal naming of the others.
   registerCommand('flix.runMain', runMain(context, launchOptions))
-
-  registerCommand('flix.cmdInit', cmdInit(context, launchOptions))
-  registerCommand('flix.cmdCheck', cmdCheck(context, launchOptions))
-  registerCommand('flix.cmdBuild', cmdBuild(context, launchOptions))
-  registerCommand('flix.cmdBuildJar', cmdBuildJar(context, launchOptions))
-  registerCommand('flix.cmdBuildFatjar', cmdBuildFatjar(context, launchOptions))
-  registerCommand('flix.cmdBuildPkg', cmdBuildPkg(context, launchOptions))
-  registerCommand('flix.cmdRunProject', cmdRunProject(context, launchOptions))
   registerCommand('flix.cmdTests', cmdTests(context, launchOptions))
-  registerCommand('flix.cmdDoc', cmdDoc(context, launchOptions))
-  registerCommand('flix.cmdOutdated', cmdOutdated(context, launchOptions))
-  registerCommand('flix.showAst', showAst(client))
-  registerCommand('flix.startRepl', startRepl(context, launchOptions))
 
-  // Register commands for testing
+  // Commands used by the test suite, reached with executeCommand. Not contributed either, for the
+  // same reason.
 
   // Returns a promise resolving when all jobs are completely finished and the server is idle.
   // While most other commands can be awaited directly, this is useful for stuff like file creation, which indirectely triggers an asynchronous job.
-  registerCommand('flix.allJobsFinished', allJobsFinished(client, eventEmitter))
+  registerCommand('flix.internalAllJobsFinish', allJobsFinished(client, eventEmitter))
 
   // Returns the number of lsp/check responses observed since startup. Tests baseline this before a
   // filesystem change and wait for it to advance, to deterministically detect the resulting check.
-  registerCommand('flix.checkCount', () => getCheckCount())
+  registerCommand('flix.internalCheckCount', () => getCheckCount())
 
   // Add a file directly to the compiler, bypassing the file system. Tests use this to set up a
   // workspace without copying files into place.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { handleVersion } from '../handlers'
+import { handleMinVSCodeVersion, handleVersion } from '../handlers'
 import { sendNotification } from '../server'
 import javaVersion from '../util/javaVersion'
 import { ChildProcess, spawn } from 'child_process'
@@ -114,6 +114,8 @@ export async function start(input: StartEngineInput) {
         uri: webSocketUrl,
         onOpen: function handleOpen() {
           flixRunning = true
+          // Must come first: the compiler answers requests in the order it receives them.
+          handleMinVSCodeVersion()
           // The packages and JARs of the project are not sent: the compiler loads them itself,
           // from the manifest of the project. It is told where the project is instead, which it
           // must know before the first check.

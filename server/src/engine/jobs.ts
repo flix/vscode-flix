@@ -28,6 +28,7 @@ export enum Request {
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
   apiVersion = 'api/version',
+  apiMinVSCodeVersion = 'api/minVSCodeVersion',
   apiRestart = 'api/restart',
   apiShutdown = 'api/shutdown',
 

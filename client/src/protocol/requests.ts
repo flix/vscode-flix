@@ -17,35 +17,20 @@
 /**
  * @enum
  *
- * Request types matching that of the LSP implementation.
+ * The messages this extension exchanges with the Flix language server: each entry is one the
+ * client sends, one it listens for, or both.
  *
- * NOTE: This is mirrored ("shared") between client and server by way of carbon copy.
- *
- * @see https://github.com/flix/flix/blob/b4b9041cc89b8be04c173ce0b0f58a69e6993739/main/src/ca/uwaterloo/flix/api/lsp/LanguageServer.scala#L163
+ * The standard LSP methods are deliberately absent. The client never issues those itself: VS Code
+ * calls `onHover`, `onDefinition` and friends on the server, which turns them into jobs using its
+ * own enum in `server/src/engine/jobs.ts`. That enum, not this one, has to cover the whole protocol.
  */
 export enum Request {
   apiAddUri = 'api/addUri',
   apiRemUri = 'api/remUri',
-  apiVersion = 'api/version',
   apiMinVSCodeVersion = 'api/minVSCodeVersion',
   apiRestart = 'api/restart',
-  apiShutdown = 'api/shutdown',
 
-  lspCheck = 'lsp/check',
-  lspCodelens = 'lsp/codelens',
-  lspHighlight = 'lsp/highlight',
-  lspComplete = 'lsp/complete',
-  lspHover = 'lsp/hover',
-  lspSignature = 'lsp/signature',
-  lspGoto = 'lsp/goto',
-  lspImplementation = 'lsp/implementation',
-  lspUses = 'lsp/uses',
-  lspRename = 'lsp/rename',
-  lspDocumentSymbols = 'lsp/documentSymbols',
-  lspWorkspaceSymbols = 'lsp/workspaceSymbols',
   lspShowAst = 'lsp/showAst',
-  lspFormatting = 'lsp/formatting',
-  lspFoldingRange = 'lsp/foldingRange',
 
   internalReady = 'ext/ready', // Internal Extension Request
   internalMessage = 'ext/message', // Internal Extension Request

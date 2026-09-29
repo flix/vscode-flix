@@ -80,6 +80,9 @@ export async function ensureReplExists(context: vscode.ExtensionContext, launchO
 async function launchRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
   const { cmd, args } = await getJvmCmd(context, launchOptions)
   args.push('repl')
+  // The terminal closes when the process exits, so without the pause an error which keeps the REPL
+  // from starting (e.g. a manifest which cannot be resolved) disappears before it can be read.
+  args.push('--pause-on-exit')
   args.push(...getExtraFlixArgs())
 
   // In single-file mode, set cwd to the active file's directory so the REPL

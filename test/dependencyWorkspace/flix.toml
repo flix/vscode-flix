@@ -1,9 +1,6 @@
 [package]
-name        = "dependencies-test"
-description = "test"
-version     = "0.1.0"
-flix        = "0.75.1"
-authors     = ["John Doe <john@example.com>"]
+version = "0.1.0"
+flix    = "0.78.0"
 
 [dependencies]
-"github:flix/extras" = { version = "0.2.0", security = "unrestricted" }
+"github:flix/extras" = { version = "0.3.0", security = "unrestricted" }

@@ -9,6 +9,7 @@ target
 test/activeWorkspace
 !test/activeWorkspace/.gitkeep
 flix.jar
+packages.lock
 *.vsix
 tsconfig.tsbuildinfo
 .DS_Store

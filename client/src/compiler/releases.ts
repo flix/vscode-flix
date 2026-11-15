@@ -8,9 +8,8 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as zlib from 'zlib'
 import * as util from 'util'
-import * as path from 'path'
 import { strict as nativeAssert } from 'assert'
-import { compareSemVer, SemVer } from '../util/semVer'
+import { parseSemVer, SemVer } from '../util/semVer'
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -62,47 +61,34 @@ export async function fetchRelease(
   const release = (await response.json()) as GithubRelease
   const flixRelease: FlixRelease = {
     url: release.url,
-    id: release.id,
     name: release.name,
     description: release.body,
     version: tagToVersion(release.tag_name),
     downloadUrl: release.assets[0].browser_download_url,
-    downloadedAt: Date.now(),
   }
   return flixRelease
 }
 
+/**
+ * Returns the version which the given tag of a release names, e.g. 0.81.0 for `v0.81.0`.
+ *
+ * @throws if the tag does not name a version. The compiler of a release is stored under its
+ *   version, so a release without one cannot be installed.
+ */
 function tagToVersion(tagName: string = ''): SemVer {
-  const versionString = tagName[0] === 'v' ? tagName.slice(1) : tagName
-  const [major, minor, patch] = versionString.split('.').map(s => parseInt(s))
-  return {
-    major,
-    minor,
-    patch,
+  const version = parseSemVer(tagName[0] === 'v' ? tagName.slice(1) : tagName)
+  if (version === undefined) {
+    throw new Error(`The release tag '${tagName}' is not a version`)
   }
-}
-
-export function firstNewerThanSecond(first: FlixRelease, second: FlixRelease): boolean {
-  if (
-    !second ||
-    !second.version ||
-    second.version.major === undefined ||
-    second.version.minor === undefined ||
-    second.version.patch === undefined
-  ) {
-    return true
-  }
-  return compareSemVer(first.version, second.version) > 0
+  return version
 }
 
 export interface FlixRelease {
   url: string
-  id: number
   name: string
   description: string
   version: SemVer
   downloadUrl: string
-  downloadedAt: number
 }
 
 // We omit declaration of tremendous amount of fields that we are not using here
@@ -125,24 +111,18 @@ interface DownloadOpts {
   dest: string
   mode?: number
   gunzip?: boolean
-  overwrite?: boolean
 }
 
+/**
+ * Downloads the artifact at `opts.url` to the file `opts.dest`, unless that file exists by the time
+ * the download is complete: a file which is in place is never replaced.
+ */
 export async function download(opts: DownloadOpts) {
-  // Put artifact into a temporary file (in the same dir for simplicity)
-  // to prevent partially downloaded files when user kills vscode
-  const dest = path.parse(opts.dest)
+  // Stage the artifact in a file of its own (in the same dir for simplicity), `<dest>.<random>.new`,
+  // to prevent partially downloaded files when user kills vscode. The random part keeps two windows
+  // which download the same artifact at once from writing to the same file.
   const randomHex = crypto.randomBytes(5).toString('hex')
-  const tempFile = path.join(dest.dir, `${dest.name}${randomHex}`)
-
-  if (opts.overwrite) {
-    // Unlinking the exe file before moving new one on its place should prevent ETXTBSY error.
-    await fs.promises.unlink(opts.dest).catch(err => {
-      if (err.code !== 'ENOENT') {
-        throw err
-      }
-    })
-  }
+  const tempFile = `${opts.dest}.${randomHex}.new`
 
   await vscode.window.withProgress(
     {
@@ -164,7 +144,13 @@ export async function download(opts: DownloadOpts) {
     },
   )
 
-  await fs.promises.rename(tempFile, opts.dest)
+  // Another window may have completed the same download in the meantime. Its file is the same as
+  // ours, and a process may already hold it open, which keeps it from being replaced on Windows.
+  if (fs.existsSync(opts.dest)) {
+    await fs.promises.unlink(tempFile)
+  } else {
+    await fs.promises.rename(tempFile, opts.dest)
+  }
 }
 
 async function downloadFile(

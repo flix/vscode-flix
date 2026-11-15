@@ -6,10 +6,10 @@ import * as jobs from './protocol/requests'
 import createLanguageClient from './lsp/clientFactory'
 
 import eventEmitter from './util/eventBus'
-import initialiseState from './compiler/installedVersion'
+import initialiseState from './compiler/globalState'
+import { downloadLatestFlix } from './compiler/download'
 import { FlixLspTerminal } from './ui/compilerTerminal'
 
-import { callResolversAndEmptyList } from './util/timers'
 import { registerFlixReleaseDocumentProvider } from './ui/releaseNotes'
 import { USER_MESSAGE } from './ui/messages'
 
@@ -20,7 +20,6 @@ import { getUserConfiguration, getCheckCount } from './lsp/notifications'
 import { showAst, allJobsFinished, addUri } from './commands/lspCommands'
 import { runMain, cmdTests } from './commands/replCommands'
 import { initSharedRepl, startRepl, disposeAllRepls, restartRepl } from './repl/manager'
-import { LaunchOptions, defaultLaunchOptions } from './util/launchOptions'
 import { isProjectMode, getFlixGlobPattern } from './util/workspace'
 
 let client: LanguageClient
@@ -55,19 +54,7 @@ function handleChangeEditor(editor: vscode.TextEditor | undefined) {
   }
 }
 
-function makeHandleRestartClient(context: vscode.ExtensionContext, launchOptions?: LaunchOptions) {
-  return async function handleRestartClient() {
-    callResolversAndEmptyList()
-    // Dispose all REPL terminals so their JVM processes release the lock on
-    // flix.jar — otherwise applyPendingUpdate cannot replace it on Windows.
-    disposeAllRepls()
-    await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
-      initSharedRepl(context, launchOptions)
-    })
-  }
-}
-
-export async function activate(context: vscode.ExtensionContext, launchOptions: LaunchOptions = defaultLaunchOptions) {
+export async function activate(context: vscode.ExtensionContext) {
   if (!isProjectMode()) {
     vscode.window.showWarningMessage(USER_MESSAGE.SINGLE_FILE_MODE())
   }
@@ -100,9 +87,9 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   }
 
   // Commands contributed in package.json, and so offered in the command palette.
-  registerCommand('flix.cmdDownload', makeHandleRestartClient(context, { shouldUpdateFlix: true }))
+  registerCommand('flix.cmdDownload', () => downloadLatestFlix(context.globalStorageUri.fsPath))
   registerCommand('flix.cmdShowAst', showAst(client))
-  registerCommand('flix.cmdStartRepl', startRepl(context, launchOptions))
+  registerCommand('flix.cmdStartRepl', startRepl())
 
   // Commands invoked from the code lenses the compiler provides. Registering them is enough for the
   // lens to resolve them; they are not contributed, so they never appear in the command palette.
@@ -110,8 +97,8 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // These two ids are not ours to choose: the compiler hard-codes them in CodeLensProvider.scala
   // and VS Code resolves a lens by the string the server sends. Renaming one here breaks the lens
   // until the compiler agrees, so they do not follow the cmd/lens/internal naming of the others.
-  registerCommand('flix.runMain', runMain(context, launchOptions))
-  registerCommand('flix.cmdTests', cmdTests(context, launchOptions))
+  registerCommand('flix.runMain', runMain())
+  registerCommand('flix.cmdTests', cmdTests())
 
   // Commands used by the test suite, reached with executeCommand. Not contributed either, for the
   // same reason.
@@ -133,7 +120,7 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     //
     // A manifest change reboots the REPL: the compiler is told to load the project again, which it
     // does in place, but the REPL resolved its dependencies when it was launched.
-    setupProjectWatchers(client, () => restartRepl(context, launchOptions))
+    setupProjectWatchers(client, restartRepl)
   } else {
     // In single-file mode there is no workspace folder to watch.
     setupSingleFileTracking(client)
@@ -147,12 +134,12 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
   // No REPL has been launched yet, so one which exists is a leftover of an earlier session. VS Code
   // can revive the terminal of a REPL when a window is restored, even though it is transient: it
   // launches the command line it was started with again, without asking us. Such a REPL is not
-  // ours to use, and its JVM process holds flix.jar open.
+  // ours to use, and it runs the compiler of that session, which may be older than ours.
   disposeAllRepls()
 
-  await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
+  await startSession(context, client, flixLspTerminal, () => {
     // start the Flix runner (but only after the Flix LSP instance has started.)
-    initSharedRepl(context, launchOptions)
+    initSharedRepl()
   })
 }
 

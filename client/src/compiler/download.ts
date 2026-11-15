@@ -65,7 +65,7 @@ async function applyPendingUpdate(globalStoragePath: string): Promise<void> {
       }
       return
     } catch (err) {
-      const { msg, option1, option2 } = USER_MESSAGE.ASK_APPLY_UPDATE_RETRY()
+      const { msg, option1, option2 } = USER_MESSAGE.ASK_APPLY_UPDATE_RETRY(targetFile)
       const selected = await vscode.window.showErrorMessage(msg, option1, option2)
       if (selected === option1) {
         continue

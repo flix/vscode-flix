@@ -98,9 +98,9 @@ export class USER_MESSAGE {
     }
   }
 
-  static ASK_APPLY_UPDATE_RETRY() {
+  static ASK_APPLY_UPDATE_RETRY(flixJarPath: string) {
     return {
-      msg: 'Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry.',
+      msg: `Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry. If this error persists, try deleting: ${flixJarPath}`,
       option1: 'Retry',
       option2: 'Dismiss',
     }

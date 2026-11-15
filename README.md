@@ -112,4 +112,4 @@ code --install-extension flix-$VERSION.vsix
 
 ## For Developers
 
-Information about running, debugging, and packaging the extension is available in [DEV.md](DEV.md).
+Information about contributing to the extension is available in [DEV.md](DEV.md).

@@ -144,6 +144,12 @@ export async function activate(context: vscode.ExtensionContext, launchOptions: 
     client.sendNotification(jobs.Request.internalReplaceConfiguration, getUserConfiguration())
   })
 
+  // No REPL has been launched yet, so one which exists is a leftover of an earlier session. VS Code
+  // can revive the terminal of a REPL when a window is restored, even though it is transient: it
+  // launches the command line it was started with again, without asking us. Such a REPL is not
+  // ours to use, and its JVM process holds flix.jar open.
+  disposeAllRepls()
+
   await startSession(context, launchOptions, client, outputChannel, flixLspTerminal, () => {
     // start the Flix runner (but only after the Flix LSP instance has started.)
     initSharedRepl(context, launchOptions)

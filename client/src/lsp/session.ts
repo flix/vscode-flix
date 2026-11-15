@@ -6,6 +6,7 @@ import ensureFlixExists from '../compiler/download'
 import showStartupProgress from '../ui/startupProgress'
 import eventEmitter from '../util/eventBus'
 import { FlixLspTerminal } from '../ui/compilerTerminal'
+import { disposeAllRepls } from '../repl/manager'
 import { discoverWorkspaceFiles } from './fileWatchers'
 import { setupNotificationListeners, getUserConfiguration } from './notifications'
 
@@ -37,6 +38,8 @@ export async function startSession(
     globalStoragePath,
     workspaceFolders,
     shouldUpdateFlix: launchOptions.shouldUpdateFlix,
+    // A REPL holds flix.jar open, which keeps a pending update from being applied on Windows.
+    releaseFlixJar: disposeAllRepls,
   })
 
   // A staged update was downloaded — a reload prompt is already showing.

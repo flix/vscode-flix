@@ -98,6 +98,10 @@ export class USER_MESSAGE {
     }
   }
 
+  static FLIX_JAR_NOT_FOUND() {
+    return 'Could not find flix.jar. Run "Flix: Download Latest Version" to download the Flix compiler.'
+  }
+
   static ASK_APPLY_UPDATE_RETRY(flixJarPath: string) {
     return {
       msg: `Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry. If this error persists, try deleting: ${flixJarPath}`,

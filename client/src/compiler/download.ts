@@ -14,16 +14,18 @@ import { compareSemVer, parseSemVer, SemVer, showSemVer } from '../util/semVer'
 const WORKSPACE_JAR = 'flix.jar'
 
 /**
- * The name under which a downloaded compiler is stored in global storage: `flix-X.Y.Z.jar`.
+ * The name under which a downloaded compiler is stored in global storage: `flix-X.Y.Z.jar`, where
+ * `X.Y.Z` is a semantic version, so its numbers have no leading zeros.
  *
  * Every version has a file of its own, and a file under such a name is never replaced or deleted.
  * A running compiler or REPL holds its jar open, which on Windows keeps the file from being
  * replaced or deleted, so installing a compiler must never depend on getting rid of another one.
  *
- * Anything else in global storage is ignored: a download which is still staged, and the `flix.jar`
- * and `flix.jar.new` of the layout which came before this one.
+ * Anything else in global storage is ignored, whatever it is called: a download which is still
+ * staged, the `flix.jar` and `flix.jar.new` of the layout which came before this one, and any
+ * other file, e.g. `flix-garbage`, `flix-0.90.jar` or `flix-0.090.0.jar`.
  */
-const VERSIONED_JAR = /^flix-(\d+\.\d+\.\d+)\.jar$/
+const VERSIONED_JAR = /^flix-((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\.jar$/
 
 /**
  * How long GitHub is left alone after it has told us what the latest release is.
@@ -70,16 +72,17 @@ function versionedJarPath(globalStoragePath: string, version: SemVer): string {
  * Returns the compiler with the highest version in global storage, if it holds one.
  *
  * Which compilers are installed is not recorded anywhere else: the filenames are the record.
+ * Whatever is not a file with exactly the name of a compiler is passed over.
  */
 function findHighestJar(globalStoragePath: string): FlixJar | undefined {
   // Global storage does not exist until the first compiler is downloaded.
-  const names = fs.existsSync(globalStoragePath) ? fs.readdirSync(globalStoragePath) : []
+  const entries = fs.existsSync(globalStoragePath) ? fs.readdirSync(globalStoragePath, { withFileTypes: true }) : []
 
   const jars: FlixJar[] = []
-  for (const name of names) {
-    const version = parseSemVer(VERSIONED_JAR.exec(name)?.[1] ?? '')
-    if (version !== undefined) {
-      jars.push({ filename: path.join(globalStoragePath, name), version })
+  for (const entry of entries) {
+    const version = parseSemVer(VERSIONED_JAR.exec(entry.name)?.[1] ?? '')
+    if (version !== undefined && entry.isFile()) {
+      jars.push({ filename: path.join(globalStoragePath, entry.name), version })
     }
   }
   return jars.sort((jar1, jar2) => compareSemVer(jar2.version, jar1.version))[0]

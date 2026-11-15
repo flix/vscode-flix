@@ -10,6 +10,19 @@ import { USER_MESSAGE } from '../ui/messages'
 const FLIX_JAR = 'flix.jar'
 const FLIX_JAR_NEW = 'flix.jar.new'
 
+/**
+ * The error codes with which Windows refuses to delete or replace a file that another process
+ * holds open.
+ */
+const FILE_LOCK_ERROR_CODES = ['EBUSY', 'EPERM', 'EACCES']
+
+/**
+ * How many times replacing a locked `flix.jar` is attempted, and how long is waited in between,
+ * before the user is asked: five seconds in all.
+ */
+const REPLACE_JAR_ATTEMPTS = 20
+const REPLACE_JAR_RETRY_DELAY_MS = 250
+
 async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promise<T> {
   while (true) {
     try {
@@ -32,23 +45,17 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
 }
 
 /**
- * If a staged `flix.jar.new` exists from a previous download, move it into
- * place.
+ * Moves the staged `pendingFile` into the place of `targetFile`.
  *
- * On Windows the unlink can fail with EBUSY / EPERM / EACCES when a JVM
- * process (e.g. Flix REPL) still holds a lock on the file. The caller
- * should dispose those terminals first, but if the lock persists we show
- * a retry dialog so the user can close the process manually.
+ * On Windows this fails with EBUSY / EPERM / EACCES for as long as a JVM process (e.g. a Flix
+ * REPL) holds the jar open. `releaseFlixJar` ends the processes we know of, but it only asks for
+ * them to be killed: they let go of the jar a moment later. A REPL terminal which VS Code revives
+ * from an earlier session can also show up, and open the jar, after the first sweep. A locked jar
+ * is therefore released and tried again for a few seconds before the failure is passed on.
  */
-async function applyPendingUpdate(globalStoragePath: string): Promise<void> {
-  const pendingFile = path.join(globalStoragePath, FLIX_JAR_NEW)
-  if (!fs.existsSync(pendingFile)) {
-    return
-  }
-
-  const targetFile = path.join(globalStoragePath, FLIX_JAR)
-
-  while (true) {
+async function replaceFlixJar(pendingFile: string, targetFile: string, releaseFlixJar: () => void): Promise<void> {
+  for (let attempt = 1; ; attempt++) {
+    releaseFlixJar()
     try {
       // Node.js fs.rename on Windows does NOT atomically replace an existing
       // file, so we must unlink first.
@@ -58,6 +65,36 @@ async function applyPendingUpdate(globalStoragePath: string): Promise<void> {
         }
       })
       await fs.promises.rename(pendingFile, targetFile)
+      return
+    } catch (err) {
+      if (attempt >= REPLACE_JAR_ATTEMPTS || !FILE_LOCK_ERROR_CODES.includes(err.code)) {
+        throw err
+      }
+      await new Promise(resolve => setTimeout(resolve, REPLACE_JAR_RETRY_DELAY_MS))
+    }
+  }
+}
+
+/**
+ * If a staged `flix.jar.new` exists from a previous download, move it into
+ * place.
+ *
+ * The jar cannot be replaced on Windows while a JVM process holds it open, so
+ * `releaseFlixJar` is called to end those processes: before the first attempt,
+ * and again whenever the jar turns out to be locked. If the lock persists we
+ * show a retry dialog so the user can close the process manually.
+ *
+ * @param releaseFlixJar Ends the processes which hold `flix.jar` open, i.e. disposes the REPLs.
+ */
+async function applyPendingUpdate(globalStoragePath: string, releaseFlixJar: () => void): Promise<void> {
+  const pendingFile = path.join(globalStoragePath, FLIX_JAR_NEW)
+  const targetFile = path.join(globalStoragePath, FLIX_JAR)
+
+  // Looked for again on every retry: once the staged jar is gone there is nothing left to apply,
+  // and trying anyway would only delete the jar which is in place.
+  while (fs.existsSync(pendingFile)) {
+    try {
+      await replaceFlixJar(pendingFile, targetFile, releaseFlixJar)
       // Show the changelog that was deferred from the download.
       const installedVersion = getInstalledFlixVersion()
       if (installedVersion) {
@@ -120,6 +157,35 @@ async function offerUpdate(globalStoragePath: string, flixRelease: FlixRelease):
 }
 
 /**
+ * Returns the path of the `flix.jar` in the first workspace folder which has one, if any.
+ */
+function findWorkspaceFlixJar(workspaceFolders: string[]): string | undefined {
+  return workspaceFolders.map(folder => path.join(folder, FLIX_JAR)).find(filename => fs.existsSync(filename))
+}
+
+/**
+ * Returns the path of the `flix.jar` which is on disk, or `undefined` if there is none.
+ *
+ * It looks in the places {@linkcode ensureFlixExists} does, in the same order, but it only looks:
+ * no pending update is applied, no newer version is offered and nothing is downloaded. All of that
+ * belongs to the start of a session, before the compiler has opened the jar. This is the one to
+ * call while a session is running, e.g. to launch a REPL.
+ *
+ * @param shouldUpdateFlix Whether the session was started by downloading a compiler. One is always
+ *   downloaded into `globalStoragePath`, so the workspace folders are passed over.
+ */
+export function findFlixJar({ globalStoragePath, workspaceFolders = [], shouldUpdateFlix }): string | undefined {
+  if (!shouldUpdateFlix) {
+    const workspaceJar = findWorkspaceFlixJar(workspaceFolders)
+    if (workspaceJar) {
+      return workspaceJar
+    }
+  }
+  const filename = path.join(globalStoragePath, FLIX_JAR)
+  return fs.existsSync(filename) ? filename : undefined
+}
+
+/**
  * Ensures that `flix.jar` is available, returning its path.
  *
  * Returns `undefined` when a new compiler was staged as `flix.jar.new` and a
@@ -130,25 +196,29 @@ async function offerUpdate(globalStoragePath: string, flixRelease: FlixRelease):
  *   2. `flix.jar` in `globalStoragePath`
  *   3. Download from GitHub
  *
+ * Only to be called at the start of a session: it replaces and downloads the jar, which a running
+ * compiler or REPL holds open. Use {@linkcode findFlixJar} to merely locate it.
+ *
  * @param workspaceFolders Workspace folder paths. Empty in single-file mode
  *   (no folder open), in which case step 1 is skipped.
+ * @param releaseFlixJar Ends the processes which hold `flix.jar` open, i.e. disposes the REPLs.
+ *   Called before a pending update is applied.
  */
 export default async function ensureFlixExists({
   globalStoragePath,
   workspaceFolders = [],
   shouldUpdateFlix,
+  releaseFlixJar,
 }): Promise<string | undefined> {
   // Apply any pending update downloaded in a previous session.
-  await applyPendingUpdate(globalStoragePath)
+  await applyPendingUpdate(globalStoragePath, releaseFlixJar)
 
   if (!shouldUpdateFlix) {
     // 1. If `flix.jar` exists in any workspace folder, use that
-    // In single-file mode workspaceFolders is [], so this loop is skipped.
-    for (const folder of workspaceFolders) {
-      const filename = path.join(folder, FLIX_JAR)
-      if (fs.existsSync(filename)) {
-        return filename
-      }
+    // In single-file mode workspaceFolders is [], so nothing is found.
+    const workspaceJar = findWorkspaceFlixJar(workspaceFolders)
+    if (workspaceJar) {
+      return workspaceJar
     }
     // 2. If `flix.jar` exists in `globalStoragePath`, use that
     const filename = path.join(globalStoragePath, FLIX_JAR)

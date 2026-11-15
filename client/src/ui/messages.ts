@@ -2,6 +2,14 @@ import { FlixRelease } from '../compiler/releases'
 import { SemVer, showSemVer } from '../util/semVer'
 
 export class USER_MESSAGE {
+  static ASK_APPLY_UPDATE_RETRY(flixJarPath: string) {
+    return {
+      msg: `Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry. If this error persists, try deleting: ${flixJarPath}`,
+      option1: 'Retry',
+      option2: 'Dismiss',
+    }
+  }
+
   static ASK_DOWNLOAD_NEW_FLIX(releaseName: string) {
     return {
       msg: `A new version of the Flix compiler (${releaseName}) is available. Download?`,
@@ -25,11 +33,25 @@ export class USER_MESSAGE {
     }
   }
 
+  static ASK_RELOAD_FOR_UPDATE() {
+    return {
+      msg: 'The new Flix compiler has been downloaded. Reload the window to apply the update.',
+      option1: 'Reload Now',
+    }
+  }
+
   static ASK_SAVE_CHANGED_FILES() {
     return {
       msg: 'The workspace contains unsaved files. Do you want to save?',
       option1: 'Run without saving',
       option2: 'Save all and run',
+    }
+  }
+
+  static ASK_UPDATE_EXTENSION(extensionVersion: SemVer, minVersion: SemVer) {
+    return {
+      msg: `The Flix extension (${showSemVer(extensionVersion)}) is too old for this Flix compiler, which requires version ${showSemVer(minVersion)} or later. Please update the extension.`,
+      option1: 'Show Extension',
     }
   }
 
@@ -45,8 +67,12 @@ export class USER_MESSAGE {
     return 'Program compiled successfully.'
   }
 
-  static RECOMPILING() {
-    return 'Recompiling'.padEnd(80, '.')
+  static FILE_NOT_PART_OF_PROJECT() {
+    return `Flix will only load source files from \`*.flix\`, \`src/**\`, and \`test/**\``
+  }
+
+  static FLIX_JAR_NOT_FOUND() {
+    return 'Could not find flix.jar. Run "Flix: Download Latest Version" to download the Flix compiler.'
   }
 
   static INFORM_DOWNLOAD_FLIX() {
@@ -64,6 +90,10 @@ export class USER_MESSAGE {
     return 'Starting Flix'
   }
 
+  static RECOMPILING() {
+    return 'Recompiling'.padEnd(80, '.')
+  }
+
   static SHOW_CHANGELOG(installedVersion: FlixRelease) {
     return (
       `# New Flix Release!\n` +
@@ -72,41 +102,11 @@ export class USER_MESSAGE {
     )
   }
 
-  static TIMEOUT(timeMS: number) {
-    return `Timeout after ${timeMS}ms`
-  }
-
-  static FILE_NOT_PART_OF_PROJECT() {
-    return `Flix will only load source files from \`*.flix\`, \`src/**\`, and \`test/**\``
-  }
-
   static SINGLE_FILE_MODE() {
     return 'Running in single-file mode. Open a folder for full project support.'
   }
 
-  static ASK_RELOAD_FOR_UPDATE() {
-    return {
-      msg: 'The new Flix compiler has been downloaded. Reload the window to apply the update.',
-      option1: 'Reload Now',
-    }
-  }
-
-  static ASK_UPDATE_EXTENSION(extensionVersion: SemVer, minVersion: SemVer) {
-    return {
-      msg: `The Flix extension (${showSemVer(extensionVersion)}) is too old for this Flix compiler, which requires version ${showSemVer(minVersion)} or later. Please update the extension.`,
-      option1: 'Show Extension',
-    }
-  }
-
-  static FLIX_JAR_NOT_FOUND() {
-    return 'Could not find flix.jar. Run "Flix: Download Latest Version" to download the Flix compiler.'
-  }
-
-  static ASK_APPLY_UPDATE_RETRY(flixJarPath: string) {
-    return {
-      msg: `Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry. If this error persists, try deleting: ${flixJarPath}`,
-      option1: 'Retry',
-      option2: 'Dismiss',
-    }
+  static TIMEOUT(timeMS: number) {
+    return `Timeout after ${timeMS}ms`
   }
 }

@@ -9,8 +9,7 @@
 The official Visual Studio Code extension for the [Flix Programming Language
 (flix.dev)](https://flix.dev/).
 
-Flix is a next-generation reliable, safe, concise, and functional-first
-programming language.
+Flix is a powerful effect-oriented programming language.
 
 Flix aims to have world-class Visual Studio Code support and our extension is
 based on the real Flix compiler infrastructure.
@@ -18,7 +17,7 @@ based on the real Flix compiler infrastructure.
 ## Features
 
 * __Semantic Syntax Highlighting__
-    - Code highlighting for *.flix files. This work best with the [official vscode theme](https://marketplace.visualstudio.com/items?itemName=flix.flixify-dark).
+    - Code highlighting for *.flix files. This works best with the [official vscode theme](https://marketplace.visualstudio.com/items?itemName=flix.flixify-dark).
 
 * __Diagnostics__
     - Compiler error messages.
@@ -48,6 +47,8 @@ based on the real Flix compiler infrastructure.
     - Find all references to a function.
     - Find all references to a local variable or formal parameter.
     - Find all references to an enum case.
+
+* __Go to Implementation__
     - Find all implementations of a trait.
 
 * __Symbols__
@@ -65,8 +66,17 @@ based on the real Flix compiler infrastructure.
 * __Highlight__
     - Highlights semantically related symbols.
 
-* __Semantic Tokens__
-    - Additional code highlighting hints provided by the compiler.
+* __Signature Help__
+    - Shows the parameters of a function as you type a call.
+
+* __Code Actions__
+    - Quick fixes suggested by the compiler.
+
+* __Formatting__
+    - Format the document.
+
+* __Folding__
+    - Fold regions of code.
 
 ## Installation
 

@@ -2,26 +2,43 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 
-import { download, fetchRelease, firstNewerThanSecond, FlixRelease } from './releases'
-import { openFlixReleaseOverview } from '../ui/releaseNotes'
-import { getInstalledFlixVersion, setInstalledFlixVersion } from './installedVersion'
+import { download, fetchRelease, FlixRelease } from './releases'
+import { getLastUpdateCheck, setLastUpdateCheck, setReleaseNotes } from './globalState'
+import { showNewReleaseNotes } from '../ui/releaseNotes'
 import { USER_MESSAGE } from '../ui/messages'
-
-const FLIX_JAR = 'flix.jar'
-const FLIX_JAR_NEW = 'flix.jar.new'
+import { compareSemVer, parseSemVer, SemVer, showSemVer } from '../util/semVer'
 
 /**
- * The error codes with which Windows refuses to delete or replace a file that another process
- * holds open.
+ * The name of a compiler which the user has put in a workspace folder.
  */
-const FILE_LOCK_ERROR_CODES = ['EBUSY', 'EPERM', 'EACCES']
+const WORKSPACE_JAR = 'flix.jar'
 
 /**
- * How many times replacing a locked `flix.jar` is attempted, and how long is waited in between,
- * before the user is asked: five seconds in all.
+ * The name under which a downloaded compiler is stored in global storage: `flix-X.Y.Z.jar`, where
+ * `X.Y.Z` is a semantic version, so its numbers have no leading zeros.
+ *
+ * Every version has a file of its own, and a file under such a name is never replaced or deleted.
+ * A running compiler or REPL holds its jar open, which on Windows keeps the file from being
+ * replaced or deleted, so installing a compiler must never depend on getting rid of another one.
+ *
+ * Anything else in global storage is ignored, whatever it is called: a download which is still
+ * staged, the `flix.jar` and `flix.jar.new` of the layout which came before this one, and any
+ * other file, e.g. `flix-garbage`, `flix-0.90.jar` or `flix-0.090.0.jar`.
  */
-const REPLACE_JAR_ATTEMPTS = 20
-const REPLACE_JAR_RETRY_DELAY_MS = 250
+const VERSIONED_JAR = /^flix-((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\.jar$/
+
+/**
+ * How long GitHub is left alone after it has told us what the latest release is.
+ */
+const UPDATE_CHECK_INTERVAL_MS = 1000 * 60 * 60 * 6
+
+/**
+ * A compiler in global storage.
+ */
+interface FlixJar {
+  filename: string
+  version: SemVer
+}
 
 async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promise<T> {
   while (true) {
@@ -45,77 +62,106 @@ async function downloadWithRetryDialog<T>(downloadFunc: () => Promise<T>): Promi
 }
 
 /**
- * Moves the staged `pendingFile` into the place of `targetFile`.
- *
- * On Windows this fails with EBUSY / EPERM / EACCES for as long as a JVM process (e.g. a Flix
- * REPL) holds the jar open. `releaseFlixJar` ends the processes we know of, but it only asks for
- * them to be killed: they let go of the jar a moment later. A REPL terminal which VS Code revives
- * from an earlier session can also show up, and open the jar, after the first sweep. A locked jar
- * is therefore released and tried again for a few seconds before the failure is passed on.
+ * Returns the path under which the compiler with the given `version` is stored.
  */
-async function replaceFlixJar(pendingFile: string, targetFile: string, releaseFlixJar: () => void): Promise<void> {
-  for (let attempt = 1; ; attempt++) {
-    releaseFlixJar()
-    try {
-      // Node.js fs.rename on Windows does NOT atomically replace an existing
-      // file, so we must unlink first.
-      await fs.promises.unlink(targetFile).catch(err => {
-        if (err.code !== 'ENOENT') {
-          throw err
-        }
-      })
-      await fs.promises.rename(pendingFile, targetFile)
-      return
-    } catch (err) {
-      if (attempt >= REPLACE_JAR_ATTEMPTS || !FILE_LOCK_ERROR_CODES.includes(err.code)) {
-        throw err
-      }
-      await new Promise(resolve => setTimeout(resolve, REPLACE_JAR_RETRY_DELAY_MS))
-    }
-  }
+function versionedJarPath(globalStoragePath: string, version: SemVer): string {
+  return path.join(globalStoragePath, `flix-${showSemVer(version)}.jar`)
 }
 
 /**
- * If a staged `flix.jar.new` exists from a previous download, move it into
- * place.
+ * Returns the compiler with the highest version in global storage, if it holds one.
  *
- * The jar cannot be replaced on Windows while a JVM process holds it open, so
- * `releaseFlixJar` is called to end those processes: before the first attempt,
- * and again whenever the jar turns out to be locked. If the lock persists we
- * show a retry dialog so the user can close the process manually.
- *
- * @param releaseFlixJar Ends the processes which hold `flix.jar` open, i.e. disposes the REPLs.
+ * Which compilers are installed is not recorded anywhere else: the filenames are the record.
+ * Whatever is not a file with exactly the name of a compiler is passed over.
  */
-async function applyPendingUpdate(globalStoragePath: string, releaseFlixJar: () => void): Promise<void> {
-  const pendingFile = path.join(globalStoragePath, FLIX_JAR_NEW)
-  const targetFile = path.join(globalStoragePath, FLIX_JAR)
+function findHighestJar(globalStoragePath: string): FlixJar | undefined {
+  // Global storage does not exist until the first compiler is downloaded.
+  const entries = fs.existsSync(globalStoragePath) ? fs.readdirSync(globalStoragePath, { withFileTypes: true }) : []
 
-  // Looked for again on every retry: once the staged jar is gone there is nothing left to apply,
-  // and trying anyway would only delete the jar which is in place.
-  while (fs.existsSync(pendingFile)) {
-    try {
-      await replaceFlixJar(pendingFile, targetFile, releaseFlixJar)
-      // Show the changelog that was deferred from the download.
-      const installedVersion = getInstalledFlixVersion()
-      if (installedVersion) {
-        openFlixReleaseOverview(installedVersion)
-      }
-      return
-    } catch (err) {
-      const { msg, option1, option2 } = USER_MESSAGE.ASK_APPLY_UPDATE_RETRY(targetFile)
-      const selected = await vscode.window.showErrorMessage(msg, option1, option2)
-      if (selected === option1) {
-        continue
-      }
-      return
+  const jars: FlixJar[] = []
+  for (const entry of entries) {
+    const version = parseSemVer(VERSIONED_JAR.exec(entry.name)?.[1] ?? '')
+    if (version !== undefined && entry.isFile()) {
+      jars.push({ filename: path.join(globalStoragePath, entry.name), version })
     }
+  }
+  return jars.sort((jar1, jar2) => compareSemVer(jar2.version, jar1.version))[0]
+}
+
+/**
+ * Asks GitHub for the latest release, and records when it answered.
+ */
+async function fetchLatestRelease(): Promise<FlixRelease> {
+  const release = await fetchRelease()
+  await setLastUpdateCheck(Date.now())
+  return release
+}
+
+/**
+ * Downloads the compiler of the given `release` into global storage, under its version.
+ *
+ * This is the only place a compiler is downloaded. The jar gets a name no other version has, so
+ * nothing which is running is in its way, whichever compiler it runs on.
+ *
+ * The release notes are stored, to be shown when a session first starts on the compiler.
+ */
+async function downloadRelease(globalStoragePath: string, release: FlixRelease): Promise<FlixJar> {
+  const filename = versionedJarPath(globalStoragePath, release.version)
+
+  await fs.promises.mkdir(globalStoragePath, { recursive: true })
+  await download({
+    url: release.downloadUrl,
+    dest: filename,
+    progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
+  })
+  await setReleaseNotes({ version: release.version, description: release.description, shown: false })
+
+  return { filename, version: release.version }
+}
+
+/**
+ * Returns the compiler to start on, given that `installed` is the highest one in global storage:
+ * the latest release if it is newer and the user wants it, and `installed` otherwise.
+ *
+ * Only to be called at the start of a session. Nothing is running yet at that point, so a compiler
+ * which is downloaded here is simply the one the session starts on: no reload is needed.
+ *
+ * @param askBeforeUpdate Whether the user is asked before a newer release is downloaded.
+ */
+async function updateFlix(globalStoragePath: string, installed: FlixJar, askBeforeUpdate: boolean): Promise<FlixJar> {
+  // Skip the update check if we checked under 6 hours ago
+  if (Date.now() < getLastUpdateCheck() + UPDATE_CHECK_INTERVAL_MS) {
+    return installed
+  }
+
+  try {
+    const release = await fetchLatestRelease()
+    if (compareSemVer(release.version, installed.version) <= 0) {
+      return installed
+    }
+
+    // Give the user the option to update if there's a newer version available
+    if (askBeforeUpdate) {
+      const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(release.name)
+      const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2)
+      if (updateResponse !== option1) {
+        return installed
+      }
+    }
+
+    return await downloadWithRetryDialog(() => downloadRelease(globalStoragePath, release))
+  } catch (error) {
+    // If the fetch request fails, we simply do not check for a new version of the compiler, and if
+    // the download fails, we start on the compiler we have.
+    // Since the extension can still work, avoid bothering the user.
+    return installed
   }
 }
 
 /**
  * Prompts the user to reload the window so the newly downloaded compiler
  * takes effect. Does not block — if the user dismisses the prompt, the
- * update is applied on the next window reload / restart.
+ * compiler is picked up the next time the window loads.
  */
 function promptReloadForUpdate() {
   const { msg, option1 } = USER_MESSAGE.ASK_RELOAD_FOR_UPDATE()
@@ -127,162 +173,67 @@ function promptReloadForUpdate() {
 }
 
 /**
- * Offers the user the newer `flixRelease`. If they accept, downloads it to a
- * staged `flix.jar.new` (so we don't disturb the jar the running compiler may
- * have locked), records it as the installed version, and prompts a reload.
+ * Downloads the latest release of the compiler, unless it is in global storage already.
  *
- * @returns `true` if a new version was staged — the caller should skip engine
- *   startup and let the update apply on the next reload; `false` if the user
- *   declined.
+ * The compiler and the REPLs of the window keep running on the jar they were started from: the
+ * new jar is a file of its own. A session chooses its compiler when the window loads, so a reload
+ * is offered, after which the new jar is the highest one and therefore the one started.
  */
-async function offerUpdate(globalStoragePath: string, flixRelease: FlixRelease): Promise<boolean> {
-  const { msg, option1, option2 } = USER_MESSAGE.ASK_DOWNLOAD_NEW_FLIX(flixRelease.name)
-  const updateResponse = await vscode.window.showInformationMessage(msg, option1, option2)
-  if (updateResponse !== option1) {
-    return false
+export async function downloadLatestFlix(globalStoragePath: string): Promise<void> {
+  const release = await downloadWithRetryDialog(fetchLatestRelease)
+
+  if (fs.existsSync(versionedJarPath(globalStoragePath, release.version))) {
+    vscode.window.showInformationMessage(USER_MESSAGE.INFORM_ALREADY_DOWNLOADED(release.name))
+    return
   }
 
-  const stagingFilename = path.join(globalStoragePath, FLIX_JAR_NEW)
-  await downloadWithRetryDialog(async () => {
-    await download({
-      url: flixRelease.downloadUrl,
-      dest: stagingFilename,
-      progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
-      overwrite: true,
-    })
-    await setInstalledFlixVersion(flixRelease, { showChangelog: false })
-  })
+  await downloadWithRetryDialog(() => downloadRelease(globalStoragePath, release))
   promptReloadForUpdate()
-  return true
 }
 
 /**
- * Returns the path of the `flix.jar` in the first workspace folder which has one, if any.
- */
-function findWorkspaceFlixJar(workspaceFolders: string[]): string | undefined {
-  return workspaceFolders.map(folder => path.join(folder, FLIX_JAR)).find(filename => fs.existsSync(filename))
-}
-
-/**
- * Returns the path of the `flix.jar` which is on disk, or `undefined` if there is none.
- *
- * It looks in the places {@linkcode ensureFlixExists} does, in the same order, but it only looks:
- * no pending update is applied, no newer version is offered and nothing is downloaded. All of that
- * belongs to the start of a session, before the compiler has opened the jar. This is the one to
- * call while a session is running, e.g. to launch a REPL.
- *
- * @param shouldUpdateFlix Whether the session was started by downloading a compiler. One is always
- *   downloaded into `globalStoragePath`, so the workspace folders are passed over.
- */
-export function findFlixJar({ globalStoragePath, workspaceFolders = [], shouldUpdateFlix }): string | undefined {
-  if (!shouldUpdateFlix) {
-    const workspaceJar = findWorkspaceFlixJar(workspaceFolders)
-    if (workspaceJar) {
-      return workspaceJar
-    }
-  }
-  const filename = path.join(globalStoragePath, FLIX_JAR)
-  return fs.existsSync(filename) ? filename : undefined
-}
-
-/**
- * Ensures that `flix.jar` is available, returning its path.
- *
- * Returns `undefined` when a new compiler was staged as `flix.jar.new` and a
- * window reload is needed — the caller should skip engine startup in that case.
+ * Ensures that a compiler is available, returning the path of its jar.
  *
  * Resolution order:
  *   1. `flix.jar` in any workspace folder (skipped in single-file mode)
- *   2. `flix.jar` in `globalStoragePath`
+ *   2. The highest `flix-X.Y.Z.jar` in `globalStoragePath`, or the latest release if it is newer
+ *      and the user wants it
  *   3. Download from GitHub
  *
- * Only to be called at the start of a session: it replaces and downloads the jar, which a running
- * compiler or REPL holds open. Use {@linkcode findFlixJar} to merely locate it.
+ * Only to be called at the start of a session. The jar it returns is the one the compiler and
+ * every REPL of the session are launched from, so that they all run the same version.
  *
  * @param workspaceFolders Workspace folder paths. Empty in single-file mode
  *   (no folder open), in which case step 1 is skipped.
- * @param releaseFlixJar Ends the processes which hold `flix.jar` open, i.e. disposes the REPLs.
- *   Called before a pending update is applied.
+ * @param askBeforeUpdate Whether the user is asked before a newer release is downloaded in step 2.
+ * @throws if there is no compiler and none can be downloaded.
  */
 export default async function ensureFlixExists({
   globalStoragePath,
   workspaceFolders = [],
-  shouldUpdateFlix,
-  releaseFlixJar,
-}): Promise<string | undefined> {
-  // Apply any pending update downloaded in a previous session.
-  await applyPendingUpdate(globalStoragePath, releaseFlixJar)
-
-  if (!shouldUpdateFlix) {
-    // 1. If `flix.jar` exists in any workspace folder, use that
-    // In single-file mode workspaceFolders is [], so nothing is found.
-    const workspaceJar = findWorkspaceFlixJar(workspaceFolders)
-    if (workspaceJar) {
-      return workspaceJar
-    }
-    // 2. If `flix.jar` exists in `globalStoragePath`, use that
-    const filename = path.join(globalStoragePath, FLIX_JAR)
-    if (fs.existsSync(filename)) {
-      // Only check for a newer version when we know which version is installed.
-      // Without this metadata we cannot compare versions, so we use the existing
-      // jar as-is instead of re-downloading it. This notably happens in the test
-      // environment, where the Memento is reset between runs (making
-      // `getInstalledFlixVersion()` return `undefined`) even though the jar on
-      // disk persists — the old behaviour re-staged `flix.jar.new` and prompted a
-      // reload on every run, hanging the test suite.
-      const installedFlixRelease = getInstalledFlixVersion()
-      if (installedFlixRelease) {
-        const sixHoursInMilliseconds = 1000 * 60 * 60 * 6
-
-        // skip the update check if we checked under 6 hours ago
-        if (Date.now() >= (installedFlixRelease.downloadedAt || 0) + sixHoursInMilliseconds) {
-          // Check if a newer version is available
-          try {
-            const flixRelease = await fetchRelease()
-            // Give the user the option to update if there's a newer version available
-            if (firstNewerThanSecond(flixRelease, installedFlixRelease)) {
-              const staged = await offerUpdate(globalStoragePath, flixRelease)
-              if (staged) {
-                return undefined
-              }
-            }
-          } catch (error) {
-            // If the fetch request fails, we simply do not check for a new version of the compiler.
-            // Since the extension can still work, avoid bothering the user.
-          }
-        }
-      }
-
-      return filename
-    }
-  }
-  // 3. Otherwise download into `globalStoragePath` (create folder if necessary)
-  const filename = path.join(globalStoragePath, FLIX_JAR)
-
-  if (!fs.existsSync(globalStoragePath)) {
-    fs.mkdirSync(globalStoragePath)
+  askBeforeUpdate,
+}: {
+  globalStoragePath: string
+  workspaceFolders?: string[]
+  askBeforeUpdate: boolean
+}): Promise<string> {
+  // 1. If `flix.jar` exists in any workspace folder, use that
+  // In single-file mode workspaceFolders is [], so nothing is found.
+  const workspaceJar = workspaceFolders
+    .map(folder => path.join(folder, WORKSPACE_JAR))
+    .find(filename => fs.existsSync(filename))
+  if (workspaceJar) {
+    return workspaceJar
   }
 
-  // If flix.jar already exists (and may be locked by the JVM), stage the
-  // download as flix.jar.new so we don't hit a file-lock error on Windows.
-  const flixJarExists = fs.existsSync(filename)
-  const downloadDest = flixJarExists ? path.join(globalStoragePath, FLIX_JAR_NEW) : filename
+  // 2. If a compiler exists in `globalStoragePath`, use the highest one, or a newer release
+  // 3. Otherwise download the latest release into `globalStoragePath`
+  const installed = findHighestJar(globalStoragePath)
+  const jar = installed
+    ? await updateFlix(globalStoragePath, installed, askBeforeUpdate)
+    : await downloadWithRetryDialog(async () => downloadRelease(globalStoragePath, await fetchLatestRelease()))
 
-  await downloadWithRetryDialog(async () => {
-    const flixRelease = await fetchRelease()
-    await download({
-      url: flixRelease.downloadUrl,
-      dest: downloadDest,
-      progressTitle: USER_MESSAGE.INFORM_DOWNLOAD_FLIX(),
-      overwrite: true,
-    })
-    await setInstalledFlixVersion(flixRelease, { showChangelog: !flixJarExists })
-  })
+  await showNewReleaseNotes(jar.version)
 
-  if (flixJarExists && downloadDest !== filename) {
-    promptReloadForUpdate()
-    return undefined
-  }
-
-  return filename
+  return jar.filename
 }

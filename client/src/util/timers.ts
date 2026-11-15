@@ -17,14 +17,6 @@
 import * as vscode from 'vscode'
 import { USER_MESSAGE } from '../ui/messages'
 
-// incrementing index to use as keys for resolver maps
-let indexCounter = 0
-
-// maintain a list of resolve functions to run when cleaning up
-let resolversToCleanUp: {
-  [idx: string]: { timer: NodeJS.Timeout; resolver: () => void }
-} = {}
-
 /**
  * Ensures the `resolver` is called eventually. Returns a function that should be called if everything works out.
  *
@@ -33,32 +25,12 @@ let resolversToCleanUp: {
  * @returns {() => void} Function that should be called when things work out
  */
 export function ensureCleanupEventually(resolver: () => void, timeout = 180) {
-  const index = `${indexCounter++}`
   const timer = setTimeout(() => {
     const msg = USER_MESSAGE.TIMEOUT(timeout)
     vscode.window.showErrorMessage(msg)
     resolver()
   }, timeout * 1000)
-  resolversToCleanUp[index] = {
-    timer,
-    resolver,
-  }
   return function cancelCleanupCrew() {
-    const resolverMap = resolversToCleanUp[index]
-    if (resolverMap) {
-      clearTimeout(resolverMap.timer)
-    }
-    delete resolversToCleanUp[index]
-  }
-}
-
-/**
- * Empty the map of resolvers, clearing their timeouts and calling each resolver.
- */
-export function callResolversAndEmptyList() {
-  for (const { timer, resolver } of Object.values(resolversToCleanUp)) {
     clearTimeout(timer)
-    resolver()
   }
-  resolversToCleanUp = {}
 }

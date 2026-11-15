@@ -4,28 +4,40 @@ import { LanguageClient } from 'vscode-languageclient/node'
 import * as jobs from '../protocol/requests'
 import ensureFlixExists from '../compiler/download'
 import showStartupProgress from '../ui/startupProgress'
-import eventEmitter from '../util/eventBus'
 import { FlixLspTerminal } from '../ui/compilerTerminal'
-import { disposeAllRepls } from '../repl/manager'
 import { discoverWorkspaceFiles } from './fileWatchers'
 import { setupNotificationListeners, getUserConfiguration } from './notifications'
 
 const extensionObject = vscode.extensions.getExtension('flix.flix')
 
+/**
+ * The jar of the compiler the session runs on, or `undefined` as long as none has been chosen.
+ */
+let sessionFlixJar: string | undefined
+
+/**
+ * Returns the path of the jar the session runs on, or `undefined` if the session has no compiler:
+ * either it is still being chosen, or there is none and it could not be downloaded.
+ *
+ * The jar is chosen once, when the session starts, and everything which runs Flix is launched from
+ * it. A newer compiler which is downloaded later is not used before the window is loaded again.
+ */
+export function getSessionFlixJar(): string | undefined {
+  return sessionFlixJar
+}
+
+/**
+ * Starts the session: chooses the compiler and tells the server to start it.
+ *
+ * A window has exactly one session, started when the extension is activated. The window has to be
+ * reloaded to start on another compiler.
+ */
 export async function startSession(
   context: vscode.ExtensionContext,
-  launchOptions: { shouldUpdateFlix?: boolean },
   client: LanguageClient,
-  outputChannel: vscode.OutputChannel,
   flixLspTerminal: FlixLspTerminal,
   onReady: () => void,
 ) {
-  // clear listeners from previous sessions
-  eventEmitter.removeAllListeners()
-
-  // clear outputs
-  outputChannel.clear()
-
   const globalStoragePath = context.globalStorageUri.fsPath
   const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)
 
@@ -37,16 +49,11 @@ export async function startSession(
   const flixFilename = await ensureFlixExists({
     globalStoragePath,
     workspaceFolders,
-    shouldUpdateFlix: launchOptions.shouldUpdateFlix,
-    // A REPL holds flix.jar open, which keeps a pending update from being applied on Windows.
-    releaseFlixJar: disposeAllRepls,
+    // Nobody answers a prompt under the test runner. A newer compiler is downloaded without
+    // asking instead, so that a local test run uses the latest one, as a run on CI does.
+    askBeforeUpdate: context.extensionMode !== vscode.ExtensionMode.Test,
   })
-
-  // A staged update was downloaded — a reload prompt is already showing.
-  // Skip engine startup so the user doesn't see a stale "Starting Flix" progress.
-  if (!flixFilename) {
-    return
-  }
+  sessionFlixJar = flixFilename
 
   // Show a startup progress that times out after 10 (default) seconds
   showStartupProgress()

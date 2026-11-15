@@ -1,15 +1,7 @@
-import { FlixRelease } from '../compiler/releases'
+import { ReleaseNotes } from '../compiler/globalState'
 import { SemVer, showSemVer } from '../util/semVer'
 
 export class USER_MESSAGE {
-  static ASK_APPLY_UPDATE_RETRY(flixJarPath: string) {
-    return {
-      msg: `Failed to update flix.jar — it may be locked by a running Flix process. Please close any Flix REPL terminals and retry. If this error persists, try deleting: ${flixJarPath}`,
-      option1: 'Retry',
-      option2: 'Dismiss',
-    }
-  }
-
   static ASK_DOWNLOAD_NEW_FLIX(releaseName: string) {
     return {
       msg: `A new version of the Flix compiler (${releaseName}) is available. Download?`,
@@ -75,6 +67,10 @@ export class USER_MESSAGE {
     return 'Could not find flix.jar. Run "Flix: Download Latest Version" to download the Flix compiler.'
   }
 
+  static INFORM_ALREADY_DOWNLOADED(releaseName: string) {
+    return `The latest version of the Flix compiler (${releaseName}) is already downloaded.`
+  }
+
   static INFORM_DOWNLOAD_FLIX() {
     return 'Downloading Flix Compiler'
   }
@@ -94,12 +90,8 @@ export class USER_MESSAGE {
     return 'Recompiling'.padEnd(80, '.')
   }
 
-  static SHOW_CHANGELOG(installedVersion: FlixRelease) {
-    return (
-      `# New Flix Release!\n` +
-      `## Version: ${showSemVer(installedVersion.version)}\n` +
-      `${installedVersion.description}`
-    )
+  static SHOW_CHANGELOG(releaseNotes: ReleaseNotes) {
+    return `# New Flix Release!\n` + `## Version: ${showSemVer(releaseNotes.version)}\n` + `${releaseNotes.description}`
   }
 
   static SINGLE_FILE_MODE() {

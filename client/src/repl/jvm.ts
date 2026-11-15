@@ -1,40 +1,20 @@
 import * as vscode from 'vscode'
-import { LaunchOptions } from '../util/launchOptions'
-import { findFlixJar } from '../compiler/download'
+import { getSessionFlixJar } from '../lsp/session'
 import { USER_MESSAGE } from '../ui/messages'
-
-/**
- * It takes context and launchOptions as arguments and finds the path of `flix.jar`
- *
- * The jar is only located: making sure that it exists and is up to date is left to the start of
- * the session. Doing it here as well would try to replace a jar which the running compiler holds
- * open, which fails on Windows.
- *
- * @param context vscode.ExtensionContext
- *
- * @param launchOptions LauchOptions
- *
- * @returns string (path of `flix.jar`), or `undefined` if there is no `flix.jar`
- */
-function getFlixFilename(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  const globalStoragePath = context.globalStorageUri.fsPath
-  const workspaceFolders = vscode.workspace.workspaceFolders?.map(ws => ws.uri.fsPath)
-  return findFlixJar({
-    globalStoragePath,
-    workspaceFolders,
-    shouldUpdateFlix: launchOptions.shouldUpdateFlix,
-  })
-}
 
 /**
  * Generate a java command to run the Flix compiler.
  *
- * @throws if there is no `flix.jar` to run.
+ * It runs the jar of the session, so that whatever is launched with it runs the same version as
+ * the compiler. Making sure that a jar exists and is up to date is left to the start of the
+ * session.
+ *
+ * @throws if the session has no jar to run.
  */
-export async function getJvmCmd(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+export async function getJvmCmd() {
   const args: string[] = []
   args.push(...getExtraJvmArgs())
-  const flixFilename = getFlixFilename(context, launchOptions)
+  const flixFilename = getSessionFlixJar()
   if (flixFilename === undefined) {
     throw new Error(USER_MESSAGE.FLIX_JAR_NOT_FOUND())
   }

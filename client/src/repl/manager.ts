@@ -1,6 +1,5 @@
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { LaunchOptions } from '../util/launchOptions'
 import { isProjectMode } from '../util/workspace'
 import { getJvmCmd, getExtraFlixArgs } from './jvm'
 
@@ -15,8 +14,8 @@ export function getFlixTerminal(): vscode.Terminal | null {
 
 /**
  * Disposes all Flix REPL terminals — including any orphaned ones from
- * earlier sessions — so their JVM processes release file locks (e.g. on
- * `flix.jar` on Windows).
+ * earlier sessions, which would otherwise keep running the compiler they
+ * were launched with, however old.
  */
 export function disposeAllRepls() {
   flixTerminal = null
@@ -30,8 +29,8 @@ export function disposeAllRepls() {
 /**
  * Creates and initializes persistent shared REPL on startup.
  */
-export async function initSharedRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  await launchRepl(context, launchOptions)
+export async function initSharedRepl() {
+  await launchRepl()
   vscode.window.onDidCloseTerminal(async terminal => {
     if ((await terminal.processId) === (await flixTerminal?.processId)) {
       flixTerminal = null
@@ -49,14 +48,14 @@ export async function initSharedRepl(context: vscode.ExtensionContext, launchOpt
  * Only the REPL held by {@linkcode flixTerminal} is disposed: a terminal the user renamed is no
  * longer ours.
  */
-export async function restartRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+export async function restartRepl() {
   // The close event compares the terminal it is given against the current one, so clearing the
   // handle before disposing keeps it from clearing the REPL launched just below.
   const previous = flixTerminal
   flixTerminal = null
   previous?.dispose()
 
-  await launchRepl(context, launchOptions)
+  await launchRepl()
 }
 
 /**
@@ -64,11 +63,11 @@ export async function restartRepl(context: vscode.ExtensionContext, launchOption
  *
  * @returns Whether or not a new REPL was launched.
  */
-export async function ensureReplExists(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+export async function ensureReplExists() {
   const missing = flixTerminal === null
 
   if (missing) {
-    await launchRepl(context, launchOptions)
+    await launchRepl()
   }
 
   return missing
@@ -77,8 +76,8 @@ export async function ensureReplExists(context: vscode.ExtensionContext, launchO
 /**
  * Launches a new REPL as a shell process.
  */
-async function launchRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
-  const { cmd, args } = await getJvmCmd(context, launchOptions)
+async function launchRepl() {
+  const { cmd, args } = await getJvmCmd()
   args.push('repl')
   // The terminal closes when the process exits, so without the pause an error which keeps the REPL
   // from starting (e.g. a manifest which cannot be resolved) disappears before it can be read.
@@ -107,9 +106,9 @@ async function launchRepl(context: vscode.ExtensionContext, launchOptions: Launc
  *
  * @returns function handler
  */
-export function startRepl(context: vscode.ExtensionContext, launchOptions: LaunchOptions) {
+export function startRepl() {
   return async () => {
-    await ensureReplExists(context, launchOptions)
+    await ensureReplExists()
     flixTerminal?.show()
   }
 }
